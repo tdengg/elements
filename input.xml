@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="inputtohtml.xsl" type="text/xsl"?>
+
+<input xsi:noNamespaceSchemaLocation="../../xml/excitinginput.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsltpath="../../xml/">
+  <title></title>
+  <structure speciespath="$EXCITINGDIR/species">
+    <crystal scale="4.3">
+      <basevect>0.5 -0.866025404 0.0     </basevect>
+      <basevect>0.5  0.866025404 0.0     </basevect>
+      <basevect>0.0  0.0         1 </basevect>
+    </crystal>
+    <species speciesfile="$element.xml">
+      <atom coord="0.33333334 0.66666667 0.25" />
+      <atom coord="0.66666667 0.33333334 0.75" />
+    </species>
+  </structure>
+  <groundstate ngridk="2 2 2" 
+               vkloff="0.0 0.0 0.0"
+           xctype="LSDAPerdew-Wang"
+           stype="gaussian"
+           swidth="0.1"></groundstate>
+  <properties>
+  </properties>
+</input>
