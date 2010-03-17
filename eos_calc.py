@@ -43,16 +43,16 @@ while i > -1:
 
 # set parameters for calculations here:
 
-calcnr = 'calc5' #calcnr = ['calc1']
+calcnr = 'calc6' #calcnr = ['calc1']
 param['covera'] = [1]
-param['ngridk'] = [4,6,8,10]#ngridk = [2,4,6,8,10]
+param['ngridk'] = [4,6,10]#ngridk = [2,4,6,8,10]
 param['scale'] = scale#scale = []
 param['swidth'] = [0.01,0.03,0.05]#swidth = [0.01,0.03,0.05,0.1]
 param['rgkmax'] = [4,6,8,10]
 #param['rgkmax'] = [4]
 
 
-calculation = calc.CreateCalc(structure, calcnr, mode, calculate = True, **param)#ngridk, swidth, element, scale)
+calculation = calc.CreateCalc(structure, calcnr, mode, calculate = False, **param)#ngridk, swidth, element, scale)
 paramlist = calculation.calc()
 
 check_calc.check(paramlist)

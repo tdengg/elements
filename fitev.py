@@ -151,12 +151,15 @@ class Birch(object):
         self.p = plt
             
     def minIn(self, ein, vin):
+        """ find minimum of total energy
+        """
         emin = min(ein)
         indexv = ein.index(emin)
         v0 = np.float32(vin[indexv])
         return v0, emin
         
     def fitev(self, par, v, ein):
+
         fite = []
         deltasq = []
         res = []

@@ -9,7 +9,7 @@ class Create(object):
         self.param = param
         self.excitingdir = excitingdir
         self.initpathCluster = param['rootdir_cluster']
-        print param['rootdir_cluster']
+        #print param['rootdir_cluster']
         self.fullcalcpath = param['rootdir_cluster'] + calcpath
         self.i = i
         #os.chdir(self.initpath + '/' + self.calcnr + '/')

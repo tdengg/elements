@@ -202,6 +202,33 @@ class CreateCalc(object):
   </properties>
 </input>"""%param
         
+        if self.structure == 'diamond':
+            inputxml = """<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="inputtohtml.xsl" type="text/xsl"?>
+
+<input xsi:noNamespaceSchemaLocation="../../xml/excitinginput.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsltpath="../../xml/">
+  <title></title>
+  <structure speciespath="%(path)sspecies">
+    <crystal scale="%(scale)s">
+      <basevect> -0.5  0.5  0.5</basevect>
+      <basevect>  0.5 -0.5  0.5</basevect>
+      <basevect>  0.5  0.5 -0.5</basevect>
+    </crystal>
+    <species speciesfile="%(element)s.xml">
+      <atom coord="0.00 0.00 0.00" />
+    </species>
+  </structure>
+  <groundstate ngridk="%(ngridk)s %(ngridk)s %(ngridk)s" 
+               rgkmax="%(rgkmax)s"
+               vkloff="0.0 0.0 0.0"
+           xctype="%(xctype)s"
+           stype="%(stype)s"
+           swidth="%(swidth)s"></groundstate>
+  <properties>
+  </properties>
+</input>"""%param
+        
         print '--------------------------------------------------------'
         
         f = open('./input.xml', 'w')
