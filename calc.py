@@ -34,7 +34,7 @@ import check_calc
 import submit_to_cluster
 
 class CreateCalc(object):
-    """create calculations
+    """Create calculations
     
         arguments:  -root directory(type::string)
                     -structure(type::string)
@@ -88,7 +88,7 @@ class CreateCalc(object):
         
         if self.calctype == 'parallel':
             #submit job
-            submit_to_cluster.submit(param['path_cluster'])
+            submit_to_cluster.submit(self.kwargs['path_cluster'][0])
             # read total energy and check calculation status
             j=0
             while j<100:
@@ -102,6 +102,50 @@ class CreateCalc(object):
                 time.sleep(120)
                 j=j+1
         
+        
+        return self.paramlist
+    
+    def calcDependentParam(self, dependent_param = []):
+        """Set up calculation with dependent Parameters
+        """
+        inputpar = {'xctype':'LSDAPerdew-Wang','stype':'Gaussian'}
+    
+        i=0
+        for key in self.kwargs:
+            inputpar[key] = self.kwargs[key][0]
+        
+        #print inputpar
+        #print self.kwargs
+        for key in self.kwargs:
+            for par in self.kwargs[key]:
+                inputpar[key] = par
+                    
+                for key2 in self.kwargs:
+                    j=0
+                    for par2 in self.kwargs[key2]:
+                        if key2 in dependent_param:
+                            for dep in dependent_param:
+                                #print inputpar[dep]
+                                inputpar[dep] = self.kwargs[dep][j]
+                        else:
+                            inputpar[key2] = par2
+                        self.calcpath = self.calcnr + '/' + str(inputpar['element']) + '/' + str(inputpar['covera']) + '/' + str(inputpar['rgkmax']) + '/' + str(inputpar['swidth']) + '/' + str(inputpar['ngridk']) + '/' + str(inputpar['scale']) + '/'
+                        inputpar['eospath'] = inputpar['rootdir'] + self.calcnr + '/' + str(inputpar['element']) + '/' + str(inputpar['covera']) + '/' + str(inputpar['rgkmax']) + '/' + str(inputpar['swidth']) + '/' + str(inputpar['ngridk']) + '/'
+                        inputpar['calcpath'] = self.calcpath
+                        if inputpar.values() in self.values:
+                            continue
+                        
+                        self.paramlist.append(dict(zip(list(inputpar),inputpar.values())))
+                        self.values.append(inputpar.values())
+                        self.createInput(inputpar, i)
+                        if self.calctype == 'serial' and self.calculate==True:
+                            self.toten.append(self.readToten(inputpar))
+                            self.calcxml(inputpar, i, self.toten[i])
+                            outfile = self.writeOutput(inputpar, self.toten[i])
+                        elif self.calctype == 'parallel':
+                            self.calcxml(inputpar, i, [])
+                        j=j+1
+                        i=i+1
         
         return self.paramlist
         
@@ -119,7 +163,7 @@ class CreateCalc(object):
         
         if self.structure == 'hcp':
             
-            param['ngridkz'] = round(param['ngridk']/param['covera'],0)
+            param['ngridkz'] = int(round(param['ngridk']/param['covera'],0))
             #print param['ngridkz']
             inputxml = """<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="inputtohtml.xsl" type="text/xsl"?>
@@ -229,7 +273,7 @@ class CreateCalc(object):
   </properties>
 </input>"""%param
         
-        print '--------------------------------------------------------'
+        
         
         f = open('./input.xml', 'w')
         f.write(inputxml)
@@ -238,17 +282,19 @@ class CreateCalc(object):
         
         # start calculation (serial)
         if self.calctype == 'serial' and self.calculate == True:
+            print '--------------------------------------------------------'
             print("""Element is %(element)s
-Exp. lattice constant a   =  %(scale)s  [Bohr]
-Exp. lattice constant c/a =  %(covera)s [Bohr]
-k-points grid is  %(ngridk)s %(ngridk)s %(ngridk)s
-XC from " %(xctype)s
-Broadening width =  %(swidth)s [Hartree] 
-Broadening type is %(stype)s""")%param
+Lattice constant a   =  %(scale)s  [Bohr]
+c/a =                   %(covera)s
+rgkmax =                %(rgkmax)s
+k-points grid is        %(ngridk)s %(ngridk)s %(ngridk)s
+XC from                 %(xctype)s
+Broadening width =      %(swidth)s [Hartree] 
+Broadening type is      %(stype)s""")%param
+
             print '--------------------------------------------------------'
             process = subprocess.Popen(param['path'] + 'bin/excitingser', shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-
-
+            
             output, dump = process.communicate()
             protocoll.write(str(output))
             protocoll.close()

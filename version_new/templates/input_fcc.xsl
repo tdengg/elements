@@ -15,7 +15,7 @@
 <xsl:for-each select = "/experiment/set">
  
   <!-- Define path here -->
-  <xsl:variable name="path">/fshome/tde/test/calctemp/<xsl:value-of select="./@path"/>/input.xml</xsl:variable>
+  <xsl:variable name="path"><xsl:value-of select="/rootdir/@path"/><xsl:value-of select="./@path"/>/input.xml</xsl:variable>
 
  <!-- Write document at Path $path -->
   <xsl:document href="{$path}" method="xml" indent="yes">
@@ -46,17 +46,18 @@
 <xsl:element name="crystal">
  <xsl:attribute name="scale"><xsl:value-of select="@scale"/></xsl:attribute>
 
-<basevect>1  1  0</basevect>
-<basevect>1  0  1</basevect>
-<basevect>0  1  1</basevect>
+		<basevect>-0.5 0.5 0</basevect>
+      	<basevect> 0.5 0   0.5</basevect>
+      	<basevect> 0   0.5 0.5</basevect>
 </xsl:element>
 <species speciesfile="Al.xml">
-<atom coord="0.0  0.0  0.0" bfcmt="0.0  0.0  0.0"></atom>
+<xsl:attribute name = "speciesfile"><xsl:value-of select="@species"/></xsl:attribute>
+	<atom coord="0 0 0" />
 </species>
 </structure>
  
 <groundstate vkloff="0.5  0.5  0.5"   mixer="msec">
-  <xsl:attribute name="ngkgrid"><xsl:value-of select="@ngkgrid"/></xsl:attribute>
+  <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/></xsl:attribute>
   <xsl:attribute name="rgkmax"><xsl:value-of select="@rgkmax"/></xsl:attribute>
 </groundstate>
 </input>

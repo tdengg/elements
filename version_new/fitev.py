@@ -29,7 +29,7 @@ import random
 import convert_latt_vol
 
 class Birch(object):
-    def __init__(self, param, calcnr, structure, *args):
+    def __init__(self, *args):
         
         verbose = False
         self.verbose = verbose
@@ -37,7 +37,7 @@ class Birch(object):
         ein = []
         v = []
         diff = []
-        
+        structure = 'bcc'
         ## start parameters:
         b0 = np.float32(0.004) # Bulk-Modulus
         db0 = np.float32(3.)   # derivative of Bulk-Modulus with respect to V 
@@ -101,11 +101,11 @@ class Birch(object):
             latt = (4. * parnew1[0,0])**(1./3.)
         elif structure == 'bcc':
             latt = (4. * parnew1[0,0])**(1./3.)
-        elif structure == 'hcp' and len(args) == 0:
+        #elif structure == 'hcp' and len(args) == 0:
             #covera = input('c over a ratio: ')
-            latta = (parnew1[0,0]/(param['covera']*0.866))**(1./3.)
-            lattc = latta * param['covera']
-        if verbose == True:            
+            #latta = (parnew1[0,0]/(param['covera']*0.866))**(1./3.)
+            #lattc = latta * param['covera']
+        """if verbose == True:
             print('---------------------------------------')
             print('volume:                     ' + str(parnew1[0,0]) + ' Bohr')
             print('---------------------------------------')
@@ -124,12 +124,12 @@ class Birch(object):
             print('derivative of Bulk-Modulus: ' + str(parnew1[0,2]))
             print('---------------------------------------')
             print('minimal energy:             ' + str(parnew1[0,3]) + ' Hartree')
-            print('---------------------------------------')
-        else:
-            if structure == 'fcc' or structure == 'bcc':
-                print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
-            elif structure == 'hcp':
-                print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
+            print('---------------------------------------')"""
+        #else:
+        if structure == 'fcc' or structure == 'bcc':
+            print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
+        elif structure == 'hcp':
+            print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
@@ -137,7 +137,7 @@ class Birch(object):
         #print len(lv)
         #print len(plote)
         
-        plt.plot(lv, plote, '', label = 'ngridk: ' + str(param['ngridk']) + '  swidth: ' + str(param['swidth']))
+        plt.plot(lv, plote, '', label = 'ngridk: ' + '8' + '  swidth: ' + '0.03')
         plt.plot(v, ein, '.')
         plt.xlabel(r'$volume$   $[{Bohr^3}]$')
         plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
@@ -170,14 +170,14 @@ class Birch(object):
         fite = []
         deltasq = []
         res = []
-        v0 = par[0,0]
-        b0 = par[0,1]
-        db0 = par[0,2]
-        emin = par[0,3]
+        v0 = np.float32(par[0,0])
+        b0 = np.float32(par[0,1])
+        db0 = np.float32(par[0,2])
+        emin = np.float32(par[0,3])
         i=0
         while i < len(v):
                 
-            vov = (v0/v[i])**(2./3.)
+            vov = (v0/np.float32(v[i]))**(2./3.)
             fite.append(float(emin + 9. * v0 * b0/16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov))))
             if len(v) == len(ein):
                 deltasq.append((fite[i] - ein[i])**2.)
@@ -193,23 +193,24 @@ class Birch(object):
         defit_ddB = []
         defit_demin = []
         jacobian = []
-        v0 = aold[0,0]
-        b0 = aold[0,1]
-        db0 = aold[0,2]
-        emin = aold[0,3]
+        v0 = np.float32(aold[0,0])
+        b0 = np.float32(aold[0,1])
+        db0 = np.float32(aold[0,2])
+        emin = np.float32(aold[0,3])
         while i < len(v):
+	    vi = np.float32(v[i])
             ## Jacobian: 
             #  derivative of efit with respect to V0
-            a = 3. * db0 * ((v0 / v[i]**(2./3.) - v0**(1./3.) )**2. * (1. / v[i]**(2./3.) - 1./3. * v0**(-2./3.)))
-            b = 2. * ((v0**(7./6.) / v[i]**(2./3.) - v0**(1./2.)) * (7./6. * v0**(1./6.) / v[i]**(2./3.) - 0.5 * v0 ** (-1./2.)) * (6. - 4. * (v0/v[i])**(2./3.)))
-            c = (v0**(7./6.) / v[i]**(2./3.) - v0**(1./2.))**2. * (-8./3. * v0**(-1./3.) / v[i]**(2./3.))
+            a = 3. * db0 * ((v0 / vi**(2./3.) - v0**(1./3.) )**2. * (1. / vi**(2./3.) - 1./3. * v0**(-2./3.)))
+            b = 2. * ((v0**(7./6.) / vi**(2./3.) - v0**(1./2.)) * (7./6. * v0**(1./6.) / vi**(2./3.) - 0.5 * v0 ** (-1./2.)) * (6. - 4. * (v0/vi)**(2./3.)))
+            c = (v0**(7./6.) / vi**(2./3.) - v0**(1./2.))**2. * (-8./3. * v0**(-1./3.) / vi**(2./3.))
                 
             defit_dV.append((-9.)/16.* b0 * (a + b + c))
             #  derivative of efit with respect to B0
-            vov = (v0/v[i])**(2./3.)
+            vov = (v0/vi)**(2./3.)
             defit_dB.append((-9.) * v0 / 16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov)))
             #  derivative of efit with respect to dB0
-            defit_ddB.append((-9.) / 16. * b0 * (v0 / v[i]**(2./3.) - v0**(1./3.))**3.)
+            defit_ddB.append((-9.) / 16. * b0 * (v0 / vi**(2./3.) - v0**(1./3.))**3.)
             #  derivative of efit with respect to emin    
             defit_demin.append(-1)
                 
@@ -223,6 +224,7 @@ class Birch(object):
         
         A = np.matrix(jacobian)
         r = np.array(res)
+	print A, r
         B = np.dot(np.transpose(A),A)
         C = np.dot(np.transpose(A),(r))
         delta = np.transpose(linalg.solve(B,np.transpose(C)))

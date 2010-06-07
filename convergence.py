@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 import calc
 import fitev
+import check_calc
 
 class ConvergenceTest(object):
     def __init__(self, structure, calcnr, calctype, **kwargs):
@@ -12,6 +13,7 @@ class ConvergenceTest(object):
         self.kwargs = kwargs
     
     def convergence(self):
+        scale = []
         values = []
         a = []
         v = []
@@ -20,16 +22,19 @@ class ConvergenceTest(object):
         b0 = []
         db0 = []
         emin = []
-        azero = kwargs['scale']
+        azero = self.kwargs['scale'][0]
         etamax = 0.05
         i=10
         while i > -1:
             scale.append(azero - (i-5)*etamax)
             i = i-1
         
+        self.kwargs['scale'] = scale
         calculation = self.calcnr + '/convergence'
-        calculation = calc.CreateCalc(self.structure, calculation, self.calctype, calculate = False, **self.kwargs)
+        calculation = calc.CreateCalc(self.structure, calculation, self.calctype, calculate = True, **self.kwargs)
         paramlist = calculation.calc()
+        
+        rest = check_calc.check(paramlist)
         for param in paramlist:
             if param['eospath'] in values:
                 continue
@@ -46,7 +51,6 @@ class ConvergenceTest(object):
             db0.append(eosFit.out2)
             emin.append(eosFit.out3)
             
-            print emin
         
         #for param in paramlist:
         #    n = len(param[key])

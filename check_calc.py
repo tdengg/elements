@@ -15,7 +15,6 @@ def check(allpar):
             ev = open('./ev', 'a')
             ev.writelines(str(param['scale']) + '    ' + str(param['toten']))
             ev.close()
-            
         else:
             remaining.append(param)
     #print allpar
