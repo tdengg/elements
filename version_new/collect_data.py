@@ -1,65 +1,79 @@
 import xml.etree.ElementTree as etree
+
+import convert_latt_vol
 import fitev
 
 class XmlToFit(object):
     def __init__(self, root):
+        structure = 'hcp'
+        
+        self.numb = 0
         self.root = root
-        scale, volume, toten = self.birch()
-        #print scale, volume, toten
+        param = self.birch()
+        conv = convert_latt_vol.Convert(structure)
+        l, v = conv.lattToVolume(param)
+        nvol = len(l)/self.numb
         i=0
-        while i<7:
-            self.fiteos(scale, volume, toten)
+        while i<self.numb:
+            self.fiteos(l[i*nvol:(i+1)*nvol], v[i*nvol:(i+1)*nvol], param['toten'][i*nvol:(i+1)*nvol], structure)
+            i=i+1
+
+        
         
     def covera(self):
+        param = {}
         scale = []
         toten = []
         covera = []
         volume = []
-        f = etree.parse(self.root + 'coa_data_new.xml')
+        f = etree.parse(self.root + 'coa_data.xml')
         root = f.getroot()
         graphs = f.getiterator('graph')
         for graph in graphs:
             points = graph.getiterator('point')
             for point in points:
-                scale.append(float(point.get('scale')))
-                covera.append(float(point.get('covera')))
-                toten.append(float(point.get('totalEnergy')))
-                volume.append(float(point.get('volume')))
-        return scale, covera, toten
+                scale.append(point.get('scale'))
+                covera.append(point.get('covera'))
+                toten.append(point.get('totalEnergy'))
+        param['scale'] = scale
+        param['toten'] = toten
+        param['covera'] = covera
+        return param
         
     def birch(self):
+        param = {}
         scale = []
         toten = []
-        volume = []
-        f = etree.parse(self.root + 'eos_data_new.xml')
+        covera = []
+        f = etree.parse(self.root + 'eos_data.xml')
         root = f.getroot()
     	graphs = f.getiterator('graph')
+        self.numb = len(graphs)
         n=0
     	for graph in graphs:
-            #scale.append(graph.get('scale'))
-            #toten.append(graph.get('totalEnergy'))
-            #volume.append(graph.get('volume'))
     		points = graph.getiterator('point')
-            	print graph
     		for point in points:
-    			scale.append(point.get('scale'))
-    			toten.append(point.get('totalEnergy'))
-                volume.append(point.get('volume'))
-                print point.get('volume')
-                print point.get('scale')
-                print n
+    			scale.append(float(point.get('scale')))
+    			toten.append(float(point.get('totalEnergy')))
+                try:
+                    covera.append(float(point.get('covera')))
+                except:
+                    covera.append(0)
                 n=n+1
-                
-    	return scale, volume, toten
+        param['scale'] = scale
+        param['toten'] = toten
+        param['covera'] = covera
+    	return param
         
-    def fiteos(self, scale, volume, toten):
+    def fiteos(self, scale, volume, toten, structure):
         a=[]
         v = []
         ein = []
         vol0 = [] 
         b0 = []
+        db0 = []
         emin = []
-        eosFit = fitev.Birch(scale,volume,toten)
+        eosFit = fitev.Birch(structure, scale,volume,toten)
             
         a.append(eosFit.a)
         v.append(eosFit.v)
@@ -70,5 +84,7 @@ class XmlToFit(object):
         b0.append(eosFit.out1)
         db0.append(eosFit.out2)
         emin.append(eosFit.out3)
-test = XmlToFit('/fshome/tde/cluster/calc4/')
+        print a, v
+        
+test = XmlToFit('/home/tom/cluster/calcs/calc2/')
 #test.covera()

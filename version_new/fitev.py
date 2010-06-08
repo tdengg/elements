@@ -29,7 +29,7 @@ import random
 import convert_latt_vol
 
 class Birch(object):
-    def __init__(self, *args):
+    def __init__(self, structure, *args):
         
         verbose = False
         self.verbose = verbose
@@ -37,7 +37,7 @@ class Birch(object):
         ein = []
         v = []
         diff = []
-        structure = 'bcc'
+        
         ## start parameters:
         b0 = np.float32(0.004) # Bulk-Modulus
         db0 = np.float32(3.)   # derivative of Bulk-Modulus with respect to V 
@@ -57,10 +57,10 @@ class Birch(object):
             conv = convert_latt_vol.Convert(structure)
             l, v = conv.lattToVolume(param, a)
         else:
-            print args
             l = args[0]
             v = args[1]
             ein = args[2]
+            a=l
             
         v0, emin = self.minIn(ein,v)
         
@@ -134,9 +134,6 @@ class Birch(object):
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
         
-        #print len(lv)
-        #print len(plote)
-        
         plt.plot(lv, plote, '', label = 'ngridk: ' + '8' + '  swidth: ' + '0.03')
         plt.plot(v, ein, '.')
         plt.xlabel(r'$volume$   $[{Bohr^3}]$')
@@ -145,7 +142,6 @@ class Birch(object):
         
         #plt.show()
                 
-        #print(minIn([4,3,2,1,3,5],[2.2,3.2,4.2,5.2,6.2,7.2]))
         self.out0 = parnew1[0,0]
         self.out1 = parnew1[0,1]*2.942104*10**4.
         self.out2 = parnew1[0,2]
@@ -170,14 +166,14 @@ class Birch(object):
         fite = []
         deltasq = []
         res = []
-        v0 = np.float32(par[0,0])
-        b0 = np.float32(par[0,1])
-        db0 = np.float32(par[0,2])
-        emin = np.float32(par[0,3])
+        v0 = par[0,0]
+        b0 = par[0,1]
+        db0 = par[0,2]
+        emin = par[0,3]
         i=0
         while i < len(v):
                 
-            vov = (v0/np.float32(v[i]))**(2./3.)
+            vov = (v0/v[i])**(2./3.)
             fite.append(float(emin + 9. * v0 * b0/16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov))))
             if len(v) == len(ein):
                 deltasq.append((fite[i] - ein[i])**2.)
@@ -193,24 +189,23 @@ class Birch(object):
         defit_ddB = []
         defit_demin = []
         jacobian = []
-        v0 = np.float32(aold[0,0])
-        b0 = np.float32(aold[0,1])
-        db0 = np.float32(aold[0,2])
-        emin = np.float32(aold[0,3])
+        v0 = aold[0,0]
+        b0 = aold[0,1]
+        db0 = aold[0,2]
+        emin = aold[0,3]
         while i < len(v):
-	    vi = np.float32(v[i])
             ## Jacobian: 
             #  derivative of efit with respect to V0
-            a = 3. * db0 * ((v0 / vi**(2./3.) - v0**(1./3.) )**2. * (1. / vi**(2./3.) - 1./3. * v0**(-2./3.)))
-            b = 2. * ((v0**(7./6.) / vi**(2./3.) - v0**(1./2.)) * (7./6. * v0**(1./6.) / vi**(2./3.) - 0.5 * v0 ** (-1./2.)) * (6. - 4. * (v0/vi)**(2./3.)))
-            c = (v0**(7./6.) / vi**(2./3.) - v0**(1./2.))**2. * (-8./3. * v0**(-1./3.) / vi**(2./3.))
+            a = 3. * db0 * ((v0 / v[i]**(2./3.) - v0**(1./3.) )**2. * (1. / v[i]**(2./3.) - 1./3. * v0**(-2./3.)))
+            b = 2. * ((v0**(7./6.) / v[i]**(2./3.) - v0**(1./2.)) * (7./6. * v0**(1./6.) / v[i]**(2./3.) - 0.5 * v0 ** (-1./2.)) * (6. - 4. * (v0/v[i])**(2./3.)))
+            c = (v0**(7./6.) / v[i]**(2./3.) - v0**(1./2.))**2. * (-8./3. * v0**(-1./3.) / v[i]**(2./3.))
                 
             defit_dV.append((-9.)/16.* b0 * (a + b + c))
             #  derivative of efit with respect to B0
-            vov = (v0/vi)**(2./3.)
+            vov = (v0/v[i])**(2./3.)
             defit_dB.append((-9.) * v0 / 16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov)))
             #  derivative of efit with respect to dB0
-            defit_ddB.append((-9.) / 16. * b0 * (v0 / vi**(2./3.) - v0**(1./3.))**3.)
+            defit_ddB.append((-9.) / 16. * b0 * (v0 / v[i]**(2./3.) - v0**(1./3.))**3.)
             #  derivative of efit with respect to emin    
             defit_demin.append(-1)
                 
@@ -224,7 +219,6 @@ class Birch(object):
         
         A = np.matrix(jacobian)
         r = np.array(res)
-	print A, r
         B = np.dot(np.transpose(A),A)
         C = np.dot(np.transpose(A),(r))
         delta = np.transpose(linalg.solve(B,np.transpose(C)))

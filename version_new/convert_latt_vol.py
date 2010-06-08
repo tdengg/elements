@@ -23,7 +23,7 @@ class Convert(object):
             latt = inputpar['scale']
         for a in latt:
             if self.structure == 'hcp':
-                covera = inputpar['covera']
+                covera = inputpar['covera'][0]
                 vol.append(float(a)**3. * covera * 3.**(1./2.)/2.)
             if self.structure == 'fcc':
                 vol.append(float(a)**3./4.)

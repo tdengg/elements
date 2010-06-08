@@ -48,6 +48,10 @@
 							<xsl:attribute name="path">
 								<xsl:value-of select="$fullpath"></xsl:value-of>
 							</xsl:attribute>
+							
+							<xsl:attribute name="covera">
+								<xsl:value-of select="@covera"></xsl:value-of>
+							</xsl:attribute>
 				
 							<xsl:attribute name="totalEnergy">
 								<xsl:value-of select="document($infopath)//iter[last()]/energies/@totalEnergy"/>

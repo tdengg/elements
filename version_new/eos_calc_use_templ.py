@@ -1,5 +1,6 @@
 import subprocess
 import os
+import time
 
 #import search_dir as search
 
@@ -7,30 +8,40 @@ class CALC(object):
     def __init__(self, parameters):
         #param = parameters
         
-        rootdir = "/home/tde/test/calctemp/"
+        rootdir = "/home/tde/test/calc3/"
         execpath = "/home/tde/elements/templates/"
         usr = "tde"
         
         param = {}
         scale = []
+	covera = []
         
-        azero = 4.3187#7.70744 for Au#5.981 for W #7.653 for Al
+        azero = 5.981 #for W #7.653 for Al
         etamax = 0.05
-        coverazero=1.567
+        coverazero = 1
+	dcovera = 1.6/50
+	param['structure'] = ['bcc']
+	
         #create lattice parameters
         i=10
         while i > -1:
             scale.append(azero - (i-5)*etamax)
             i = i-1
-            
-        param['structure'] = ['hcp']
+        if param['structure'][0] == 'hcp':
+		i=6    
+		while i > -1:
+            		covera.append(coverazero - (i-5)*etamax)
+            		i = i-1
+	else:
+		covera = [1.0]
+        
         param['scale'] = scale
-        param['rgkmax'] = [6,8,9,10]
-        param['ngridk'] = [6,8,9,10]
-        param['swidth'] = [0.01,0.03,0.5,1.0]
-        param['species'] = ['Be']
+        param['rgkmax'] = [8]
+        param['ngridk'] = [8]
+        param['swidth'] = [0.01]
+        param['species'] = ['W']
         param['covera'] = covera
-        param['root'] = ["/home/tde/test/calctemp/"]
+        param['root'] = ["/home/tde/test/calc3/"]
         param['speciespath'] = ["/appl/EXCITING/versions/hydrogen/species/"]
         param['executable'] = ["/home/tde/elements/templates/"]
         param['mod'] = ['parallel']
@@ -110,18 +121,19 @@ class CALC(object):
         print "created dir tree-structure and inputs"
         
         if inpar['mod'] == 'parallel':
-            proc3 = subprocess.Popen(['xsltproc ' + execpath + 'loadleveler.xsl ' + rootdir + 'parset.xml > ' + rootdir +  'lljob'], shell=True)
+            proc3 = subprocess.Popen(['xsltproc ' + execpath + 'loadleveler.xsl ' + rootdir + 'parset.xml'], shell=True)
             proc3.communicate()
             print "created lljob script"
             
-            proc4 = subprocess.Popen(['llsubmit lljob_tree'])
+            proc4 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
             proc4.communicate()
             print "submitted lljob to cluster"
             
             j=0
             while j<100:
-                proc5 = subprocess.Popen(['llq -u ' + usr], shell=True, stdout=subprocess.PIPE)
+                proc5 = subprocess.Popen(['llq -u %s'%usr], shell=True, stdout=subprocess.PIPE)
                 out = proc5.communicate()
+		print out
                 if len(out) == 0:
                     print "calculations finished on cluster"
                     break   
