@@ -23,7 +23,10 @@
 """
 import numpy.linalg as linalg
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    mpl = False
 import random
 
 import convert_latt_vol
@@ -134,11 +137,13 @@ class Birch(object):
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
         
-        plt.plot(lv, plote, '', label = 'ngridk: ' + '8' + '  swidth: ' + '0.03')
-        plt.plot(v, ein, '.')
-        plt.xlabel(r'$volume$   $[{Bohr^3}]$')
-        plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
-        plt.legend(loc='best')
+        if mpl:
+            plt.plot(lv, plote, '', label = 'ngridk: ' + '8' + '  swidth: ' + '0.03')
+            plt.plot(v, ein, '.')
+            plt.xlabel(r'$volume$   $[{Bohr^3}]$')
+            plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
+            plt.legend(loc='best')
+            self.p = plt
         
         #plt.show()
                 
@@ -151,7 +156,7 @@ class Birch(object):
         self.a = a
         self.v = v
         self.ein = ein
-        self.p = plt
+        
             
     def minIn(self, ein, vin):
         """ find minimum of total energy

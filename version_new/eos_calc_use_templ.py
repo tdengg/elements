@@ -8,19 +8,19 @@ class CALC(object):
     def __init__(self, parameters):
         #param = parameters
         
-        rootdir = "/home/tde/test/calc3/"
+        rootdir = "/home/tde/test/calc5/"
         execpath = "/home/tde/elements/templates/"
         usr = "tde"
-        
-        param = {}
+        if len(parameters) == 0: 
+            param = {}
         scale = []
-	covera = []
+        covera = []
         
-        azero = 5.981 #for W #7.653 for Al
+        azero = 4.319 #for W #7.653 for Al
         etamax = 0.05
-        coverazero = 1
-	dcovera = 1.6/50
-	param['structure'] = ['bcc']
+        coverazero = 1.6
+        dcovera = 1.6/50
+        param['structure'] = ['hcp']
 	
         #create lattice parameters
         i=10
@@ -28,20 +28,20 @@ class CALC(object):
             scale.append(azero - (i-5)*etamax)
             i = i-1
         if param['structure'][0] == 'hcp':
-		i=6    
-		while i > -1:
-            		covera.append(coverazero - (i-5)*etamax)
-            		i = i-1
-	else:
-		covera = [1.0]
+            i=10    
+            while i > -1:
+                covera.append(coverazero - (i-5)*etamax)
+                i = i-1
+        else:
+            covera = [1.0]
         
         param['scale'] = scale
         param['rgkmax'] = [8]
         param['ngridk'] = [8]
         param['swidth'] = [0.01]
-        param['species'] = ['W']
+        param['species'] = ['Be']
         param['covera'] = covera
-        param['root'] = ["/home/tde/test/calc3/"]
+        param['root'] = ["/home/tde/test/calc5/"]
         param['speciespath'] = ["/appl/EXCITING/versions/hydrogen/species/"]
         param['executable'] = ["/home/tde/elements/templates/"]
         param['mod'] = ['parallel']
@@ -133,7 +133,7 @@ class CALC(object):
             while j<100:
                 proc5 = subprocess.Popen(['llq -u %s'%usr], shell=True, stdout=subprocess.PIPE)
                 out = proc5.communicate()
-		print out
+                print out
                 if len(out) == 0:
                     print "calculations finished on cluster"
                     break   
