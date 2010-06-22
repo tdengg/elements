@@ -25,6 +25,7 @@ import numpy.linalg as linalg
 import numpy as np
 try:
     import matplotlib.pyplot as plt
+    mpl = True
 except:
     mpl = False
 import random
@@ -136,19 +137,21 @@ class Birch(object):
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
-        
+        print lv, plote
         if mpl:
-            plt.plot(lv, plote, '', label = 'ngridk: ' + '8' + '  swidth: ' + '0.03')
+            plt.cla()
+            plt.plot(lv, plote, '')
             plt.plot(v, ein, '.')
             plt.xlabel(r'$volume$   $[{Bohr^3}]$')
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(loc='best')
             self.p = plt
+            plt.savefig('/fshome/tde/cluster/eos.png')
         
         #plt.show()
                 
         self.out0 = parnew1[0,0]
-        self.out1 = parnew1[0,1]*2.942104*10**4.
+        self.out1 = parnew1[0,1]*2.942104*10**4. #description
         self.out2 = parnew1[0,2]
         self.out3 = parnew1[0,3]
         self.deltamin = deltamin

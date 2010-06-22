@@ -1,3 +1,10 @@
+"""analyse, plot and fit data 
+
+    arguments:  -root ..... root directory of calculation tree structure
+                    type::string
+    returns:    none
+    
+"""
 import xml.etree.ElementTree as etree
 
 import convert_latt_vol
@@ -10,6 +17,12 @@ class XmlToFit(object):
         self.root = root
         self.coveramin = []
         self.totencoamin = []
+        
+        self.vol0_eos = [] 
+        self.b0_eos = []
+        self.db0_eos = []
+        self.emin_eos = []
+        
         coamin = []
         tmin = []
         plt = []
@@ -22,11 +35,12 @@ class XmlToFit(object):
             self.numb_coa = 0
             param1 = self.covera()
             lcoa, vcoa = conv.lattToVolume(param1)
-            print vcoa, lcoa
+            param1['volume'] = vcoa
+            #print vcoa, lcoa
             ncoa = len(param1['covera'])/self.numb_coa
             j=0
             while j<self.numb_coa:
-                self.fitcoa(param1['covera'][j*ncoa:(j+1)*ncoa],param1['toten'][j*ncoa:(j+1)*ncoa])
+                self.fitcoa(param1['covera'][j*ncoa:(j+1)*ncoa],param1['toten'][j*ncoa:(j+1)*ncoa],param1['volume'][j*ncoa])
                 
                 j=j+1
             
@@ -40,14 +54,16 @@ class XmlToFit(object):
                 l1coa.append(lcoa[i])
                 v1coa.append(vcoa[i])
                 i=i+ncoa
-
+            self.write_covera()
             #i=0
             #while i<self.numb:
             try:
                 self.fiteos(l1coa, v1coa, self.totencoamin, structure)
+                
             except:
                 print 'Fitting with Birch-Murnaghan not possible. Check calculation parameters and c/a range!'
                 return
+            self.write_eos()
                 #self.fiteos(l[i*nvol:(i+1)*nvol], v[i*nvol:(i+1)*nvol], param['toten'][i*nvol:(i+1)*nvol], structure)
             #    i=i+1
         
@@ -102,26 +118,47 @@ class XmlToFit(object):
         a=[]
         v = []
         ein = []
-        vol0 = [] 
-        b0 = []
-        db0 = []
-        emin = []
+        
         eosFit = fitev.Birch(structure, scale,volume,toten)
             
         a.append(eosFit.a)
         v.append(eosFit.v)
         ein.append(eosFit.ein)
         
-        vol0.append(eosFit.out0)
-        b0.append(eosFit.out1)
-        db0.append(eosFit.out2)
-        emin.append(eosFit.out3)
+        self.vol0_eos.append(eosFit.out0)
+        self.b0_eos.append(eosFit.out1)
+        self.db0_eos.append(eosFit.out2)
+        self.emin_eos.append(eosFit.out3)
         #print a, v
-    def fitcoa(self, coa, toten):
-        fitcoa = fitcovera.Polyfit(coa,toten,3)
+    def fitcoa(self, coa, toten, volume):
+        fitcoa = fitcovera.Polyfit(coa,toten,3,volume)
         self.coveramin.append(fitcoa.coamin)
         self.totencoamin.append(fitcoa.totenmin)
+        print self.coveramin
+    
+    def write_covera(self):
+        f = etree.parse(self.root + 'coa_data.xml')
+        root = f.getroot()
+        graphs = root.getiterator('graph')
+        self.numb_coa = len(graphs)
+        i=0
+        for graph in graphs:
+            graph.attrib['coamin'] = str(self.coveramin[i])
+            graph.attrib['totenmin'] = str(self.totencoamin[i])
+            i = i+1
+        etree.ElementTree(root).write(self.root + 'coa_data.xml')
+    
+    def write_eos(self):
+        f = etree.parse(self.root + 'coa_data.xml')
+        root = f.getroot()
+        node = etree.SubElement(root,'eos')
+        node.attrib['bulk_mod'] = str(self.b0_eos[0])
+        node.attrib['equi_volume'] = str(self.vol0_eos[0])
+        node.attrib['d_bulk_mod'] = str(self.db0_eos[0])
+        node.attrib['min_energy'] = str(self.emin_eos[0])
+        etree.ElementTree(root).write(self.root + 'coa_data.xml')
+                
     
 
-test = XmlToFit('/fshome/tde/cluster/calc2/')
+test = XmlToFit('/fshome/tde/cluster/calc6/')
 #test.covera()

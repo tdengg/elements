@@ -1,13 +1,21 @@
+"""Set up calculations and submit to loadleveler
+
+    arguments:  -parameters ..... optional calculation parameters
+                    type::dictionary
+    returns:    none
+    
+    set calculation parameters here!
+"""
+
 import subprocess
 import os
 import time
 
-#import search_dir as search
-
 class CALC(object):
     def __init__(self, parameters):
-        #param = parameters
-        
+        ######################################################
+        #      == Define calculation parameters here ==      #
+        ######################################################
         rootdir = "/home/tde/test/calc5/"
         execpath = "/home/tde/elements/templates/"
         usr = "tde"
@@ -16,21 +24,22 @@ class CALC(object):
         scale = []
         covera = []
         
-        azero = 4.319 #for W #7.653 for Al
-        etamax = 0.05
-        coverazero = 1.6
-        dcovera = 1.6/50
+        azero = 4.319       #lattice parameter
+        etamax = 0.05       #steps in lattice parameter
+        coverazero = 1.6    #c/a ratio
+        dcovera = 1.6/50    #steps in c/a
         param['structure'] = ['hcp']
 	
-        #create lattice parameters
+        #create lattice parameter steps
         i=10
         while i > -1:
             scale.append(azero - (i-5)*etamax)
             i = i-1
         if param['structure'][0] == 'hcp':
+            #create c/a steps
             i=10    
             while i > -1:
-                covera.append(coverazero - (i-5)*etamax)
+                covera.append(coverazero - (i-5)*dcovera)
                 i = i-1
         else:
             covera = [1.0]
@@ -41,12 +50,12 @@ class CALC(object):
         param['swidth'] = [0.01]
         param['species'] = ['Be']
         param['covera'] = covera
-        param['root'] = ["/home/tde/test/calc5/"]
+        param['root'] = ["/home/tde/test/calc6/"]
         param['speciespath'] = ["/appl/EXCITING/versions/hydrogen/species/"]
         param['executable'] = ["/home/tde/elements/templates/"]
         param['mod'] = ['parallel']
-        
-        
+        ###########################################################
+        ###########################################################
         inpar = {}
         
         for key in param.keys():
@@ -129,19 +138,6 @@ class CALC(object):
             proc4.communicate()
             print "submitted lljob to cluster"
             
-            j=0
-            while j<100:
-                proc5 = subprocess.Popen(['llq -u %s'%usr], shell=True, stdout=subprocess.PIPE)
-                out = proc5.communicate()
-                print out
-                if len(out) == 0:
-                    print "calculations finished on cluster"
-                    break   
-                time.sleep(120)
-                j=j+1
-
-            #search.SearchDir(['info.xml' ,'input.xml'], root)
-            #ctxtinfo, infos = search.search()
         elif inpar['mod'] == 'serial':
             return
         else:
