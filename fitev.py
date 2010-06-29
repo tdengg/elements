@@ -23,13 +23,17 @@
 """
 import numpy.linalg as linalg
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    mpl = True
+except:
+    mpl = False
 import random
 
 import convert_latt_vol
 
 class Birch(object):
-    def __init__(self, param, calcnr, structure, *args):
+    def __init__(self, structure, *args):
         
         verbose = False
         self.verbose = verbose
@@ -57,10 +61,10 @@ class Birch(object):
             conv = convert_latt_vol.Convert(structure)
             l, v = conv.lattToVolume(param, a)
         else:
-            print args
             l = args[0]
             v = args[1]
             ein = args[2]
+            a=l
             
         v0, emin = self.minIn(ein,v)
         
@@ -101,11 +105,11 @@ class Birch(object):
             latt = (4. * parnew1[0,0])**(1./3.)
         elif structure == 'bcc':
             latt = (4. * parnew1[0,0])**(1./3.)
-        elif structure == 'hcp' and len(args) == 0:
+        #elif structure == 'hcp' and len(args) == 0:
             #covera = input('c over a ratio: ')
-            latta = (parnew1[0,0]/(param['covera']*0.866))**(1./3.)
-            lattc = latta * param['covera']
-        if verbose == True:            
+            #latta = (parnew1[0,0]/(param['covera']*0.866))**(1./3.)
+            #lattc = latta * param['covera']
+        """if verbose == True:
             print('---------------------------------------')
             print('volume:                     ' + str(parnew1[0,0]) + ' Bohr')
             print('---------------------------------------')
@@ -124,28 +128,26 @@ class Birch(object):
             print('derivative of Bulk-Modulus: ' + str(parnew1[0,2]))
             print('---------------------------------------')
             print('minimal energy:             ' + str(parnew1[0,3]) + ' Hartree')
-            print('---------------------------------------')
-        else:
-            if structure == 'fcc' or structure == 'bcc':
-                print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
-            elif structure == 'hcp':
-                print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
+            print('---------------------------------------')"""
+        #else:
+        if structure == 'fcc' or structure == 'bcc':
+            print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
+        elif structure == 'hcp':
+            print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
         
-        #print len(lv)
-        #print len(plote)
-        
-        plt.plot(lv, plote, '', label = 'ngridk: ' + str(param['ngridk']) + '  swidth: ' + str(param['swidth']))
-        plt.plot(v, ein, '.')
-        plt.xlabel(r'$volume$   $[{Bohr^3}]$')
-        plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
-        plt.legend(loc='best')
+        if mpl:
+            plt.plot(lv, plote, '', label = 'ngridk: ' + '8' + '  swidth: ' + '0.03')
+            plt.plot(v, ein, '.')
+            plt.xlabel(r'$volume$   $[{Bohr^3}]$')
+            plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
+            plt.legend(loc='best')
+            self.p = plt
         
         #plt.show()
                 
-        #print(minIn([4,3,2,1,3,5],[2.2,3.2,4.2,5.2,6.2,7.2]))
         self.out0 = parnew1[0,0]
         self.out1 = parnew1[0,1]*2.942104*10**4.
         self.out2 = parnew1[0,2]
@@ -155,7 +157,7 @@ class Birch(object):
         self.a = a
         self.v = v
         self.ein = ein
-        self.p = plt
+        
             
     def minIn(self, ein, vin):
         """ find minimum of total energy

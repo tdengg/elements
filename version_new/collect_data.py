@@ -6,14 +6,15 @@
     
 """
 import xml.etree.ElementTree as etree
-
+import subprocess
+import os
 import convert_latt_vol
 import fitev
 import fitcovera
 
 class XmlToFit(object):
     def __init__(self, root):
-        structure = 'hcp'
+        #structure = 'hcp'
         self.root = root
         self.coveramin = []
         self.totencoamin = []
@@ -28,6 +29,18 @@ class XmlToFit(object):
         plt = []
         l1coa = []
         v1coa = []
+        
+        f = etree.parse(self.root + 'const_parameters.xml')
+        template = f.getroot().find('executable')
+        structure = f.getroot().find('structure').get('str')
+        if os.path.exists(self.root + 'coa_data.xml') == False:
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('exe') + 'dataconversion_fitcovera.xsl ' + self.root + 'parset.xml > ' + self.root +  'coa_data.xml'], shell=True)
+            proc1.communicate()
+            
+        if os.path.exists(self.root + 'eos_data.xml') == False:
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('exe') + 'dataconversion_fiteos.xsl ' + self.root + 'parset.xml > ' + self.root +  'eos_data.xml'], shell=True)
+            proc1.communicate()
+            
         if structure == 'hcp':
             
             conv = convert_latt_vol.Convert(structure)
@@ -66,6 +79,12 @@ class XmlToFit(object):
             self.write_eos()
                 #self.fiteos(l[i*nvol:(i+1)*nvol], v[i*nvol:(i+1)*nvol], param['toten'][i*nvol:(i+1)*nvol], structure)
             #    i=i+1
+        else:
+            conv = convert_latt_vol.Convert(structure)
+            param2 = self.birch()
+            l, v = conv.lattToVolume(param2)
+            self.fiteos(l, v, param2['toten'], structure)
+            self.write_eos()
         
     def covera(self):
         param = {}
@@ -158,7 +177,5 @@ class XmlToFit(object):
         node.attrib['min_energy'] = str(self.emin_eos[0])
         etree.ElementTree(root).write(self.root + 'coa_data.xml')
                 
-    
-
-test = XmlToFit('/fshome/tde/cluster/calc6/')
+test = XmlToFit('/fshome/tde/cluster/calc11/')
 #test.covera()

@@ -46,12 +46,13 @@
 <xsl:element name="crystal">
  <xsl:attribute name="scale"><xsl:value-of select="@scale"/></xsl:attribute>
 
-		<basevect>0.5 0.5 0.0    </basevect>
+	<basevect>0.5 0.5 0.0    </basevect>
       	<basevect>0.5  0.0 0.5     </basevect>
       	<basevect>0.0  0.5 0.5 </basevect>
 </xsl:element>
 <species speciesfile="Al.xml">
 <xsl:attribute name = "speciesfile"><xsl:value-of select="@species"/>.xml</xsl:attribute>
+	<atom coord="0.00 0.00 0.00" />
 	<atom coord="0.25 0.25 0.25" />
 </species>
 </structure>
