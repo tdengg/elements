@@ -10,7 +10,7 @@
 <!--/// define the name of the input file ///////////////////////////////////-->
 <!--/////////////////////////////////////////////////////////////////////////-->
 <xsl:variable name="inputfilename"><xsl:text>input.xml</xsl:text></xsl:variable>
- 
+<xsl:variable name="constpar"><xsl:value-of select="/experiment/@path"/>const_parameters.xml</xsl:variable>
 <!-- Loop over all elements named "set" from reference xml-file -->
 <xsl:for-each select = "/experiment/set">
  
@@ -42,23 +42,24 @@
 <xsl:value-of select="position()"/>
 </title>
 <structure>
-<xsl:attribute name="speciespath">/home/tde/exciting/species</xsl:attribute>
+<xsl:attribute name="speciespath"><xsl:value-of select="document($constpar)//speciespath/@spa"/></xsl:attribute>
 <xsl:element name="crystal">
  <xsl:attribute name="scale"><xsl:value-of select="@scale"/></xsl:attribute>
 
-		<basevect>-0.5 0.5 0</basevect>
-      	<basevect> 0.5 0   0.5</basevect>
-      	<basevect> 0   0.5 0.5</basevect>
+	<basevect>0.5 0.5 0.0    </basevect>
+      	<basevect>0.5  0.0 0.5     </basevect>
+      	<basevect>0.0  0.5 0.5 </basevect>
 </xsl:element>
 <species speciesfile="Al.xml">
-<xsl:attribute name = "speciesfile"><xsl:value-of select="@species"/></xsl:attribute>
-	<atom coord="0 0 0" />
+<xsl:attribute name = "speciesfile"><xsl:value-of select="@species"/>.xml</xsl:attribute>
+	<atom coord="0.0 0.0 0.0" />
 </species>
 </structure>
  
 <groundstate vkloff="0.5  0.5  0.5"   mixer="msec">
-  <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/></xsl:attribute>
+  <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/></xsl:attribute>
   <xsl:attribute name="rgkmax"><xsl:value-of select="@rgkmax"/></xsl:attribute>
+  
 </groundstate>
 </input>
  

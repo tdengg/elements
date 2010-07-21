@@ -14,7 +14,7 @@
  
 # @ job_type = parallel
 # @ job_name  = JOBNAME
-# @ class = lesstday
+# @ class = lessthour
 # @ node           = 1
 # @ tasks_per_node = 1
 # @ arguments= 
@@ -68,7 +68,7 @@
 <!--                                                              -->
 <!-- continue with LoadLeveler statements                         -->
 <!--                                                              -->
-# @ initialdir = /home/tde/test/calc3/<xsl:value-of select="$path"/>
+# @ initialdir = <xsl:value-of select="@root"/><xsl:value-of select="$path"/>
 # @ step_name  = <xsl:value-of select="$string"/>
 # @ output = $(job_name).out
 # @ error = $(job_name).err
