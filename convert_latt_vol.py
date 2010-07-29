@@ -15,7 +15,7 @@ class Convert(object):
     def __init__(self, structure):
         self.structure = structure
         
-    def lattToVolume(self, inputpar, l = []):
+    def lattToVolume(self, inputpar, l = [], coa = 1):
         vol = []
         if len(l) != 0:
             latt = l
@@ -23,7 +23,8 @@ class Convert(object):
             latt = inputpar['scale']
         for a in latt:
             if self.structure == 'hcp':
-                covera = inputpar['covera'][0]
+                
+                covera = float(inputpar['covera'][0])
                 vol.append(float(a)**3. * covera * 3.**(1./2.)/2.)
             if self.structure == 'fcc':
                 vol.append(float(a)**3./4.)
@@ -36,15 +37,17 @@ class Convert(object):
     
     def volumeToLatt(self, vol, covera):
         latt = []
+        i=0
         for v in vol:
             if self.structure == 'hcp':
-                latt.append((2.*v/(3.**(1./2.)*covera))**(1./3.))
+                latt.append((2.*v/(3.**(1./2.)*float(covera[i])))**(1./3.))
             if self.structure == 'fcc':
                 latt.append((4.*v)**(1./3.))
             if self.structure == 'bcc':
                 latt.append((2.*v)**(1./3.))
             if self.structure == 'diamond':
                 latt.append((8*v)**(1./3.))
+            i=i+1
         return latt, vol
     
 #test = Convert('fcc') 

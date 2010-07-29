@@ -24,6 +24,10 @@
 							
 						</xsl:variable>
 						
+						<xsl:variable name="convpath">
+							<xsl:value-of select="$root"/>
+							<xsl:text>convergence.xml</xsl:text>
+						</xsl:variable>
 						
 						<xsl:variable name="infopath">
 							<xsl:value-of select="$fullpath"/>
@@ -56,6 +60,27 @@
 							<xsl:attribute name="totalEnergy">
 								<xsl:value-of select="document($infopath)//iter[last()]/energies/@totalEnergy"/>
 							</xsl:attribute>
+							
+							<!-- Get parameters relevant for convergence -->
+							<xsl:for-each select="document($convpath)//n_param/@*">
+								<xsl:variable name="par"><xsl:value-of select="name()"/></xsl:variable>
+								<xsl:if test="$par = 'rgkmax'">
+								<xsl:attribute name="rgkmax">
+									<xsl:value-of select="document($inputpath)//groundstate/@rgkmax"></xsl:value-of>
+								</xsl:attribute>
+								</xsl:if>
+								<xsl:if test="$par = 'ngridk'">
+								<xsl:attribute name="ngridk">
+									<xsl:value-of select="document($inputpath)//groundstate/@ngridk"></xsl:value-of>
+								</xsl:attribute>
+								</xsl:if>
+								<xsl:if test="$par = 'swidth'">
+								<xsl:attribute name="swidth">
+									<xsl:value-of select="document($inputpath)//groundstate/@swidth"></xsl:value-of>
+								</xsl:attribute>
+								</xsl:if>
+								
+							</xsl:for-each>
 						</point>
 				
 			</xsl:for-each>

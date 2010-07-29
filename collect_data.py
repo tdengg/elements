@@ -18,12 +18,11 @@ import fitev
 import fitcovera
 
 class XmlToFit(object):
-    def __init__(self, root):
-        #root = str(input('Enter path of calculations directory: '))
-        #structure = 'hcp'
-        self.root = root
+    def __init__(self, dir):
+        self.dir = dir
         self.coveramin = []
         self.totencoamin = []
+        self.volumecoa = []
         
         self.vol0_eos = [] 
         self.b0_eos = []
@@ -36,17 +35,27 @@ class XmlToFit(object):
         plt = []
         l1coa = []
         v1coa = []
-        
-        f = etree.parse(self.root + 'const_parameters.xml')
-        template = f.getroot().find('executable')
+        self.dir = './'
+        f = etree.parse(self.dir + 'const_parameters.xml')
+        template = f.getroot().find('elementshome')
         structure = f.getroot().find('structure').get('str')
-        if os.path.exists(self.root + 'coa_data.xml') == False:
-            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.root + 'parset.xml > ' + self.root +  'coa_data.xml'], shell=True)
+        
+        #create output
+        if os.path.exists(self.dir + 'coa_data.xml') == False:
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('path') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
             proc1.communicate()
             
-        if os.path.exists(self.root + 'eos_data.xml') == False:
-            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.root + 'parset.xml > ' + self.root +  'eos_data.xml'], shell=True)
+        if os.path.exists(self.dir + 'eos_data.xml') == False:
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('path') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
             proc1.communicate()
+            
+        #Get number of convergence test parameters    
+        fc = etree.parse(self.dir + 'convergence.xml')
+        root = fc.getroot()
+        params = fc.getiterator('n_param')
+        nconv = 1
+        for param in params:
+            nconv = int(param.attrib.values()[0]) * nconv
             
         if structure == 'hcp':
             
@@ -54,39 +63,34 @@ class XmlToFit(object):
             
             self.numb_coa = 0
             param1 = self.covera()
-            self.i=0
-            for self.i < len(self.ncovera*self.neos/):
-            lcoa, vcoa = conv.lattToVolume(param1, param1['scale'][self.i])
-            param1['volume'].append([])
-            param1['volume'][self.i] = vcoa
-            #print vcoa, lcoa
-            ncoa = len(param1['covera'])/self.numb_coa
-            j=0
-            while j<self.numb_coa:
-                self.fitcoa(param1['covera'][j*ncoa:(j+1)*ncoa],param1['toten'][j*ncoa:(j+1)*ncoa],param1['volume'][j*ncoa])
-                j=j+1
-            
-            self.numb = 0
-            param = self.birch()
-            l, v = conv.lattToVolume(param, param['scale'][0])
-            nvol = len(l)/self.numb
-            i=0
-            while i<len(vcoa):
-                l1coa.append(lcoa[i])
-                v1coa.append(vcoa[i])
-                i=i+ncoa
-            self.write_covera()
-            #i=0
-            #while i<self.numb:
-            try:
-                self.fiteos(l1coa, v1coa, self.totencoamin, structure)
                 
-            except:
-                print 'Fitting with Birch-Murnaghan not possible. Check calculation parameters and c/a range!'
-                return
-            self.write_eos()
-                #self.fiteos(l[i*nvol:(i+1)*nvol], v[i*nvol:(i+1)*nvol], param['toten'][i*nvol:(i+1)*nvol], structure)
-            #    i=i+1
+            ncoa = self.pointscovera
+            nnconv = self.numb_coa/nconv
+            k=0
+            while k<nconv:         
+                j=0
+                while j<self.numb_coa/nconv:
+                    self.fitcoa(param1['covera'][nnconv*k+j],param1['toten'][nnconv*k+j],param1['volume'][nnconv*k+j])
+                    j=j+1
+                    
+                scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
+                self.fiteos(scalecoa,volumecovera,self.totencoamin,structure)
+                k=k+1
+            k=0
+            for emin in self.emin_eos:
+                if emin == min(self.emin_eos):
+                    f = etree.parse(self.dir + 'eos_data.xml')
+                    root = f.getroot()
+                    graphs = root.getiterator('graph')
+                    node = etree.SubElement(root,'eos')
+                    node.attrib['bulk_mod'] = str(self.b0_eos[k])
+                    node.attrib['equi_volume'] = str(self.vol0_eos[k])
+                    node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
+                    node.attrib['min_energy'] = str(self.emin_eos[k])
+                    etree.ElementTree(root).write(self.dir + 'eos_data.xml')
+                k=k+1
+                    
+
         else:
             conv = convert_latt_vol.Convert(structure)
             param2 = self.birch()
@@ -97,14 +101,17 @@ class XmlToFit(object):
                 self.write_eos()
                 self.n=self.n+1
             if mpl:
-                self.p[3].show()
+                self.p[2].show()
+                
     def covera(self):
         param = {}
         scale = []
         toten = []
         covera = []
         volume = []
-        f = etree.parse(self.root + 'coa_data.xml')
+        keys = []
+        
+        f = etree.parse(self.dir + 'coa_data.xml')
         root = f.getroot()
         graphs = f.getiterator('graph')
         self.numb_coa = len(graphs)
@@ -119,10 +126,13 @@ class XmlToFit(object):
                 scale[n].append(float(point.get('scale')))
                 covera[n].append(float(point.get('covera')))
                 toten[n].append(float(point.get('totalEnergy')))
-                n=n+1
+                v = (float(point.get('scale'))**3. * float(point.get('covera')) * 3.**(1./2.)/2.)
+            volume.append(v)
+            n=n+1
         param['scale'] = scale
         param['toten'] = toten
         param['covera'] = covera
+        param['volume'] = volume
         return param
         
     def birch(self):
@@ -130,25 +140,25 @@ class XmlToFit(object):
         scale = []
         toten = []
         covera = []
-        f = etree.parse(self.root + 'eos_data.xml')
+        f = etree.parse(self.dir + 'eos_data.xml')
         root = f.getroot()
     	graphs = f.getiterator('graph')
         self.numb = len(graphs)
         n=0
     	for graph in graphs:
-                scale.append([])
-                toten.append([])
-    		points = graph.getiterator('point')
+            scale.append([])
+            toten.append([])
+            covera.append([])
+            points = graph.getiterator('point')
             self.pointseos = len(points)
-    		for point in points:
-    			scale[n].append(float(point.get('scale')))
-    			toten[n].append(float(point.get('totalEnergy')))
-                
+            for point in points:
+                scale[n].append(float(point.get('scale')))
+                toten[n].append(float(point.get('totalEnergy')))
                 try:
-                    covera.append(float(point.get('covera')))
+                    covera[n].append(float(point.get('covera')))
                 except:
-                    covera.append(0)
-                n=n+1
+                    covera[n].append(0)
+            n=n+1
         param['scale'] = scale
         param['toten'] = toten
         param['covera'] = covera
@@ -170,16 +180,15 @@ class XmlToFit(object):
         self.db0_eos.append(eosFit.out2)
         self.emin_eos.append(eosFit.out3)
         self.p.append(eosFit.p)
-        print self.vol0_eos
-        #print a, v
+
     def fitcoa(self, coa, toten, volume):
         fitcoa = fitcovera.Polyfit(coa,toten,3,volume)
         self.coveramin.append(fitcoa.coamin)
         self.totencoamin.append(fitcoa.totenmin)
-        print self.coveramin
+        self.volumecoa.append(fitcoa.volume)
     
     def write_covera(self):
-        f = etree.parse(self.root + 'coa_data.xml')
+        f = etree.parse(self.dir + 'coa_data.xml')
         root = f.getroot()
         graphs = root.getiterator('graph')
         self.numb_coa = len(graphs)
@@ -188,10 +197,10 @@ class XmlToFit(object):
             graph.attrib['coamin'] = str(self.coveramin[i])
             graph.attrib['totenmin'] = str(self.totencoamin[i])
             i = i+1
-        etree.ElementTree(root).write(self.root + 'coa_data.xml')
+        etree.ElementTree(root).write(self.dir + 'coa_data.xml')
     
     def write_eos(self):
-        f = etree.parse(self.root + 'eos_data.xml')
+        f = etree.parse(self.dir + 'eos_data.xml')
         root = f.getroot()
         graphs = root.getiterator('graph')
         i=0
@@ -207,7 +216,16 @@ class XmlToFit(object):
         node.attrib['equi_volume'] = str(self.vol0_eos[0])
         node.attrib['d_bulk_mod'] = str(self.db0_eos[0])
         node.attrib['min_energy'] = str(self.emin_eos[0])
-        etree.ElementTree(root).write(self.root + 'eos_data.xml')
+        etree.ElementTree(root).write(self.dir + 'eos_data.xml')
+        
+    def write_result(self):
+        results = etree.Element('results')
+        reschild = etree.SubElement(results, 'n_param')
+        reschild.set(key,str(convpar[key]))
+        reschild = etree.Element('n_param')
+        reschild.set(key,str(convpar[key]))
+        results.append(reschild)
+        restree = etree.ElementTree(results)
+        restree.write('./results.xml')
                 
-test = XmlToFit('/fshome/tde/cluster/calc6/')
-#test.covera()
+test = XmlToFit('')

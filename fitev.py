@@ -137,7 +137,7 @@ class Birch(object):
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
-        print lv, plote
+        #print lv, plote
         if mpl:
             plt.cla()
             plt.plot(lv, plote, '')
@@ -146,7 +146,7 @@ class Birch(object):
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(loc='best')
             self.p = plt
-            plt.savefig('/fshome/tde/cluster/eos.png')
+            plt.savefig('./eos.png')
         
         #plt.show()
                 

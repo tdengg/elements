@@ -6,7 +6,7 @@
     
     set calculation parameters here!
 """
-
+import xml.etree.ElementTree as etree
 import subprocess
 import os
 import time
@@ -44,14 +44,14 @@ class CALC(object):
                 covera = [1.0]
             
             param['scale'] = scale
-            param['rgkmax'] = [8]
-            param['ngridk'] = [8]
+            param['rgkmax'] = [8,10]
+            param['ngridk'] = [8,10]
             param['swidth'] = [0.01]
             param['species'] = ['Be']
             param['covera'] = covera
-            param['root'] = ["/home/tde/test/calc6/"]
+            param['calchome'] = ["/fshome/tde/cluster/test/"]
             param['speciespath'] = ["/appl/EXCITING/versions/hydrogen/species/"]
-            param['templatepath'] = ["/home/tde/elements/version_new/templates/"]
+            param['templatepath'] = ["/fshome/tde/git/my_calc/gen/elements/templates/"]
             param['mod'] = ['parallel']
         ###########################################################
         ###########################################################
@@ -61,17 +61,20 @@ class CALC(object):
         convpar = {}
         for key in param.keys():
             inpar[key] = ""
+            if key not in ['scale','covera'] and len(param[key])>1:
+                convpar[key] = len(param[key])
             for value in param[key]:
-                if key not in ['root','structure', 'speciespath','templatepath','mod']:           #other parameters
+                if key not in ['calchome','structure', 'speciespath','templatepath','mod']:           #other parameters
                     inpar[key] = inpar[key] + "<val>%s</val>" % value
                 else:
                     inpar[key] = value
         ###########################################################
         #            == Set new parameters here! ==               #
+        #                 and modify input file                   #
         ###########################################################
         paramset = """<?xml version="1.0" encoding="UTF-8"?>
         
-        <setup path="%(root)s">
+        <setup path="%(calchome)s">
           <param name="species">
             %(species)s
           </param>
@@ -98,11 +101,11 @@ class CALC(object):
         ############################################################
         ############################################################
         try:
-            os.mkdir(param['root'][0])
+            os.mkdir(param['calchome'][0])
         except:
             print 'dir exists'
             
-        os.chdir(param['root'][0])
+        os.chdir(param['calchome'][0])
         
         f = open('./set.xml', 'w')
         f.write(paramset)
@@ -112,7 +115,7 @@ class CALC(object):
         # write constant calculation parameters to xml file:
         const_param = """
         <calc>
-            <rootdir dir='%(root)s'/>
+            <calchome path='%(calchome)s'/>
             <structure str='%(structure)s'/>
             <speciespath spa = '%(speciespath)s'/>
             <elementshome elementsdir ='%(templatepath)s'/>
@@ -124,17 +127,31 @@ class CALC(object):
         f1.write(const_param)
         f1.close()
         
+        convroot = etree.Element('convergence')
+        i=0
+        for key in convpar.keys():
+            if i == 0:
+                convchild = etree.SubElement(convroot, 'n_param')
+                convchild.set(key,str(convpar[key]))
+            else:
+                convchild = etree.Element('n_param')
+                convchild.set(key,str(convpar[key]))
+            i=i+1
+        convroot.append(convchild)
+        convtree = etree.ElementTree(convroot)
+        convtree.write('./convergence.xml')
+            
         
-        proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['root'][0] + 'set.xml > ' + param['root'][0] +  'parset.xml'], shell=True)
+        proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset.xml'], shell=True)
         proc1.communicate()
         print "created paramset.xml"
         
-        proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['root'][0] + 'parset.xml'], shell=True)
+        proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['calchome'][0] + 'parset.xml'], shell=True)
         proc2.communicate()
         print "created dir tree-structure and inputs"
         
         if inpar['mod'] == 'parallel':
-            proc3 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'loadleveler.xsl ' + param['root'][0] + 'parset.xml'], shell=True)
+            proc3 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'loadleveler.xsl ' + param['calchome'][0] + 'parset.xml'], shell=True)
             proc3.communicate()
             print "created lljob script"
             
@@ -147,4 +164,4 @@ class CALC(object):
         else:
             print 'ERROR: calculation mode not defined (mod = serial/parallel)'
             
-#test = CALC([])
+test = CALC([])

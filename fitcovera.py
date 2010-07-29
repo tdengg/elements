@@ -48,29 +48,33 @@ class Polyfit(object):
             else:
                 if float(minima.real) < min(self.covera)+0.02 and float(minima.imag)==0. and ddpoly(minima) > 0:
                     errmin = minima.real
-                    coveramin = +0.01
+                    coamingood = errmin
+                    totenmingood = (poly(errmin))
                     print 'minimum of c/a not in calculation range (lower):  setting new range --> shift calculation range to %s'%errmin
                 elif float(minima.real) > max(self.covera)-0.02 and float(minima.imag)==0. and ddpoly(minima) > 0:
                     errmin = minima.real
-                    coveramin = +0.02
+                    coamingood = errmin
+                    totenmingood = (poly(errmin))
                     print 'minimum of c/a not in calculation range (higher):  setting new range --> shift calculation range to %s'%errmin
             
              
         
         x = np.linspace(min(self.covera),max(self.covera),1000)
         if mpl:
+            plt.cla()
             plt.plot(self.covera,self.toten,'.',label = str(self.volume))
             plt.plot(x,poly(x))
             plt.xlabel(r'$c/a$')
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(title = 'Volume in $[Bohr^3]$')
-            plt.savefig('/fshome/tde/cluster/covera_'+str(min(self.covera))+'_'+str(coveramin)+ '.png')
+            plt.savefig('./covera_'+str(min(self.covera))+'_'+str(coveramin)+ '.png')
         try:
             self.coamin = coamingood
             self.totenmin = totenmingood
         except:
             self.coamin = 0
             self.totenmin = 0
+            self.volume = 0
         
         
 

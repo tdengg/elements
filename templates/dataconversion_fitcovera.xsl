@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common"
  xmlns:str="http://exslt.org/strings" xmlns:math="http://exslt.org/math">
- <!-- Usage: xsltproc thistemplate.xsl parsel.xml > yourout.xml -->
  	<xsl:key name="sets" match="set" use="@covera"/>
 	<xsl:output method="xml" indent="yes"/>
 	
@@ -13,7 +12,7 @@
  		<graph>
 		<xsl:for-each select="//set[generate-id() = generate-id(key('sets',@covera)[$ind])]">
 			<xsl:variable name="uniquescale"><xsl:value-of select="@covera"/></xsl:variable>
-				
+						
 						<!-- Define path here -->
 						<xsl:variable name="root"><xsl:value-of select="//experiment/@path"/></xsl:variable>
 						
@@ -24,6 +23,10 @@
 							
 						</xsl:variable>
 						
+						<xsl:variable name="convpath">
+							<xsl:value-of select="$root"/>
+							<xsl:text>convergence.xml</xsl:text>
+						</xsl:variable>
 						
 						<xsl:variable name="infopath">
 							<xsl:value-of select="$fullpath"/>
@@ -37,7 +40,6 @@
 						
 						<point>
 							<xsl:attribute name="volume">
-								
 								<xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) *2.0"/>
 							</xsl:attribute>
 							
@@ -55,8 +57,29 @@
 							<xsl:attribute name="totalEnergy">
 								<xsl:value-of select="document($infopath)//iter[last()]/energies/@totalEnergy"/>
 							</xsl:attribute>
+							
+							<!-- Get parameters relevant for convergence -->
+							<xsl:for-each select="document($convpath)//n_param/@*">
+								<xsl:variable name="par"><xsl:value-of select="name()"/></xsl:variable>
+								<xsl:if test="$par = 'rgkmax'">
+								<xsl:attribute name="rgkmax">
+									<xsl:value-of select="document($inputpath)//groundstate/@rgkmax"></xsl:value-of>
+								</xsl:attribute>
+								</xsl:if>
+								<xsl:if test="$par = 'ngridk'">
+								<xsl:attribute name="ngridk">
+									<xsl:value-of select="document($inputpath)//groundstate/@ngridk"></xsl:value-of>
+								</xsl:attribute>
+								</xsl:if>
+								<xsl:if test="$par = 'swidth'">
+								<xsl:attribute name="swidth">
+									<xsl:value-of select="document($inputpath)//groundstate/@swidth"></xsl:value-of>
+								</xsl:attribute>
+								</xsl:if>
+								
+							</xsl:for-each>
 						</point>
-				
+						
 			</xsl:for-each>
 			</graph>
 		<xsl:call-template name="iter">
