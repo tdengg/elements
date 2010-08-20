@@ -16,6 +16,7 @@ except:
 import convert_latt_vol
 import fitev
 import fitcovera
+import search_dir
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -35,10 +36,14 @@ class XmlToFit(object):
         plt = []
         l1coa = []
         v1coa = []
-        self.dir = './'
+        self.dir = str(os.getcwd()) + '/'
+
         f = etree.parse(self.dir + 'const_parameters.xml')
         template = f.getroot().find('elementshome')
         structure = f.getroot().find('structure').get('str')
+        
+        #search for calculations and create filelist
+        search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
         #create output
         if os.path.exists(self.dir + 'coa_data.xml') == False:

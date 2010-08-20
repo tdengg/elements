@@ -11,6 +11,8 @@ import subprocess
 import os
 import time
 
+import search_dir
+
 class CALC(object):
     def __init__(self, param):
         ######################################################
@@ -70,7 +72,7 @@ class CALC(object):
                     inpar[key] = value
         ###########################################################
         #            == Set new parameters here! ==               #
-        #                 and modify input file                   #
+        #              also modify input template                 #
         ###########################################################
         paramset = """<?xml version="1.0" encoding="UTF-8"?>
         
