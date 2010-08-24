@@ -18,6 +18,7 @@ class CALC(object):
         ######################################################
         #      == Define calculation parameters here ==      #
         ######################################################
+
         if len(param) == 0: 
                 param = {}
         if param == {}:
@@ -57,23 +58,34 @@ class CALC(object):
             param['mod'] = ['parallel']
         ###########################################################
         ###########################################################
-            
-                
+                   
         inpar = {}
         convpar = {}
+        scale = param['scale']
+        print scale
         for key in param.keys():
+            if param['structure'][0] == 'hcp' and key == 'scale':
+                continue
             inpar[key] = ""
             if key not in ['scale','covera'] and len(param[key])>1:
                 convpar[key] = len(param[key])
             for value in param[key]:
                 if key not in ['calchome','structure', 'speciespath','templatepath','mod']:           #other parameters
-                    inpar[key] = inpar[key] + "<val>%s</val>" % value
+                    if param['structure'][0] == 'hcp' and key == 'covera':
+                        inpar[key] = inpar[key] + "<val>%s" % value
+                        for alatt in scale[str(value)]:
+                            inpar[key] = inpar[key] + "<dep name='scale' val=%s/>" % str(alatt)
+                        inpar[key] = inpar[key] + "</val>"
+                    else:
+                        inpar[key] = inpar[key] + "<val>%s</val>" % value
+            
                 else:
                     inpar[key] = value
         ###########################################################
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
+
         paramset = """<?xml version="1.0" encoding="UTF-8"?>
         
         <setup path="%(calchome)s">
@@ -166,4 +178,4 @@ class CALC(object):
         else:
             print 'ERROR: calculation mode not defined (mod = serial/parallel)'
             
-test = CALC([])
+#test = CALC([])
