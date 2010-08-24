@@ -39,6 +39,12 @@ http://exciting-code.org/expand-all-parameter-permutations
     <xsl:text>_</xsl:text>
     <xsl:value-of select="normalize-space(.)" />
     <xsl:text>/</xsl:text>
+    <xsl:for-each select="dep">
+        <xsl:value-of select="normalize-space(@name)" />
+		<xsl:text>_</xsl:text>
+        <xsl:value-of select="normalize-space(@val)" />
+		<xsl:text>/</xsl:text>
+     </xsl:for-each>
    </xsl:variable>
    <xsl:choose>
     <xsl:when test="$depth &lt; (count(/setup/param))">

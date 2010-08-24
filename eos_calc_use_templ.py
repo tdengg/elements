@@ -62,20 +62,21 @@ class CALC(object):
         inpar = {}
         convpar = {}
         scale = param['scale']
-        print scale
         for key in param.keys():
             if param['structure'][0] == 'hcp' and key == 'scale':
                 continue
             inpar[key] = ""
             if key not in ['scale','covera'] and len(param[key])>1:
                 convpar[key] = len(param[key])
+            else:
+                convpar[key] = 1
             for value in param[key]:
                 if key not in ['calchome','structure', 'speciespath','templatepath','mod']:           #other parameters
                     if param['structure'][0] == 'hcp' and key == 'covera':
-                        inpar[key] = inpar[key] + "<val>%s" % value
                         for alatt in scale[str(value)]:
-                            inpar[key] = inpar[key] + "<dep name='scale' val=%s/>" % str(alatt)
-                        inpar[key] = inpar[key] + "</val>"
+                            inpar[key] = inpar[key] + "<val>%s" % value
+                            inpar[key] = inpar[key] + "<dep name='scale' val='%s'/>" % str(alatt)
+                            inpar[key] = inpar[key] + "</val>"
                     else:
                         inpar[key] = inpar[key] + "<val>%s</val>" % value
             
@@ -85,33 +86,57 @@ class CALC(object):
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
-
-        paramset = """<?xml version="1.0" encoding="UTF-8"?>
-        
-        <setup path="%(calchome)s">
-          <param name="species">
-            %(species)s
-          </param>
-          <param name="covera">
-            %(covera)s
-          </param>
-          <param name="rgkmax">
-            %(rgkmax)s
-          </param>
-          <param name="swidth">
-            %(swidth)s
-          </param>
-          <param name="ngridk">
-            %(ngridk)s
-          </param>
-          <param name="lmaxvr">
-            <val>14</val>
-          </param>
-          <param name="scale">
-            %(scale)s
-          </param>
-        </setup>
-        """ %inpar
+        if param['structure'][0] == 'hcp':
+            paramset = """<?xml version="1.0" encoding="UTF-8"?>
+            
+            <setup path="%(calchome)s">
+              <param name="species">
+                %(species)s
+              </param>
+              <param name="covera">
+                %(covera)s
+              </param>
+              <param name="rgkmax">
+                %(rgkmax)s
+              </param>
+              <param name="swidth">
+                %(swidth)s
+              </param>
+              <param name="ngridk">
+                %(ngridk)s
+              </param>
+              <param name="lmaxvr">
+                <val>14</val>
+              </param>
+            </setup>
+            """ %inpar
+        else:
+            paramset = """<?xml version="1.0" encoding="UTF-8"?>
+            
+            <setup path="%(calchome)s">
+              <param name="species">
+                %(species)s
+              </param>
+              <param name="covera">
+                %(covera)s
+              </param>
+              <param name="rgkmax">
+                %(rgkmax)s
+              </param>
+              <param name="swidth">
+                %(swidth)s
+              </param>
+              <param name="ngridk">
+                %(ngridk)s
+              </param>
+              <param name="lmaxvr">
+                <val>14</val>
+              </param>
+              <param name="scale">
+                %(scale)s
+              </param>
+            </setup>
+            """ %inpar
         ############################################################
         ############################################################
         try:

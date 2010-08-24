@@ -47,11 +47,11 @@ class XmlToFit(object):
         
         #create output
         if os.path.exists(self.dir + 'coa_data.xml') == False:
-            proc1 = subprocess.Popen(['xsltproc ' + template.get('path') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
             proc1.communicate()
             
         if os.path.exists(self.dir + 'eos_data.xml') == False:
-            proc1 = subprocess.Popen(['xsltproc ' + template.get('path') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
             proc1.communicate()
             
         #Get number of convergence test parameters    
@@ -184,7 +184,10 @@ class XmlToFit(object):
         self.b0_eos.append(eosFit.out1)
         self.db0_eos.append(eosFit.out2)
         self.emin_eos.append(eosFit.out3)
-        self.p.append(eosFit.p)
+        try:
+            self.p.append(eosFit.p)
+        except:
+            return
 
     def fitcoa(self, coa, toten, volume):
         fitcoa = fitcovera.Polyfit(coa,toten,3,volume)
