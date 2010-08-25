@@ -11,4 +11,4 @@ class Autosetup(object):
         return
     def calculate(self):
         return
-        
+    

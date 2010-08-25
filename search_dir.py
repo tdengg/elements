@@ -69,8 +69,8 @@ class SearchDir(object):
                         except:
                             error = None
                     
-                    if os.path.exists("input.xml") and self.xmlout == True:      #1                        
-                        dirx.append(doc.createElement("dir%i" %(self.n)))               #1
+                    if os.path.exists("input.xml") and self.xmlout == True:                       #1                        
+                        dirx.append(doc.createElement("dir"))                                     #1
                         dirx[self.n].setAttribute("id", "calc %i" %(self.n))            #1
                         dirx[self.n].setAttribute("path", "%s" %(os.getcwd() + '/'))    #1
                         dirx[self.n].setAttribute("info.xml", str(infostatus))

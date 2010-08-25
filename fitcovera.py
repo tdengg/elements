@@ -39,19 +39,19 @@ class Polyfit(object):
         curv = np.roots(ddpoly)
         
         for minima in minx:
-            if float(minima.real) >= min(self.covera)+0.02 and float(minima.real) <= max(self.covera)-0.02 and float(minima.imag)==0. and ddpoly(minima) > 0:
+            if float(minima.real) >= min(self.covera)+0.02 and float(minima.real) <= max(self.covera)-0.02 and ddpoly(minima) > 0:
                 coveramin = minima.real
                 print 'min(c/a) = ' + str(coveramin)
                 coamingood = (coveramin)
                 totenmingood = (poly(coveramin))
                 break
             else:
-                if float(minima.real) < min(self.covera)+0.02 and float(minima.imag)==0. and ddpoly(minima) > 0:
+                if float(minima.real) < min(self.covera)+0.02 and ddpoly(minima) > 0:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
                     print 'minimum of c/a not in calculation range (lower):  setting new range --> shift calculation range to %s'%errmin
-                elif float(minima.real) > max(self.covera)-0.02 and float(minima.imag)==0. and ddpoly(minima) > 0:
+                elif float(minima.real) > max(self.covera)-0.02 and ddpoly(minima) > 0:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
@@ -68,13 +68,13 @@ class Polyfit(object):
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(title = 'Volume in $[Bohr^3]$')
             plt.savefig('./covera_'+str(min(self.covera))+'_'+str(coveramin)+ '.png')
-        try:
-            self.coamin = coamingood
-            self.totenmin = totenmingood
-        except:
-            self.coamin = 0
-            self.totenmin = 0
-            self.volume = 0
+        #try:
+        self.coamin = coamingood
+        self.totenmin = totenmingood
+        #except:
+        #    self.coamin = 0
+        #    self.totenmin = 0
+        #    self.volume = 0
         
         
 

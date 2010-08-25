@@ -13,7 +13,7 @@
 ################################################################################
  
 # @ job_type = parallel
-# @ job_name  = JOBNAME
+
 # @ class = lessthour
 # @ node           = 1
 # @ tasks_per_node = 1
@@ -25,7 +25,7 @@
 <!-- set the initial working directory and a string specifier here -->
 <!--                                                               -->
 <xsl:for-each select = "/experiment/set">
- 
+  # @ job_name  = <xsl:value-of select="@path"/>
   <!-- Define path here -->
   <xsl:variable name="path">
   <!-- Resolve by ID number -->

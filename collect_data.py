@@ -81,18 +81,18 @@ class XmlToFit(object):
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
                 self.fiteos(scalecoa,volumecovera,self.totencoamin,structure)
                 k=k+1
+                
             k=0
-            for emin in self.emin_eos:
-                if emin == min(self.emin_eos):
-                    f = etree.parse(self.dir + 'eos_data.xml')
-                    root = f.getroot()
-                    graphs = root.getiterator('graph')
-                    node = etree.SubElement(root,'eos')
-                    node.attrib['bulk_mod'] = str(self.b0_eos[k])
-                    node.attrib['equi_volume'] = str(self.vol0_eos[k])
-                    node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
-                    node.attrib['min_energy'] = str(self.emin_eos[k])
-                    etree.ElementTree(root).write(self.dir + 'eos_data.xml')
+            f = etree.parse(self.dir + 'eos_data.xml')
+            root = f.getroot()
+            graphs = root.getiterator('graph')
+            for graph in graphs:
+                node = etree.SubElement(graph,'eos')
+                node.attrib['bulk_mod'] = str(self.b0_eos[k])
+                node.attrib['equi_volume'] = str(self.vol0_eos[k])
+                node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
+                node.attrib['min_energy'] = str(self.emin_eos[k])
+                etree.ElementTree(root).write(self.dir + 'eos_data.xml')
                 k=k+1
                     
 

@@ -93,9 +93,6 @@ class CALC(object):
               <param name="species">
                 %(species)s
               </param>
-              <param name="covera">
-                %(covera)s
-              </param>
               <param name="rgkmax">
                 %(rgkmax)s
               </param>
@@ -108,6 +105,9 @@ class CALC(object):
               <param name="lmaxvr">
                 <val>14</val>
               </param>
+              <param name="covera">
+                %(covera)s
+              </param>
             </setup>
             """ %inpar
         else:
@@ -116,9 +116,6 @@ class CALC(object):
             <setup path="%(calchome)s">
               <param name="species">
                 %(species)s
-              </param>
-              <param name="covera">
-                %(covera)s
               </param>
               <param name="rgkmax">
                 %(rgkmax)s
@@ -134,6 +131,9 @@ class CALC(object):
               </param>
               <param name="scale">
                 %(scale)s
+              </param>
+              <param name="covera">
+                %(covera)s
               </param>
             </setup>
             """ %inpar
