@@ -41,7 +41,8 @@ class XmlToFit(object):
         f = etree.parse(self.dir + 'const_parameters.xml')
         template = f.getroot().find('elementshome')
         structure = f.getroot().find('structure').get('str')
-        
+        mode = f.getroot().find('mode').get('mod')
+        self.calchome = f.getroot().find('calchome').get('path')
         #search for calculations and create filelist
         search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
@@ -62,7 +63,7 @@ class XmlToFit(object):
         for param in params:
             nconv = int(param.attrib.values()[0]) * nconv
             
-        if structure == 'hcp':
+        if structure == 'hcp' and mode == 'hcp_full':
             
             conv = convert_latt_vol.Convert(structure)
             
@@ -95,7 +96,21 @@ class XmlToFit(object):
                 etree.ElementTree(root).write(self.dir + 'eos_data.xml')
                 k=k+1
                     
-
+        elif mode == 'simple_conv':
+            param2 = self.birch()
+            if mpl:
+                plt.plot(param2['toten'], np.arange(len(param2['toten'])))
+                plt.show()
+            else:
+                print param2['toten']
+                temp = open(self.calchome + 'temp','w')
+                par = 0
+                for energy in param2['toten']:
+                    temp.writelines((str(par), ' ', str(energy[0]), '\n'))
+                    par = par+1
+                temp.close()
+                proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
+                proc.communicate()
         else:
             conv = convert_latt_vol.Convert(structure)
             param2 = self.birch()

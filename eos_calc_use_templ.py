@@ -12,6 +12,7 @@ import os
 import time
 
 import search_dir
+import check_for_existing
 
 class CALC(object):
     def __init__(self, param):
@@ -37,14 +38,16 @@ class CALC(object):
             while i > -1:
                 scale.append(azero - (i-5)*etamax)
                 i = i-1
-            if param['structure'][0] == 'hcp':
+            if param['structure'][0] == 'hcp' and param['mod'] != 'siple_conv':
                 #create c/a steps
                 i=10    
                 while i > -1:
                     covera.append(coverazero - (i-5)*dcovera)
                     i = i-1
+            elif param['structure'][0] == 'hcp' and param['mod'] == 'siple_conv':
+                covera = [coverazero]
             else:
-                covera = [1.0]
+                covera = [0]
             
             param['scale'] = scale
             param['rgkmax'] = [8,10]
@@ -63,7 +66,7 @@ class CALC(object):
         convpar = {}
         scale = param['scale']
         for key in param.keys():
-            if param['structure'][0] == 'hcp' and key == 'scale':
+            if param['structure'][0] == 'hcp' and key == 'scale' and param['mod'][0] != 'simple_conv':
                 continue
             inpar[key] = ""
             if key not in ['scale','covera'] and len(param[key])>1:
@@ -71,8 +74,8 @@ class CALC(object):
             else:
                 convpar[key] = 1
             for value in param[key]:
-                if key not in ['calchome','structure', 'speciespath','templatepath','mod']:           #other parameters
-                    if param['structure'][0] == 'hcp' and key == 'covera':
+                if key not in ['calchome','structure', 'speciespath','templatepath','mod','calculate']:           #other parameters
+                    if param['structure'][0] == 'hcp' and key == 'covera' and param['mod'][0] != 'simple_conv':
                         for alatt in scale[str(value)]:
                             inpar[key] = inpar[key] + "<val>%s" % value
                             inpar[key] = inpar[key] + "<dep name='scale' val='%s'/>" % str(alatt)
@@ -86,7 +89,7 @@ class CALC(object):
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
-        if param['structure'][0] == 'hcp':
+        if param['structure'][0] == 'hcp' and param['mod'][0] != 'simple_conv':
             paramset = """<?xml version="1.0" encoding="UTF-8"?>
             
             <setup path="%(calchome)s">
@@ -179,17 +182,22 @@ class CALC(object):
         convroot.append(convchild)
         convtree = etree.ElementTree(convroot)
         convtree.write('./convergence.xml')
-            
-        
-        proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset.xml'], shell=True)
-        proc1.communicate()
-        print "created paramset.xml"
+        if not os.path.exists(param['calchome'][0] +  'parset.xml'):
+            proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset.xml'], shell=True)
+            proc1.communicate()
+            print "created parset.xml"
+        else:
+            proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_new.xml'], shell=True)
+            proc1.communicate()
+            newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_new.xml')
+            newcalc.append_calc()
+            print 'appended new calculations to parset.xml'
         
         proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['calchome'][0] + 'parset.xml'], shell=True)
         proc2.communicate()
         print "created dir tree-structure and inputs"
         
-        if inpar['mod'] == 'parallel':
+        if param['calculate'][0] == 'True':
             proc3 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'loadleveler.xsl ' + param['calchome'][0] + 'parset.xml'], shell=True)
             proc3.communicate()
             print "created lljob script"
@@ -198,7 +206,10 @@ class CALC(object):
             proc4.communicate()
             print "submitted lljob to cluster"
             
-        elif inpar['mod'] == 'serial':
+            proc5 = subprocess.Popen(['cp '+ param['templatepath'][0] - 'templates/' + 'my_calcsetup.py ' + param['calchome'][0]], shell=True)
+            proc5.communicate()
+            
+        elif param['calculate'][0] == 'False':
             return
         else:
             print 'ERROR: calculation mode not defined (mod = serial/parallel)'
