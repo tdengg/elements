@@ -186,19 +186,27 @@ class CALC(object):
             proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset.xml'], shell=True)
             proc1.communicate()
             print "created parset.xml"
+            curr_calc = 'parset.xml'
         else:
-            proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_new.xml'], shell=True)
-            proc1.communicate()
-            newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_new.xml')
-            newcalc.append_calc()
-            print 'appended new calculations to parset.xml'
+            for i in range(50):
+                if os.path.exists(param['calchome'][0] +  'parset_%s.xml'%str(i)):
+                    continue
+                else:
+                    
+                    proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_%s.xml'%i], shell=True)
+                    proc1.communicate()
+                    newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_%s.xml'%i, param['calchome'][0])
+                    newcalc.append_calc()
+                    curr_calc = 'parset_%s.xml'%i
+                    print 'appended new calculations to parset.xml'
+                    break
         
-        proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['calchome'][0] + 'parset.xml'], shell=True)
+        proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['calchome'][0] + curr_calc], shell=True)
         proc2.communicate()
         print "created dir tree-structure and inputs"
         
         if param['calculate'][0] == 'True':
-            proc3 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'loadleveler.xsl ' + param['calchome'][0] + 'parset.xml'], shell=True)
+            proc3 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'loadleveler.xsl ' + param['calchome'][0] + curr_calc], shell=True)
             proc3.communicate()
             print "created lljob script"
             
@@ -206,7 +214,7 @@ class CALC(object):
             proc4.communicate()
             print "submitted lljob to cluster"
             
-            proc5 = subprocess.Popen(['cp '+ param['templatepath'][0] - 'templates/' + 'my_calcsetup.py ' + param['calchome'][0]], shell=True)
+            proc5 = subprocess.Popen(['cp '+ param['templatepath'][0].rstrip('templates/') + 'my_calcsetup.py ' + param['calchome'][0]], shell=True)
             proc5.communicate()
             
         elif param['calculate'][0] == 'False':

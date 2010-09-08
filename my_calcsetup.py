@@ -32,6 +32,7 @@ else:
     covera = [1.0]
 
 param['scale'] = scale
+#param['rmt'] = [2.85]
 param['rgkmax'] = [6,7,8,9,10]
 param['ngridk'] = [8]
 param['swidth'] = [0.01]

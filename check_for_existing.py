@@ -4,11 +4,15 @@
 import xml.etree.ElementTree as etree
 import os
 
+import search_dir
+
 class Manipulate(object):
-    def __init__(self,filelist_old, params_old):
+    def __init__(self,filelist_old, params_old, rootdir):
         self.fl_old = filelist_old
         self.pm_old = params_old
+        self.rootdir = rootdir
     def append_calc(self):
+        search_dir.SearchDir(['info.xml'], self.rootdir, True).search()
         f = etree.parse(self.fl_old)
         p = etree.parse(self.pm_old)
         
@@ -18,38 +22,36 @@ class Manipulate(object):
         path_p = []
         path_f = []
         root_p = p.getroot()
-        rootdir = root_p.get('path')
         paths_p = root_p.getiterator('set')
+        
         for paths in paths_p:
-            path_p.append(rootdir + paths.get('path'))
+            path_p.append(self.rootdir + paths.get('path'))
         for paths in paths_f:
             path_f.append(paths.get('path'))
         
         diff = set(path_p) - set(path_f)
 
-        for paths in diff:
-            for pathp in paths_p:
-                #print rootdir + pathp.get('path'), paths
-                if (rootdir + pathp.get('path')) != paths:
+
+        for pathp in paths_p:
+            if (self.rootdir + pathp.get('path')) not in diff:
+                try:
                     root_p.remove(pathp)
-        if diff != set([]):
-            for i in range(100):
-                if os.path.exists(rootdir + 'parset_%s.xml'%str(i)):
+                except:
                     continue
-                else:
-                    fname = 'parset_%s.xml'%str(i)
-                    break
-            p.write(rootdir + fname)
-            print 'written new parameterfile to parset_%s.xml'%str(i)
-            
-        combined = etree.parse(rootdir + 'parset.xml')
-        root_combined = combined.getroot()
+
+        fname = self.pm_old
+        p.write(fname)
         root_p = p.getroot()
-        iter = root_p.getiterator('set')
-        for element in iter:
+        new = root_p.getiterator('set')
+        combined = etree.parse(self.rootdir + 'parset.xml')
+        root_combined = combined.getroot()
+        for element in new:
             root_combined.append(element)
-        combined.write(rootdir + 'parset.xml')
-        
+        combined.write(self.rootdir + 'parset.xml')
+                
+                
+        print 'written new parameterfile to ' + self.pm_old
+
 
 ##usage:
 #test = Manipulate('/fshome/tde/cluster/Ti_convergence_ngridk/calc_filelist.xml', '/fshome/tde/cluster/Ti_convergence_ngridk/parset.xml')
