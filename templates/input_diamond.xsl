@@ -58,6 +58,7 @@
 </structure>
  
 <groundstate vkloff="0.5  0.5  0.5"   mixer="msec">
+<xsl:attribute name="swidth"><xsl:value-of select="@swidth"/></xsl:attribute>
   <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/></xsl:attribute>
   <xsl:attribute name="rgkmax"><xsl:value-of select="@rgkmax"/></xsl:attribute>
   

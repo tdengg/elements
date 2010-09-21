@@ -13,6 +13,7 @@ try:
     mpl = True
 except:
     mpl = False
+    import grace_plot
 import convert_latt_vol
 import fitev
 import fitcovera
@@ -29,6 +30,7 @@ class XmlToFit(object):
         self.b0_eos = []
         self.db0_eos = []
         self.emin_eos = []
+        self.res_eos = []
         self.p = []
         
         coamin = []
@@ -63,7 +65,7 @@ class XmlToFit(object):
         for param in params:
             nconv = int(param.attrib.values()[0]) * nconv
             
-        if structure == 'hcp' and mode == 'hcp_full':
+        if structure == 'hcp' and mode == 'eos':
             
             conv = convert_latt_vol.Convert(structure)
             
@@ -122,6 +124,8 @@ class XmlToFit(object):
                 self.n=self.n+1
             if mpl:
                 self.p[2].show()
+            else:
+                grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
                 
     def covera(self):
         param = {}
@@ -199,6 +203,7 @@ class XmlToFit(object):
         self.b0_eos.append(eosFit.out1)
         self.db0_eos.append(eosFit.out2)
         self.emin_eos.append(eosFit.out3)
+        self.res_eos.append(eosFit.deltamin)
         try:
             self.p.append(eosFit.p)
         except:
@@ -232,13 +237,15 @@ class XmlToFit(object):
                 graph.attrib['bulk_mod'] = str(self.b0_eos[i])
                 graph.attrib['equi_volume'] = str(self.vol0_eos[i])
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
-                graph.attrib['min_energy'] = str(self.emin_eos[i])
+                graph.attrib['min_energy'] = str(self.emin_eos[i])                                
+                graph.attrib['norm_res_vect'] = str(self.res_eos[i])
             i = i+1
         node = etree.SubElement(root,'eos')
         node.attrib['bulk_mod'] = str(self.b0_eos[0])
         node.attrib['equi_volume'] = str(self.vol0_eos[0])
         node.attrib['d_bulk_mod'] = str(self.db0_eos[0])
         node.attrib['min_energy'] = str(self.emin_eos[0])
+        node.attrib['norm_res_vect'] = str(self.res_eos[0])
         etree.ElementTree(root).write(self.dir + 'eos_data.xml')
         
     def write_result(self):

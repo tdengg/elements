@@ -32,7 +32,9 @@ class SearchDir(object):
         dirx = []                                                                       #1
         doc = Document()                                                                #1
         rootx = (doc.createElement("dirlist"))                                          #1
-        doc.appendChild(rootx)                                                          #1
+        doc.appendChild(rootx) 
+        rootdir = os.getcwd()
+        rootx.setAttribute("calchome", rootdir)                                                         #1
         currDir = os.listdir(os.curdir)
         ctxtinfo  = []
         
