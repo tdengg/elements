@@ -68,15 +68,15 @@
 <!--                                                              -->
 <!-- continue with LoadLeveler statements                         -->
 <!--                                                              -->
-# @ initialdir = <xsl:value-of select="@root"/><xsl:value-of select="$path"/>
+# @ initialdir = <xsl:value-of select="/experiment/@path"/><xsl:value-of select="$path"/>
 # @ step_name  = <xsl:value-of select="$string"/>
-# @ output = $(job_name).out
-# @ error = $(job_name).err
+# @ output = J.out
+# @ error = J.err
 # @ resources = ConsumableCpus(1)
 # @ queue
 </xsl:for-each>
 ### end job steps ##############################################################
- 
+touch finished
 </xsl:document>
 </xsl:template>
 </xsl:stylesheet>

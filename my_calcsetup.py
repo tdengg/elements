@@ -21,7 +21,7 @@ expand = series.Series(param['structure'])      #instance of series expansion cl
 
 scale = expand.latt_steps(azero, etamax, 11)    #generate 11 steps in lattice parameter
 
-if param['structure'][0] == 'hcp' and param['mod'][0] != 'simple_conv':
+if param['structure'][0] in ['hcp','hex'] and param['mod'][0] != 'simple_conv':
     vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 
     dvolume = vzero/50                          #volume steps
     scale, covera = expand.volume_steps(vzero, dvolume, 11, coverazero, dcovera, 11)    #generate 11*11 steps in volume and c/a

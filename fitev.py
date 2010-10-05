@@ -132,7 +132,7 @@ class Birch(object):
         #else:
         if structure == 'fcc' or structure == 'bcc':
             print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
-        elif structure == 'hcp':
+        elif structure in ['hcp','hex']:
             print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)

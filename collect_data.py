@@ -65,7 +65,7 @@ class XmlToFit(object):
         for param in params:
             nconv = int(param.attrib.values()[0]) * nconv
             
-        if structure == 'hcp' and mode == 'eos':
+        if structure in ['hcp', 'hex'] and mode == 'eos':
             
             conv = convert_latt_vol.Convert(structure)
             
@@ -74,6 +74,7 @@ class XmlToFit(object):
                 
             ncoa = self.pointscovera
             nnconv = self.numb_coa/nconv
+
             k=0
             while k<nconv:         
                 j=0
@@ -123,7 +124,10 @@ class XmlToFit(object):
                 self.write_eos()
                 self.n=self.n+1
             if mpl:
-                self.p[2].show()
+                n=0
+                for plots in self.p:
+                    plots.savefig(self.calchome + '%s_eos'%str(n))
+                    n=n+1
             else:
                 grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
                 
@@ -257,5 +261,10 @@ class XmlToFit(object):
         results.append(reschild)
         restree = etree.ElementTree(results)
         restree.write('./results.xml')
+        
+    def clean(self, clean_mode):
+        #delete all .OUT files
+        remove = subprocess.Popen(["find . -type f -name '*.OUT' -exec rm -f {} \;"],shell=True)
+        remove.communicate()
                 
 test = XmlToFit('')

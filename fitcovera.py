@@ -56,6 +56,12 @@ class Polyfit(object):
                     coamingood = errmin
                     totenmingood = (poly(errmin))
                     print 'minimum of c/a not in calculation range (higher):  setting new range --> shift calculation range to %s'%errmin
+                    
+                else:
+                    errmin = minima.real
+                    coamingood = errmin
+                    totenmingood = (poly(errmin))
+                    print 'not able to determine minimum of c/a-fit'
             
              
         

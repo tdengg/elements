@@ -38,13 +38,13 @@ class CALC(object):
             while i > -1:
                 scale.append(azero - (i-5)*etamax)
                 i = i-1
-            if param['structure'][0] == 'hcp' and param['mod'] != 'siple_conv':
+            if param['structure'][0] in ['hcp','hex'] and param['mod'][0] != 'siple_conv':
                 #create c/a steps
                 i=10    
                 while i > -1:
                     covera.append(coverazero - (i-5)*dcovera)
                     i = i-1
-            elif param['structure'][0] == 'hcp' and param['mod'] == 'siple_conv':
+            elif param['structure'][0] in ['hcp','hex'] and param['mod'][0] == 'siple_conv':
                 covera = [coverazero]
             else:
                 covera = [0]
@@ -61,21 +61,25 @@ class CALC(object):
             param['mod'] = ['parallel']
         ###########################################################
         ###########################################################
-                   
+        
+        #remove old status file:
+        if os.path.exists('./finished'): 
+            proc = subprocess.Popen(['rm ./finished'], shell=True)
+            proc.communicate()
+                       
         inpar = {}
         convpar = {}
         scale = param['scale']
         for key in param.keys():
-            if param['structure'][0] == 'hcp' and key == 'scale' and param['mod'][0] != 'simple_conv':
+            if param['structure'][0] in ['hcp','hex'] and key == 'scale' and param['mod'][0] != 'simple_conv':
                 continue
             inpar[key] = ""
-            if key not in ['scale','covera'] and len(param[key])>1:
+            if key not in ['scale','covera']:
                 convpar[key] = len(param[key])
-            else:
-                convpar[key] = 1
+
             for value in param[key]:
                 if key not in ['calchome','structure', 'speciespath','templatepath','mod','calculate']:           #other parameters
-                    if param['structure'][0] == 'hcp' and key == 'covera' and param['mod'][0] != 'simple_conv':
+                    if param['structure'][0] in ['hcp','hex'] and key == 'covera' and param['mod'][0] != 'simple_conv':
                         for alatt in scale[str(value)]:
                             inpar[key] = inpar[key] + "<val>%s" % value
                             inpar[key] = inpar[key] + "<dep name='scale' val='%s'/>" % str(alatt)
@@ -89,7 +93,7 @@ class CALC(object):
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
-        if param['structure'][0] == 'hcp' and param['mod'][0] != 'simple_conv':
+        if param['structure'][0] in ['hcp','hex'] and param['mod'][0] != 'simple_conv':
             paramset = """<?xml version="1.0" encoding="UTF-8"?>
             
             <setup path="%(calchome)s">
@@ -187,19 +191,18 @@ class CALC(object):
             proc1.communicate()
             print "created parset.xml"
             curr_calc = 'parset.xml'
-        else:
-            for i in range(50):
-                if os.path.exists(param['calchome'][0] +  'parset_%s.xml'%str(i)):
-                    continue
-                else:
-                    
-                    proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_%s.xml'%i], shell=True)
-                    proc1.communicate()
-                    newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_%s.xml'%i, param['calchome'][0])
-                    newcalc.append_calc()
-                    curr_calc = 'parset_%s.xml'%i
-                    print 'appended new calculations to parset.xml'
-                    break
+        
+        for i in range(50):
+            if os.path.exists(param['calchome'][0] +  'parset_%s.xml'%str(i)):
+                continue
+            else:    
+                proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_%s.xml'%i], shell=True)
+                proc1.communicate()
+                newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_%s.xml'%i, param['calchome'][0])
+                newcalc.append_calc()
+                curr_calc = 'parset_%s.xml'%str(i)
+                print 'appended new calculations to parset.xml'
+                break
         
         proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['calchome'][0] + curr_calc], shell=True)
         proc2.communicate()
@@ -217,9 +220,17 @@ class CALC(object):
             proc5 = subprocess.Popen(['cp '+ param['templatepath'][0].rstrip('templates/') + 'my_calcsetup.py ' + param['calchome'][0]], shell=True)
             proc5.communicate()
             
+            #check for calculation to be finished:
+            #for i in range(100):
+            #    if os.path.exists('finished'):
+            #        print 'Calclation steps finished on cluster.'
+            #        break
+            #    time.sleep(60)
+            
         elif param['calculate'][0] == 'False':
             return
         else:
             print 'ERROR: calculation mode not defined (mod = serial/parallel)'
+            
             
 #test = CALC([])
