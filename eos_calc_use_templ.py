@@ -28,7 +28,7 @@ class CALC(object):
             covera = []
             
             azero = 4.319       #lattice parameter
-            etamax = 0.05       #steps in lattice parameter
+            da = 0.05       #steps in lattice parameter
             coverazero = 1.6    #c/a ratio
             dcovera = 1.6/50    #steps in c/a
             param['structure'] = ['hcp']
@@ -36,7 +36,7 @@ class CALC(object):
             #create lattice parameter steps
             i=10
             while i > -1:
-                scale.append(azero - (i-5)*etamax)
+                scale.append(azero - (i-5)*da)
                 i = i-1
             if param['structure'][0] in ['hcp','hex'] and param['mod'][0] != 'siple_conv':
                 #create c/a steps
@@ -191,18 +191,19 @@ class CALC(object):
             proc1.communicate()
             print "created parset.xml"
             curr_calc = 'parset.xml'
-        
-        for i in range(50):
-            if os.path.exists(param['calchome'][0] +  'parset_%s.xml'%str(i)):
-                continue
-            else:    
-                proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_%s.xml'%i], shell=True)
-                proc1.communicate()
-                newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_%s.xml'%i, param['calchome'][0])
-                newcalc.append_calc()
-                curr_calc = 'parset_%s.xml'%str(i)
-                print 'appended new calculations to parset.xml'
-                break
+        else:
+            for i in range(50):
+                if os.path.exists(param['calchome'][0] +  'parset_%s.xml'%str(i)):
+                    continue
+                else:    
+                    proc1 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'permute_set.xsl ' + param['calchome'][0] + 'set.xml > ' + param['calchome'][0] +  'parset_%s.xml'%str(i)], shell=True)
+                    proc1.communicate()
+                    newcalc = check_for_existing.Manipulate(param['calchome'][0] +  'calc_filelist.xml', param['calchome'][0] +  'parset_%s.xml'%str(i), param['calchome'][0])
+                    newcalc.append_calc()
+
+                    curr_calc = 'parset_%s.xml'%str(i)
+                    print 'appended new calculations to parset.xml'
+                    break
         
         proc2 = subprocess.Popen(['xsltproc ' + param['templatepath'][0] + 'input_' + param['structure'][0] + '.xsl ' + param['calchome'][0] + curr_calc], shell=True)
         proc2.communicate()

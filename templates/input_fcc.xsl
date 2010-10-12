@@ -15,7 +15,7 @@
 <xsl:for-each select = "/experiment/set">
  
   <!-- Define path here -->
-  <xsl:variable name="path"><xsl:value-of select="/rootdir/@path"/><xsl:value-of select="./@path"/>/input.xml</xsl:variable>
+  <xsl:variable name="path"><xsl:value-of select="/experiment/@path"/><xsl:value-of select="./@path"/>/input.xml</xsl:variable>
 
  <!-- Write document at Path $path -->
   <xsl:document href="{$path}" method="xml" indent="yes">

@@ -11,15 +11,15 @@ covera = []
 volume = []
 
 azero = 4.319                                   #lattice parameter
-etamax = 0.05                                   #steps in lattice parameter
+da = 0.05                                   #steps in lattice parameter
 coverazero = 1.6                                #c/a ratio
 dcovera = 1.6/50                                #steps in c/a
 param['structure'] = ['hcp']
-param['mod'] = ['simple_conv']
+param['mod'] = ['eos']
 
 expand = series.Series(param['structure'])      #instance of series expansion class
 
-scale = expand.latt_steps(azero, etamax, 11)    #generate 11 steps in lattice parameter
+scale = expand.latt_steps(azero, da, 11)    #generate 11 steps in lattice parameter
 
 if param['structure'][0] in ['hcp','hex'] and param['mod'][0] != 'simple_conv':
     vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 

@@ -38,6 +38,7 @@ class XmlToFit(object):
         plt = []
         l1coa = []
         v1coa = []
+        conv_params = []
         self.dir = str(os.getcwd()) + '/'
 
         f = etree.parse(self.dir + 'const_parameters.xml')
@@ -49,13 +50,17 @@ class XmlToFit(object):
         search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
         #create output
-        if os.path.exists(self.dir + 'coa_data.xml') == False:
-            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
-            proc1.communicate()
+        if os.path.exists(self.dir + 'coa_data.xml'):
+            remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
             
-        if os.path.exists(self.dir + 'eos_data.xml') == False:
-            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
-            proc1.communicate()
+        proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
+        proc1.communicate()
+            
+        if os.path.exists(self.dir + 'eos_data.xml'):
+            remove = subprocess.Popen(['rm ' + self.dir + 'eos_data.xml'], shell=True)
+            
+        proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
+        proc1.communicate()
             
         #Get number of convergence test parameters    
         fc = etree.parse(self.dir + 'convergence.xml')
@@ -64,6 +69,7 @@ class XmlToFit(object):
         nconv = 1
         for param in params:
             nconv = int(param.attrib.values()[0]) * nconv
+            conv_params.append(param.keys()[0])
             
         if structure in ['hcp', 'hex'] and mode == 'eos':
             
@@ -197,7 +203,7 @@ class XmlToFit(object):
         v = []
         ein = []
         
-        eosFit = fitev.Birch(structure, scale,volume,toten)
+        eosFit = fitev.Birch(structure, scale,volume,toten,self.calchome)
             
         a.append(eosFit.a)
         v.append(eosFit.v)

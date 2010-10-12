@@ -64,6 +64,7 @@ class Birch(object):
             l = args[0]
             v = args[1]
             ein = args[2]
+            calchome = args[3]
             a=l
             
         v0, emin = self.minIn(ein,v)
@@ -131,9 +132,9 @@ class Birch(object):
             print('---------------------------------------')"""
         #else:
         if structure == 'fcc' or structure == 'bcc':
-            print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
+            print(('V0: ' + str(round(parnew1[0,0], 4))) + ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(18) + ("B0': " + str(round(parnew1[0,2],4))).rjust(18) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(18))
         elif structure in ['hcp','hex']:
-            print(str(round(parnew1[0,0], 4)).rjust(25) + str(round(parnew1[0,1]*2.942104*10**4., 4)).rjust(25) + str(round(parnew1[0,2],4)).rjust(25))
+            print(('V0: ' + str(round(parnew1[0,0], 4))) + ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(18) + ("B0': " + str(round(parnew1[0,2],4))).rjust(18) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(18))
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
@@ -146,7 +147,7 @@ class Birch(object):
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(loc='best')
             self.p = plt
-            plt.savefig('./eos.png')
+            plt.savefig(calchome + 'eos.png')
         
         #plt.show()
                 
