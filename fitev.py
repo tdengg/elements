@@ -152,18 +152,23 @@ class Birch(object):
             self.p = plt
             #plt.savefig(calchome + 'eos.png')
             
-        results = etree.Element('graph')
+        results = etree.Element('plot')
            
-        #reschild.set(,str(convpar[key]))
-        reschild = etree.Element('graph')
+        ###############reschild.set(,str(convpar[key]))##############
+        reschild = etree.SubElement(results, 'graph')
         for i in range(len(lv)):
-            reschild = etree.SubElement(results, 'point')
-            reschild.set('volume',str(lv[i]))
-            reschild.set('energy',str(plote[i]))
-        results.append(reschild)
+            point = etree.SubElement(reschild, 'point')
+            point.set('volume',str(lv[i]))
+            point.set('energy',str(plote[i]))
+        reschild2 = etree.SubElement(results, 'graph_exp')
+        for i in range(len(v)):
+            point2 = etree.SubElement(reschild2, 'point')
+            point2.set('volume',str(v[i]))
+            point2.set('energy',str(ein[i]))
+        results.append(reschild2)
         restree = etree.ElementTree(results)
         restree.write(calchome + 'eosplot.xml')
-
+        #############################################################
         #plt.show()
                 
         self.out0 = parnew1[0,0]

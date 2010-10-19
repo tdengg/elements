@@ -162,6 +162,7 @@ class CALC(object):
         const_param = """
         <calc>
             <calchome path='%(calchome)s'/>
+            <species spc='%(species)s'/>
             <structure str='%(structure)s'/>
             <speciespath spa = '%(speciespath)s'/>
             <elementshome elementsdir ='%(templatepath)s'/>
