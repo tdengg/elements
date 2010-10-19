@@ -29,6 +29,7 @@ try:
 except:
     mpl = False
 import random
+import xml.etree.ElementTree as etree
 
 import convert_latt_vol
 
@@ -132,9 +133,11 @@ class Birch(object):
             print('---------------------------------------')"""
         #else:
         if structure == 'fcc' or structure == 'bcc':
-            print(('V0: ' + str(round(parnew1[0,0], 4))) + ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(18) + ("B0': " + str(round(parnew1[0,2],4))).rjust(18) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(18))
-        elif structure in ['hcp','hex']:
-            print(('V0: ' + str(round(parnew1[0,0], 4))) + ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(18) + ("B0': " + str(round(parnew1[0,2],4))).rjust(18) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(18))
+            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str((2.*parnew1[0,0]/(3.**(1./2.)*float(covera[i])))**(1./3.)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        #elif structure in ['hcp','hex']:
+            #    print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+        elif structure == 'diamond':
+            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
@@ -147,12 +150,24 @@ class Birch(object):
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(loc='best')
             self.p = plt
-            plt.savefig(calchome + 'eos.png')
-        
+            #plt.savefig(calchome + 'eos.png')
+            
+        results = etree.Element('graph')
+           
+        #reschild.set(,str(convpar[key]))
+        reschild = etree.Element('graph')
+        for i in range(len(lv)):
+            reschild = etree.SubElement(results, 'point')
+            reschild.set('volume',str(lv[i]))
+            reschild.set('energy',str(plote[i]))
+        results.append(reschild)
+        restree = etree.ElementTree(results)
+        restree.write(calchome + 'eosplot.xml')
+
         #plt.show()
                 
         self.out0 = parnew1[0,0]
-        self.out1 = parnew1[0,1]*2.942104*10**4. #description
+        self.out1 = parnew1[0,1]*2.942104*10**4. #bulk modulus in GPa
         self.out2 = parnew1[0,2]
         self.out3 = parnew1[0,3]
         self.deltamin = deltamin

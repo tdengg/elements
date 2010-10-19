@@ -52,12 +52,14 @@ class XmlToFit(object):
         #create output
         if os.path.exists(self.dir + 'coa_data.xml'):
             remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
+            remove.communicate()
             
         proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
         proc1.communicate()
             
         if os.path.exists(self.dir + 'eos_data.xml'):
             remove = subprocess.Popen(['rm ' + self.dir + 'eos_data.xml'], shell=True)
+            remove.communicate()
             
         proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
         proc1.communicate()
@@ -204,7 +206,16 @@ class XmlToFit(object):
         ein = []
         
         eosFit = fitev.Birch(structure, scale,volume,toten,self.calchome)
+        
+        #write important parameters to eosplot.xml
+        eosplot = etree.parse(self.dir + 'eosplot.xml')
+        root = eosplot.getroot()
+        graphs = root.getiterator('graph')
+        for graph in graphs:
+            graph.attrib['structure'] = str(structure)
+        etree.ElementTree(root).write(self.dir + 'eosplot.xml')
             
+        
         a.append(eosFit.a)
         v.append(eosFit.v)
         ein.append(eosFit.ein)
