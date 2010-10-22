@@ -38,5 +38,8 @@ class Plot(object):
         plt.legend(loc='best')
         plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
         plt.show()
+        
+    def convplot_mpl(self):
+        return
 
 test = Plot().eosplot_mpl()

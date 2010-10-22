@@ -37,7 +37,8 @@ class Polyfit(object):
         ddpoly = np.poly1d.deriv(dpoly)
         minx = np.roots(dpoly)#
         curv = np.roots(ddpoly)
-        
+        mincoa = minx[0].real
+        maxcoa = minx[0].real
         for minima in minx:
             if float(minima.real) >= min(self.covera)+0.02 and float(minima.real) <= max(self.covera)-0.02 and ddpoly(minima) > 0:
                 coveramin = minima.real
@@ -50,18 +51,23 @@ class Polyfit(object):
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-                    print 'minimum of c/a not in calculation range (lower):  setting new range --> shift calculation range to %s'%errmin
+                    print 'Volume: %(vol)s; minimum of c/a not in calculation range (lower):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':volume}
                 elif float(minima.real) > max(self.covera)-0.02 and ddpoly(minima) > 0:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-                    print 'minimum of c/a not in calculation range (higher):  setting new range --> shift calculation range to %s'%errmin
+                    print 'Volume: %(vol)s; minimum of c/a not in calculation range (higher):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':volume}
                     
                 else:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-                    print 'not able to determine minimum of c/a-fit'
+                    print 'Not able to determine minimum of c/a-fit'
+            if coamingood < mincoa:
+                mincoa = coamingood
+            if coamingood > maxcoa:
+                maxcoa = coamingood
+        print 'Total range of energy minima in c/a: %(min)s - %(max)s'%{'min':mincoa,'max':maxcoa}
             
              
         
