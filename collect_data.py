@@ -8,12 +8,14 @@
 import xml.etree.ElementTree as etree
 import subprocess
 import os
+import pickle
 try:
     import matplotlib.pyplot as plt
     mpl = True
 except:
     mpl = False
     import grace_plot
+    
 import convert_latt_vol
 import fitev
 import fitcovera
@@ -25,6 +27,8 @@ class XmlToFit(object):
         self.coveramin = []
         self.totencoamin = []
         self.volumecoa = []
+        self.recalculatecoa = []
+        self.newcoa = []
         
         self.vol0_eos = [] 
         self.b0_eos = []
@@ -93,7 +97,10 @@ class XmlToFit(object):
                 while j<self.numb_coa/nconv:
                     self.fitcoa(param1['covera'][nnconv*k+j],param1['toten'][nnconv*k+j],param1['volume'][nnconv*k+j])
                     j=j+1
-                    
+                if len(self.newcoa) != 0:
+                    print 'Do you want to automatically set a new calculation range and recalculate? (yes/no):'
+                    setup = my_calcsetup.element
+                    setup['param']['covera']['coverazero']
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
                 self.results = etree.Element('plot')
                 self.fiteos(scalecoa,volumecovera,self.totencoamin,structure,species)
@@ -251,6 +258,8 @@ class XmlToFit(object):
         self.coveramin.append(fitcoa.coamin)
         self.totencoamin.append(fitcoa.totenmin)
         self.volumecoa.append(fitcoa.volume)
+        self.recalculatecoa.append(fitcoa.recalculate)
+        self.newcoa.append(fitcoa.newcovera)
     
     def write_covera(self):
         f = etree.parse(self.dir + 'coa_data.xml')

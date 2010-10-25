@@ -10,12 +10,12 @@ class Series(object):
         covera = []
         i = vsteps - 1    
         while i > -1:
-            volume.append(vzero - (i-5)*dv)
+            volume.append(vzero - (i-int(vsteps/2))*dv)
             i = i-1
         #create c/a steps
         i = coasteps - 1
         while i > -1:
-            covera.append(coverazero - (i-5)*dcovera)
+            covera.append(coverazero - (i-int(coasteps/2))*dcovera)
             i = i-1
             #create lattice parameters out of c/a steps
             scale = {}
@@ -31,7 +31,7 @@ class Series(object):
         covera = []
         i = nsteps - 1
         while i > -1:
-            covera.append(coverazero - (i-5)*dcovera)
+            covera.append(coverazero - (i-int(coasteps/2))*dcovera)
             i = i-1
         return covera
     
@@ -40,6 +40,6 @@ class Series(object):
         scale = []
         i = nsteps - 1
         while i > -1:
-            scale.append(lattzero - (i-5)*dlatt)
+            scale.append(lattzero - (i-int(vsteps/2))*dlatt)
             i = i-1
         return scale

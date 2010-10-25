@@ -1,45 +1,44 @@
-import sys
-elementshome = '/fshome/tde/git/my_calc/gen/elements/'      # define location of elements home here!
-sys.path.append(elementshome)
+import os
 import eos_calc_use_templ as calc
 import series
+import my_calcsetup
+import pickle
 
-param = {}
-usr = "tde"
-scale = []
-covera = []
-volume = []
-
-azero = 4.319                                   #lattice parameter
-da = 0.05                                   #steps in lattice parameter
-coverazero = 1.6                                #c/a ratio
-dcovera = 1.6/50                                #steps in c/a
-param['structure'] = ['hcp']
-param['mod'] = ['eos']
-
-expand = series.Series(param['structure'])      #instance of series expansion class
-
-scale = expand.latt_steps(azero, da, 11)    #generate 11 steps in lattice parameter
-
-if param['structure'][0] in ['hcp','hex'] and param['mod'][0] != 'simple_conv':
-    vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 
-    dvolume = vzero/50                          #volume steps
-    scale, covera = expand.volume_steps(vzero, dvolume, 11, coverazero, dcovera, 11)    #generate 11*11 steps in volume and c/a
-elif param['mod'][0] == 'simple_conv':
-    covera = [coverazero]
-    scale = [azero]
+if os.path.exists('autoshift.setup'):
+    s = open('autoshift.setup','rb')
+    setup = pickle.load(s)
+    s.close()
 else:
-    covera = [1.0]
+    setup = my_calcsetup.element
+    
+expand = series.Series(setup['structure'])      #instance of series expansion class
+if type(setup['param']['scale']) is dict: 
+    azero = setup['param']['scale']['azero']
+    da = setup['param']['scale']['da']
+    asteps = setup['param']['scale']['steps']
+    del setup['param']['scale']
+    scale = expand.latt_steps(azero, da, asteps)    #generate steps in lattice parameter
+else: scale = setup['param']['scale']
+if type(setup['param']['covera']) is dict:
+    coverazero = setup['param']['covera']['coverazero']
+    dcovera = setup['param']['covera']['dcovera']
+    coasteps = setup['param']['covera']['steps']
+    del setup['param']['covera']
+else: covera = setup['param']['covera']
 
-param['scale'] = scale
-#param['rmt'] = [2.85]
-param['rgkmax'] = [6,7,8,9,10]
-param['ngridk'] = [8]
-param['swidth'] = [0.01]
-param['species'] = ['Be']
-param['covera'] = covera
-param['calchome'] = ["/fshome/tde/cluster/test3/"]
-param['speciespath'] = ["/appl/EXCITING/versions/hydrogen/species/"]
-param['templatepath'] = [elementshome + "templates/"]
-param['calculate'] = ['False']
-calc.CALC(param)
+
+if type(setup['param']['covera']) is dict and type(setup['param']['scale']) is dict:
+    if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv':
+        vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 
+        dvolume = vzero/50                          #volume steps
+        scale, covera = expand.volume_steps(vzero, dvolume, asteps, coverazero, dcovera, coasteps)    #generate steps in volume and c/a
+    elif setup['mod'] == 'simple_conv':
+        covera = [coverazero]
+        scale = [azero]
+    else:
+        covera = [1.0]
+
+setup['param']['scale'] = scale
+setup['param']['covera'] = covera
+
+calc.CALC(setup)

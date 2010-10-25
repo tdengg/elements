@@ -11,7 +11,7 @@
     returns:    none
     
 """
-
+import xml.etree.ElementTree as etree
 import numpy as np
 try:
     import matplotlib.pyplot as plt
@@ -28,6 +28,46 @@ class Polyfit(object):
         self.fit()
         
     def fit(self):
+        
+        #check and remove points that do not seam to have reasonable energy values
+        poly = []
+        res = []
+        devsq = []
+        rm = []
+        deg = 2
+        nstep = int(len(self.covera)/(deg+1))
+        span = nstep*(deg+1)
+        remaining = len(self.covera)-nstep*(deg+1)
+        
+        for j in range(nstep):
+            coverapoly = []
+            epoly = []
+            for i in range(deg+1):
+                coverapoly.append(self.covera[nstep*i+j])
+                epoly.append(self.toten[nstep*i+j])
+            coeff = np.polyfit(coverapoly, epoly, deg)
+            poly.append(np.poly1d(coeff))
+        j=0
+        for p in poly:
+            ressq = 0
+            devsq.append([])
+            for i in range(len(self.covera)):
+                ressq = ressq + (p(self.covera[i])-self.toten[i])**2.
+                devsq[j].append((p(self.covera[i])-self.toten[i])**2.)
+            res.append(ressq)
+            j=j+1
+        ind = res.index(min(res))
+        for i in range(len(self.covera)):
+            if devsq[ind][i]*(len(self.covera)) > 2*res[ind]:
+                rm.append(self.covera[i])
+            print devsq[ind][i]*(len(self.covera)),res[ind]
+        for valv in rm:
+            index = self.covera.index(valv)
+            self.covera.remove(valv)
+            del self.toten[index]
+
+        #############
+        
         coveramin = 0
         coaminima = []
         totenmin = []
@@ -45,17 +85,22 @@ class Polyfit(object):
                 print 'min(c/a) = ' + str(coveramin)
                 coamingood = (coveramin)
                 totenmingood = (poly(coveramin))
+                recalculate.append(False)
                 break
             else:
                 if float(minima.real) < min(self.covera)+0.02 and ddpoly(minima) > 0:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
+                    recalculate = True
+                    newcovera = errmin
                     print 'Volume: %(vol)s; minimum of c/a not in calculation range (lower):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':volume}
                 elif float(minima.real) > max(self.covera)-0.02 and ddpoly(minima) > 0:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
+                    recalculate = True
+                    newcovera = errmin
                     print 'Volume: %(vol)s; minimum of c/a not in calculation range (higher):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':volume}
                     
                 else:
@@ -67,7 +112,9 @@ class Polyfit(object):
                 mincoa = coamingood
             if coamingood > maxcoa:
                 maxcoa = coamingood
-        print 'Total range of energy minima in c/a: %(min)s - %(max)s'%{'min':mincoa,'max':maxcoa}
+        print 'There are energy minima in the c/a range: %(min)s - %(max)s'%{'min':mincoa,'max':maxcoa}
+        self.recalculate = recalculate
+        self.newcovera = newcovera
             
              
         
