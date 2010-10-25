@@ -100,7 +100,7 @@ class XmlToFit(object):
                     
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
                 self.results = etree.Element('plot')
-                self.fiteos(scalecoa,volumecovera,self.totencoamin,self.structure,self.species)
+                self.fiteos(scalecoa,volumecovera,self.totencoamin, self.coveramin, self.structure, self.species)
                 k=k+1
                 
             k=0
@@ -211,12 +211,12 @@ class XmlToFit(object):
         param['covera'] = covera
     	return param
         
-    def fiteos(self, scale, volume, toten, structure, species):
+    def fiteos(self, scale, volume, toten, coveramin, structure, species):
         a=[]
         v = []
         ein = []
         
-        eosFit = fitev.Birch(self.structure, scale,volume,toten,self.calchome)
+        eosFit = fitev.Birch(self.structure, scale,coveramin,volume,toten,self.calchome)
         
         
         #write important parameters to eosplot.xml#

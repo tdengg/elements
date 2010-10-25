@@ -16,7 +16,7 @@ element={
                 'species': 'Be',
                 'structure':'hcp',
                 'mod': 'eos',
-                'calchome' :"/home/tom/cluster/test4/",
+                'calchome' :"/fshome/tde/cluster/test4/",
                 'speciespath': "/appl/EXCITING/versions/hydrogen/species/",
                 'elementshome': "/home/tom/git/ELEMENTS/elements/",
                 'templatepath' : "templates/",

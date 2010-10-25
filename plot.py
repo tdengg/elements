@@ -124,4 +124,4 @@ class Plot(object):
             n=n+1
         plt.show()
 
-test = Plot().coaplot_mpl()
+test = Plot().eosplot_mpl()
