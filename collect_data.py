@@ -32,6 +32,7 @@ class XmlToFit(object):
         self.emin_eos = []
         self.res_eos = []
         self.p = []
+        self.results = []
         
         coamin = []
         tmin = []
@@ -40,7 +41,9 @@ class XmlToFit(object):
         v1coa = []
         conv_params = []
         self.dir = str(os.getcwd()) + '/'
-
+        tempf = open(self.dir + 'eosplot.xml','w')
+        tempf.write('<plot></plot>')
+        tempf.close()
         f = etree.parse(self.dir + 'const_parameters.xml')
         template = f.getroot().find('elementshome')
         structure = f.getroot().find('structure').get('str')
@@ -92,6 +95,7 @@ class XmlToFit(object):
                     j=j+1
                     
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
+                self.results = etree.Element('plot')
                 self.fiteos(scalecoa,volumecovera,self.totencoamin,structure,species)
                 k=k+1
                 
@@ -127,8 +131,10 @@ class XmlToFit(object):
             conv = convert_latt_vol.Convert(structure)
             param2 = self.birch()
             self.n=0
+            self.results = etree.Element('plot')
             while self.n < len(param2['scale']):
                 l, v = conv.lattToVolume(param2, param2['scale'][self.n])
+                
                 self.fiteos(l, v, param2['toten'][self.n], structure,species)
                 self.write_eos()
                 self.n=self.n+1
@@ -208,7 +214,13 @@ class XmlToFit(object):
         
         eosFit = fitev.Birch(structure, scale,volume,toten,self.calchome)
         
+        
         #write important parameters to eosplot.xml#
+        self.results.append(eosFit.reschild)
+        self.results.append(eosFit.reschild2)
+        print self.results
+        restree = etree.ElementTree(self.results)
+        restree.write(self.dir + 'eosplot.xml')
         eosplot = etree.parse(self.dir + 'eosplot.xml')
         root = eosplot.getroot()
         graphs = root.getiterator('graph')
@@ -216,6 +228,8 @@ class XmlToFit(object):
             graph.attrib['structure'] = str(structure)
             graph.attrib['species'] = str(species)
         etree.ElementTree(root).write(self.dir + 'eosplot.xml')
+        
+        
         ###########################################    
         
         a.append(eosFit.a)
