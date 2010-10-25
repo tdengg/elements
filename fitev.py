@@ -67,6 +67,46 @@ class Birch(object):
             ein = args[2]
             calchome = args[3]
             a=l
+        
+        #check and remove points that do not seam to have reasonable energy values
+        poly = []
+        res = []
+        devsq = []
+        rm = []
+        deg = 2
+        nstep = int(len(v)/(deg+1))
+        span = nstep*(deg+1)
+        remaining = len(v)-nstep*(deg+1)
+        
+        for j in range(nstep):
+            vpoly = []
+            epoly = []
+            for i in range(deg+1):
+                vpoly.append(v[nstep*i+j])
+                epoly.append(ein[nstep*i+j])
+            coeff = np.polyfit(vpoly, epoly, deg)
+            poly.append(np.poly1d(coeff))
+        j=0
+        for p in poly:
+            ressq = 0
+            devsq.append([])
+            for i in range(len(v)):
+                ressq = ressq + (p(v[i])-ein[i])**2.
+                devsq[j].append((p(v[i])-ein[i])**2.)
+            res.append(ressq)
+            j=j+1
+        ind = res.index(min(res))
+        for i in range(len(v)):
+            if devsq[ind][i]*(len(v)) > 2*res[ind]:
+                rm.append(v[i])
+            print devsq[ind][i]*(len(v)),res[ind]
+        for valv in rm:
+            index = v.index(valv)
+            v.remove(valv)
+            del ein[index],l[index]
+        x = np.linspace(min(v),max(v),100)
+
+        #############
             
         v0, emin = self.minIn(ein,v)
         
@@ -143,7 +183,7 @@ class Birch(object):
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
         #print lv, plote
         if mpl:
-            plt.cla()
+            
             plt.plot(lv, plote, '')
             plt.plot(v, ein, '.')
             plt.xlabel(r'$volume$   $[{Bohr^3}]$')
@@ -151,6 +191,7 @@ class Birch(object):
             plt.legend(loc='best')
             self.p = plt
             #plt.savefig(calchome + 'eos.png')
+            plt.show()
             
         results = etree.Element('plot')
            

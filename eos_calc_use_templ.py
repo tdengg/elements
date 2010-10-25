@@ -196,7 +196,7 @@ class CALC(object):
         elif setup['calculate'] == 'False':
             return
         else:
-            print 'ERROR: calculation mode not defined (mod = serial/parallel)'
+            print 'ERROR: calculation mode not defined (mod = True/False)'
             
             
 #test = CALC([])
