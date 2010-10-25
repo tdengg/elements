@@ -40,6 +40,6 @@ class Series(object):
         scale = []
         i = nsteps - 1
         while i > -1:
-            scale.append(lattzero - (i-int(vsteps/2))*dlatt)
+            scale.append(lattzero - (i-int(nsteps/2))*dlatt)
             i = i-1
         return scale

@@ -16,14 +16,14 @@ if type(setup['param']['scale']) is dict:
     azero = setup['param']['scale']['azero']
     da = setup['param']['scale']['da']
     asteps = setup['param']['scale']['steps']
-    del setup['param']['scale']
+    #del setup['param']['scale']
     scale = expand.latt_steps(azero, da, asteps)    #generate steps in lattice parameter
 else: scale = setup['param']['scale']
 if type(setup['param']['covera']) is dict:
     coverazero = setup['param']['covera']['coverazero']
     dcovera = setup['param']['covera']['dcovera']
     coasteps = setup['param']['covera']['steps']
-    del setup['param']['covera']
+    #del setup['param']['covera']
 else: covera = setup['param']['covera']
 
 
