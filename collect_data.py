@@ -8,18 +8,17 @@
 import xml.etree.ElementTree as etree
 import subprocess
 import os
-import pickle
 try:
     import matplotlib.pyplot as plt
     mpl = True
 except:
     mpl = False
     import grace_plot
-    
 import convert_latt_vol
 import fitev
 import fitcovera
 import search_dir
+import my_calcsetup
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -27,8 +26,6 @@ class XmlToFit(object):
         self.coveramin = []
         self.totencoamin = []
         self.volumecoa = []
-        self.recalculatecoa = []
-        self.newcoa = []
         
         self.vol0_eos = [] 
         self.b0_eos = []
@@ -37,6 +34,7 @@ class XmlToFit(object):
         self.res_eos = []
         self.p = []
         self.results = []
+        self.results_coa = []
         
         coamin = []
         tmin = []
@@ -50,8 +48,8 @@ class XmlToFit(object):
         tempf.close()
         f = etree.parse(self.dir + 'const_parameters.xml')
         template = f.getroot().find('elementshome')
-        structure = f.getroot().find('structure').get('str')
-        species = f.getroot().find('species').get('spc')
+        self.structure = f.getroot().find('structure').get('str')
+        self.species = f.getroot().find('species').get('spc')
         mode = f.getroot().find('mode').get('mod')
         self.calchome = f.getroot().find('calchome').get('path')
         #search for calculations and create filelist
@@ -81,9 +79,9 @@ class XmlToFit(object):
             nconv = int(param.attrib.values()[0]) * nconv
             conv_params.append(param.keys()[0])
             
-        if structure in ['hcp', 'hex'] and mode == 'eos':
+        if self.structure in ['hcp', 'hex'] and mode == 'eos':
             
-            conv = convert_latt_vol.Convert(structure)
+            conv = convert_latt_vol.Convert(self.structure)
             
             self.numb_coa = 0
             param1 = self.covera()
@@ -94,16 +92,15 @@ class XmlToFit(object):
             k=0
             while k<nconv:         
                 j=0
+                self.results_coa = etree.Element('plot')
                 while j<self.numb_coa/nconv:
+                    
                     self.fitcoa(param1['covera'][nnconv*k+j],param1['toten'][nnconv*k+j],param1['volume'][nnconv*k+j])
                     j=j+1
-                if len(self.newcoa) != 0:
-                    print 'Do you want to automatically set a new calculation range and recalculate? (yes/no):'
-                    setup = my_calcsetup.element
-                    setup['param']['covera']['coverazero']
+                    
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
                 self.results = etree.Element('plot')
-                self.fiteos(scalecoa,volumecovera,self.totencoamin,structure,species)
+                self.fiteos(scalecoa,volumecovera,self.totencoamin,self.structure,self.species)
                 k=k+1
                 
             k=0
@@ -135,14 +132,14 @@ class XmlToFit(object):
                 proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
                 proc.communicate()
         else:
-            conv = convert_latt_vol.Convert(structure)
+            conv = convert_latt_vol.Convert(self.structure)
             param2 = self.birch()
             self.n=0
             self.results = etree.Element('plot')
             while self.n < len(param2['scale']):
                 l, v = conv.lattToVolume(param2, param2['scale'][self.n])
                 
-                self.fiteos(l, v, param2['toten'][self.n], structure,species)
+                self.fiteos(l, v, param2['toten'][self.n], self.structure,self.species)
                 self.write_eos()
                 self.n=self.n+1
             if mpl:
@@ -219,21 +216,21 @@ class XmlToFit(object):
         v = []
         ein = []
         
-        eosFit = fitev.Birch(structure, scale,volume,toten,self.calchome)
+        eosFit = fitev.Birch(self.structure, scale,volume,toten,self.calchome)
         
         
         #write important parameters to eosplot.xml#
         self.results.append(eosFit.reschild)
         self.results.append(eosFit.reschild2)
-        print self.results
+        self.results.append(eosFit.reschild3)
         restree = etree.ElementTree(self.results)
         restree.write(self.dir + 'eosplot.xml')
         eosplot = etree.parse(self.dir + 'eosplot.xml')
         root = eosplot.getroot()
         graphs = root.getiterator('graph')
         for graph in graphs:
-            graph.attrib['structure'] = str(structure)
-            graph.attrib['species'] = str(species)
+            graph.attrib['structure'] = str(self.structure)
+            graph.attrib['species'] = str(self.species)
         etree.ElementTree(root).write(self.dir + 'eosplot.xml')
         
         
@@ -254,12 +251,24 @@ class XmlToFit(object):
             return
 
     def fitcoa(self, coa, toten, volume):
-        fitcoa = fitcovera.Polyfit(coa,toten,3,volume)
+        fitcoa = fitcovera.Polyfit(coa,toten,3,volume,self.calchome)
+        
+        self.results_coa.append(fitcoa.reschild)
+        self.results_coa.append(fitcoa.reschild2)
+        self.results_coa.append(fitcoa.reschild3)
+        restree = etree.ElementTree(self.results_coa)
+        restree.write(self.dir + 'coaplot.xml')
+        coaplot = etree.parse(self.dir + 'coaplot.xml')
+        root = coaplot.getroot()
+        graphs = root.getiterator('graph')
+        for graph in graphs:
+            graph.attrib['structure'] = str(self.structure)
+            graph.attrib['species'] = str(self.species)
+        etree.ElementTree(root).write(self.dir + 'coaplot.xml')
+        
         self.coveramin.append(fitcoa.coamin)
         self.totencoamin.append(fitcoa.totenmin)
         self.volumecoa.append(fitcoa.volume)
-        self.recalculatecoa.append(fitcoa.recalculate)
-        self.newcoa.append(fitcoa.newcovera)
     
     def write_covera(self):
         f = etree.parse(self.dir + 'coa_data.xml')

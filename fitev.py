@@ -42,6 +42,8 @@ class Birch(object):
         ein = []
         v = []
         diff = []
+        vbad = []
+        ebad = []
         
         ## start parameters:
         b0 = np.float32(0.004) # Bulk-Modulus
@@ -97,15 +99,17 @@ class Birch(object):
             j=j+1
         ind = res.index(min(res))
         for i in range(len(v)):
-            if devsq[ind][i]*(len(v)) > 2*res[ind]:
+            if devsq[ind][i]*(len(v)) > 5*res[ind]:
                 rm.append(v[i])
-            print devsq[ind][i]*(len(v)),res[ind]
+            #print devsq[ind][i]*(len(v)),res[ind]
         for valv in rm:
             index = v.index(valv)
+            vbad.append(valv)
+            ebad.append(ein[index])
             v.remove(valv)
             del ein[index],l[index]
         x = np.linspace(min(v),max(v),100)
-
+        
         #############
             
         v0, emin = self.minIn(ein,v)
@@ -183,7 +187,7 @@ class Birch(object):
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
         #print lv, plote
         if mpl:
-            
+            plt.cla()
             plt.plot(lv, plote, '')
             plt.plot(v, ein, '.')
             plt.xlabel(r'$volume$   $[{Bohr^3}]$')
@@ -191,7 +195,7 @@ class Birch(object):
             plt.legend(loc='best')
             self.p = plt
             #plt.savefig(calchome + 'eos.png')
-            plt.show()
+            #plt.show()
             
         #results = etree.Element('plot')
            
@@ -206,6 +210,11 @@ class Birch(object):
             point2 = etree.SubElement(self.reschild2, 'point')
             point2.set('volume',str(v[i]))
             point2.set('energy',str(ein[i]))
+        self.reschild3 = etree.Element('graph_exp_bad')
+        for i in range(len(vbad)):
+            point3 = etree.SubElement(self.reschild3, 'point')
+            point3.set('volume',str(vbad[i]))
+            point3.set('energy',str(ebad[i]))
         #results.append(reschild2)
         #restree = etree.ElementTree(results)
         #restree.write(calchome + 'eosplot.xml')

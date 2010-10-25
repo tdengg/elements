@@ -20,11 +20,12 @@ except:
     mpl = False
     print 'python library matplotlib not installed'
 class Polyfit(object):
-    def __init__(self, covera, toten, deg, volume):
+    def __init__(self, covera, toten, deg, volume,calchome):
         self.volume = volume
         self.covera = covera
         self.toten = toten
         self.deg = deg
+        self.calchome = calchome
         self.fit()
         
     def fit(self):
@@ -34,6 +35,8 @@ class Polyfit(object):
         res = []
         devsq = []
         rm = []
+        coabad = []
+        ebad = []
         deg = 2
         nstep = int(len(self.covera)/(deg+1))
         span = nstep*(deg+1)
@@ -58,12 +61,14 @@ class Polyfit(object):
             j=j+1
         ind = res.index(min(res))
         for i in range(len(self.covera)):
-            if devsq[ind][i]*(len(self.covera)) > 2*res[ind]:
+            if devsq[ind][i]*(len(self.covera)) > 5*res[ind]:
                 rm.append(self.covera[i])
             print devsq[ind][i]*(len(self.covera)),res[ind]
-        for valv in rm:
-            index = self.covera.index(valv)
-            self.covera.remove(valv)
+        for valcoa in rm:
+            index = self.covera.index(valcoa)
+            coabad.append(valcoa)
+            ebad.append(self.toten[index])
+            self.covera.remove(valcoa)
             del self.toten[index]
 
         #############
@@ -71,6 +76,8 @@ class Polyfit(object):
         coveramin = 0
         coaminima = []
         totenmin = []
+        recalculate = []
+        newcovera = []
         coeff = np.polyfit(self.covera, self.toten, self.deg)
         poly = np.poly1d(coeff)
         dpoly = np.poly1d.deriv(poly)
@@ -94,20 +101,20 @@ class Polyfit(object):
                     totenmingood = (poly(errmin))
                     recalculate = True
                     newcovera = errmin
-                    print 'Volume: %(vol)s; minimum of c/a not in calculation range (lower):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':volume}
+                    print 'Volume: %(vol)s; minimum of c/a not in calculation range (lower):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':self.volume}
                 elif float(minima.real) > max(self.covera)-0.02 and ddpoly(minima) > 0:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
                     recalculate = True
                     newcovera = errmin
-                    print 'Volume: %(vol)s; minimum of c/a not in calculation range (higher):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':volume}
+                    print 'Volume: %(vol)s; minimum of c/a not in calculation range (higher):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':self.volume}
                     
                 else:
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-                    print 'Not able to determine minimum of c/a-fit'
+                    print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
             if coamingood < mincoa:
                 mincoa = coamingood
             if coamingood > maxcoa:
@@ -118,7 +125,7 @@ class Polyfit(object):
             
              
         
-        x = np.linspace(min(self.covera),max(self.covera),1000)
+        x = np.linspace(min(self.covera),max(self.covera),100)
         if mpl:
             plt.cla()
             plt.plot(self.covera,self.toten,'.',label = str(self.volume))
@@ -126,7 +133,28 @@ class Polyfit(object):
             plt.xlabel(r'$c/a$')
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(title = 'Volume in $[Bohr^3]$')
-            plt.savefig('./covera_'+str(min(self.covera))+'_'+str(coveramin)+ '.png')
+            plt.savefig(self.calchome + 'covera_'+str(min(self.covera))+'_'+str(coveramin)+ '.png')
+        
+        
+        
+        self.reschild = etree.Element('graph')
+        for i in range(len(x)):
+            point = etree.SubElement(self.reschild, 'point')
+            point.set('covera',str(x[i]))
+            point.set('energy',str(poly(x)[i]))
+        self.reschild.set('volume',str(self.volume))
+        self.reschild2 = etree.Element('graph_exp')
+        for i in range(len(self.covera)):
+            point2 = etree.SubElement(self.reschild2, 'point')
+            point2.set('covera',str(self.covera[i]))
+            point2.set('energy',str(self.toten[i]))
+        self.reschild2.set('volume',str(self.volume))
+        self.reschild3 = etree.Element('graph_exp_bad')
+        for i in range(len(coabad)):
+            point3 = etree.SubElement(self.reschild3, 'point')
+            point3.set('covera',str(coabad[i]))
+            point3.set('energy',str(ebad[i]))
+        self.reschild3.set('volume',str(self.volume))
         #try:
         self.coamin = coamingood
         self.totenmin = totenmingood
