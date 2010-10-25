@@ -15,28 +15,38 @@ class Plot(object):
         eosdata = etree.parse('./eosplot.xml')
         root = eosdata.getroot()
         graphs = root.getiterator('graph')
+        n=0
         for graph in graphs:
+            vol.append([])
+            energy.append([])
             points = graph.getiterator('point')
             for point in points:
-                vol.append(float(point.get('volume')))
-                energy.append(float(point.get('energy')))
+                vol[n].append(float(point.get('volume')))
+                energy[n].append(float(point.get('energy')))
+            n=n+1
         graphs = root.getiterator('graph_exp')
+        n=0
         for graph in graphs:
+            expvol.append([])
+            expenergy.append([])
             points = graph.getiterator('point')
+            npoints = len(points)
             for point in points:
-                expvol.append(float(point.get('volume')))
-                expenergy.append(float(point.get('energy')))
+                expvol[0].append(float(point.get('volume')))
+                expenergy[0].append(float(point.get('energy')))
+            n=n+1
         
         structure = self.params.getroot().find('structure').get('str')
         species = self.params.getroot().find('species').get('spc')
-        
-        plt.cla()
-        plt.plot(vol, energy, '', label='Birch-Murnaghan')
-        plt.plot(expvol, expenergy, '.', label='calculation')
-        plt.xlabel(r'$volume$   $[{Bohr^3}]$')
-        plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
-        plt.legend(loc='best')
-        plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+        n=0
+        for graph in graphs:
+            plt.plot(vol[n], energy[n], '', label='Birch-Murnaghan')
+            plt.plot(expvol[n], expenergy[n], '.', label='calculation')
+            plt.xlabel(r'$volume$   $[{Bohr^3}]$')
+            plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
+            plt.legend(loc='best')
+            plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            n=n+1
         plt.show()
         
     def convplot_mpl(self):
