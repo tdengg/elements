@@ -41,7 +41,8 @@ class XmlToFit(object):
         plt = []
         l1coa = []
         v1coa = []
-        conv_params = []
+        self.conv_params = []
+        self.conv_params_names = []
         self.dir = str(os.getcwd()) + '/'
         tempf = open(self.dir + 'eosplot.xml','w')
         tempf.write('<plot></plot>')
@@ -76,9 +77,9 @@ class XmlToFit(object):
         params = fc.getiterator('n_param')
         nconv = 1
         for param in params:
-            nconv = int(param.attrib.values()[0]) * nconv
-            conv_params.append(param.keys()[0])
-            
+            nconv = int(len(eval(param.attrib['val']))) * nconv
+            self.conv_params.append(eval(param.attrib['val']))
+            self.conv_params_names.append(param.attrib['name'])
         if self.structure in ['hcp', 'hex'] and mode == 'eos':
             
             conv = convert_latt_vol.Convert(self.structure)
@@ -113,6 +114,7 @@ class XmlToFit(object):
                 node.attrib['equi_volume'] = str(self.vol0_eos[k])
                 node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
                 node.attrib['min_energy'] = str(self.emin_eos[k])
+                node.attrib['param'] = str()
                 etree.ElementTree(root).write(self.dir + 'eos_data.xml')
                 k=k+1
                     
@@ -139,7 +141,7 @@ class XmlToFit(object):
             while self.n < len(param2['scale']):
                 l, v = conv.lattToVolume(param2, param2['scale'][self.n])
                 
-                self.fiteos(l, v, param2['toten'][self.n], self.structure,self.species)
+                self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
                 self.write_eos()
                 self.n=self.n+1
             if mpl:
@@ -218,7 +220,6 @@ class XmlToFit(object):
         
         eosFit = fitev.Birch(self.structure, scale,coveramin,volume,toten,self.calchome)
         
-        
         #write important parameters to eosplot.xml#
         self.results.append(eosFit.reschild)
         self.results.append(eosFit.reschild2)
@@ -228,9 +229,14 @@ class XmlToFit(object):
         eosplot = etree.parse(self.dir + 'eosplot.xml')
         root = eosplot.getroot()
         graphs = root.getiterator('graph')
+        i=0
         for graph in graphs:
             graph.attrib['structure'] = str(self.structure)
             graph.attrib['species'] = str(self.species)
+            for j in range(len(self.conv_params)):
+                graph.attrib['param'] = str(self.conv_params[j][i])
+                graph.attrib['parname'] = str(self.conv_params_names[j])
+            i=i+1
         etree.ElementTree(root).write(self.dir + 'eosplot.xml')
         
         
@@ -295,12 +301,12 @@ class XmlToFit(object):
                 graph.attrib['min_energy'] = str(self.emin_eos[i])                                
                 graph.attrib['norm_res_vect'] = str(self.res_eos[i])
             i = i+1
-        node = etree.SubElement(root,'eos')
-        node.attrib['bulk_mod'] = str(self.b0_eos[0])
-        node.attrib['equi_volume'] = str(self.vol0_eos[0])
-        node.attrib['d_bulk_mod'] = str(self.db0_eos[0])
-        node.attrib['min_energy'] = str(self.emin_eos[0])
-        node.attrib['norm_res_vect'] = str(self.res_eos[0])
+        #node = etree.SubElement(root,'eos')
+        #node.attrib['bulk_mod'] = str(self.b0_eos[0])
+        #node.attrib['equi_volume'] = str(self.vol0_eos[0])
+        #node.attrib['d_bulk_mod'] = str(self.db0_eos[0])
+        #node.attrib['min_energy'] = str(self.emin_eos[0])
+        #node.attrib['norm_res_vect'] = str(self.res_eos[0])
         etree.ElementTree(root).write(self.dir + 'eos_data.xml')
         
     def write_result(self):

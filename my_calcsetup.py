@@ -18,6 +18,6 @@ element={
                 'mod': 'eos',
                 'calchome' :"/fshome/tde/cluster/test4/",
                 'speciespath': "/appl/EXCITING/versions/hydrogen/species/",
-                'elementshome': "/home/tom/git/ELEMENTS/elements/",
+                'elementshome': "/fshome/tde/git/my_calc/gen/elements/",
                 'templatepath' : "templates/",
                 'calculate' : 'False'}

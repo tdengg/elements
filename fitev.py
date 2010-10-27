@@ -72,6 +72,7 @@ class Birch(object):
             a=l
         
         #check and remove points that do not seam to have reasonable energy values
+        '''
         poly = []
         res = []
         devsq = []
@@ -110,7 +111,7 @@ class Birch(object):
             v.remove(valv)
             del ein[index],l[index]
         x = np.linspace(min(v),max(v),100)
-        
+        '''
         #############
             
         v0, emin = self.minIn(ein,v)
@@ -177,7 +178,16 @@ class Birch(object):
             print('minimal energy:             ' + str(parnew1[0,3]) + ' Hartree')
             print('---------------------------------------')"""
         #else:
-        #linear interpolation of volue steps to determine (c/a)min:
+        #polyfit of volue steps to determine (c/a)min:
+        if len(v) == len(covera):
+            coeff = np.polyfit(v, covera, 3)
+            poly = np.poly1d(coeff)
+            dpoly = np.poly1d.deriv(poly)
+            ddpoly = np.poly1d.deriv(dpoly)
+            coamin = poly(parnew1[0,0])
+            plt.plot(covera,v,coamin,parnew1[0,0])
+            print coamin
+        
         #for vol in v:
             
         if structure == 'fcc':

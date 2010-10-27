@@ -62,8 +62,8 @@
 							</xsl:attribute>
 							
 							<!-- Get parameters relevant for convergence -->
-							<xsl:for-each select="document($convpath)//n_param/@*">
-								<xsl:variable name="par"><xsl:value-of select="name()"/></xsl:variable>
+							<xsl:for-each select="document($convpath)//n_param">
+								<xsl:variable name="par"><xsl:value-of select="@name"/></xsl:variable>
 								<xsl:if test="$par = 'rgkmax'">
 								<xsl:attribute name="rgkmax">
 									<xsl:value-of select="document($inputpath)//groundstate/@rgkmax"></xsl:value-of>

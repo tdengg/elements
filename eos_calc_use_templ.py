@@ -36,7 +36,7 @@ class CALC(object):
                 continue
             inpar[key] = ""
             if key not in ['scale','covera']:
-                convpar[key] = len(setup['param'][key])
+                convpar[key] = setup['param'][key]
 
             for value in setup['param'][key]:
                 
@@ -139,15 +139,13 @@ class CALC(object):
         f1.close()
         
         convroot = etree.Element('convergence')
-        i=0
+
         for key in convpar.keys():
-            if i == 0:
+            if len(convpar[key]) > 1:
                 convchild = etree.SubElement(convroot, 'n_param')
-                convchild.set(key,str(convpar[key]))
-            else:
-                convchild = etree.Element('n_param')
-                convchild.set(key,str(convpar[key]))
-            i=i+1
+                convchild.set('name',str(key))
+                convchild.set('val',str(convpar[key]))
+
         convroot.append(convchild)
         convtree = etree.ElementTree(convroot)
         convtree.write('./convergence.xml')
