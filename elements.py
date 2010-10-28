@@ -1,16 +1,30 @@
 import os
 import eos_calc_use_templ as calc
 import series
-import my_calcsetup
 import pickle
+import sys
+
+currdir = os.getcwd() + '/'
+
+if str(sys.argv[1]) in ['.','./','']:
+    input = currdir + 'my_calcsetup.py'
+
+else:
+    input = os.path.abspath(str(sys.argv[1]))
+    sys.path.append(sys.argv[1])
 
 if os.path.exists('autoshift.setup'):
     s = open('autoshift.setup','rb')
     setup = pickle.load(s)
     s.close()
 else:
-    setup = my_calcsetup.element
-    
+    s = open(input)
+    s.readline()
+    sustr = '{'
+    for line in s.readlines():
+        sustr = sustr + line
+    setup = eval(sustr)
+
 expand = series.Series(setup['structure'])      #instance of series expansion class
 if type(setup['param']['scale']) is dict: 
     azero = setup['param']['scale']['azero']
@@ -40,5 +54,9 @@ if type(setup['param']['covera']) is dict and type(setup['param']['scale']) is d
 
 setup['param']['scale'] = scale
 setup['param']['covera'] = covera
+if 'calchome' not in setup.keys() or setup['calchome'] in ['./','.','']:
+    setup['calchome'] = currdir
+if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
+    setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
 
 calc.CALC(setup)

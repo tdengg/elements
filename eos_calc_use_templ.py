@@ -22,7 +22,6 @@ class CALC(object):
 
         ###########################################################
         ###########################################################
-        
         #remove old status file:
         if os.path.exists('./finished'): 
             proc = subprocess.Popen(['rm ./finished'], shell=True)
@@ -34,7 +33,7 @@ class CALC(object):
         for key in setup['param'].keys():
             if setup['structure'] in ['hcp','hex'] and key == 'scale' and setup['mod'] != 'simple_conv':
                 continue
-            inpar[key] = ""
+            inpar[key] = "<param name='%s'>"%key #new old inpar['key'] = ""
             if key not in ['scale','covera']:
                 convpar[key] = setup['param'][key]
 
@@ -47,67 +46,25 @@ class CALC(object):
                         inpar[key] = inpar[key] + "</val>"
                 else:
                     inpar[key] = inpar[key] + "<val>%s</val>" % value
+            inpar[key] = inpar[key] + "</param>"
         for key in setup.keys():
             
             if key not in ['param','species']:
-                inpar[key] = setup[key]
+                #inpar[key] = setup[key]
+                continue
             elif key == 'species':
-                inpar[key] = "<val>%s</val>" % setup[key]
+                inpar[key] = "<param name='species'><val>%s</val></param>" % setup[key]
         ###########################################################
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
-        if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv':
-            paramset = """<?xml version="1.0" encoding="UTF-8"?>
-            
-            <setup path="%(calchome)s">
-              <param name="species">
-                %(species)s
-              </param>
-              <param name="rgkmax">
-                %(rgkmax)s
-              </param>
-              <param name="swidth">
-                %(swidth)s
-              </param>
-              <param name="ngridk">
-                %(ngridk)s
-              </param>
-              <param name="lmaxvr">
-                <val>14</val>
-              </param>
-              <param name="covera">
-                %(covera)s
-              </param>
-            </setup>
-            """ %inpar
-        else:
-            paramset = """<?xml version="1.0" encoding="UTF-8"?>
-            
-            <setup path="%(calchome)s">
-              <param name="species">
-                %(species)s
-              </param>
-              <param name="rgkmax">
-                %(rgkmax)s
-              </param>
-              <param name="swidth">
-                %(swidth)s
-              </param>
-              <param name="ngridk">
-                %(ngridk)s
-              </param>
-              <param name="lmaxvr">
-                <val>14</val>
-              </param>
-              <param name="scale">
-                %(scale)s
-              </param>
-              <param name="covera">
-                %(covera)s
-              </param>
-            </setup>
-            """ %inpar
+        paramset = """<?xml version="1.0" encoding="UTF-8"?><setup path="%(calchome)s">"""
+        for parkey in inpar.keys():
+            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale':
+                continue
+            paramset = paramset + inpar[parkey]
+        paramset = paramset + '</setup>'
+             
         ############################################################
         ############################################################
         try:
