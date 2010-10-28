@@ -58,5 +58,9 @@ if 'calchome' not in setup.keys() or setup['calchome'] in ['./','.','']:
     setup['calchome'] = currdir
 if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
     setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
+if 'templatepath' not in setup.keys():
+    setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
+elif setup['templatepath'] in ['./','.','']:
+    setup['templatepath'] = currdir
 
 calc.CALC(setup)

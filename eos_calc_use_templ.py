@@ -58,11 +58,19 @@ class CALC(object):
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
-        paramset = """<?xml version="1.0" encoding="UTF-8"?><setup path="%(calchome)s">"""
+        paramset = """<?xml version="1.0" encoding="UTF-8"?><setup path="%s">"""%setup['calchome']
+        i=0
         for parkey in inpar.keys():
-            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale':
+            
+                
+            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale' or parkey == 'species':
+                i=i+1
                 continue
-            paramset = paramset + inpar[parkey]
+            if i==0:
+                paramset = paramset + inpar['species']
+            else:    
+                paramset = paramset + inpar[parkey]
+            i=i+1
         paramset = paramset + '</setup>'
              
         ############################################################
@@ -107,7 +115,7 @@ class CALC(object):
         convtree = etree.ElementTree(convroot)
         convtree.write('./convergence.xml')
         if not os.path.exists(setup['calchome'] +  'parset.xml'):
-            proc1 = subprocess.Popen(['xsltproc ' + setup['elementshome'] + 'templates/permute_set.xsl ' + setup['calchome'] + 'set.xml > ' + setup['calchome'] +  'parset.xml'], shell=True)
+            proc1 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'permute_set.xsl ' + setup['calchome'] + 'set.xml > ' + setup['calchome'] +  'parset.xml'], shell=True)
             proc1.communicate()
             print "created parset.xml"
             curr_calc = 'parset.xml'
@@ -116,7 +124,7 @@ class CALC(object):
                 if os.path.exists(setup['calchome'] +  'parset_%s.xml'%str(i)):
                     continue
                 else:    
-                    proc1 = subprocess.Popen(['xsltproc ' + setup['elementshome'] + 'templates/permute_set.xsl ' + setup['calchome'] + 'set.xml > ' + setup['calchome'] +  'parset_%s.xml'%str(i)], shell=True)
+                    proc1 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'permute_set.xsl ' + setup['calchome'] + 'set.xml > ' + setup['calchome'] +  'parset_%s.xml'%str(i)], shell=True)
                     proc1.communicate()
                     newcalc = check_for_existing.Manipulate(setup['calchome'] +  'calc_filelist.xml', setup['calchome'] +  'parset_%s.xml'%str(i), setup['calchome'])
                     newcalc.append_calc()
@@ -125,12 +133,12 @@ class CALC(object):
                     print 'appended new calculations to parset.xml'
                     break
         
-        proc2 = subprocess.Popen(['xsltproc ' + setup['elementshome'] + 'templates/input_' + setup['structure'] + '.xsl ' + setup['calchome'] + curr_calc], shell=True)
+        proc2 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'input_' + setup['structure'] + '.xsl ' + setup['calchome'] + curr_calc], shell=True)
         proc2.communicate()
         print "created dir tree-structure and inputs"
         
         if setup['calculate'] == 'True':
-            proc3 = subprocess.Popen(['xsltproc ' + setup['elementshome'] + 'templates/loadleveler.xsl ' + setup['calchome'] + curr_calc], shell=True)
+            proc3 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'loadleveler.xsl ' + setup['calchome'] + curr_calc], shell=True)
             proc3.communicate()
             print "created lljob script"
             
@@ -138,8 +146,8 @@ class CALC(object):
             proc4.communicate()
             print "submitted lljob to cluster"
             
-            proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
-            proc5.communicate()
+            #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
+            #proc5.communicate()
             
             #check for calculation to be finished:
             #for i in range(100):
