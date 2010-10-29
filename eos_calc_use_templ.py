@@ -136,8 +136,10 @@ class CALC(object):
         if setup['calculate'] == 'True':
             
             exec_template = setup['exectemplate']
-            
-            proc3 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template +' ' + setup['calchome'] + curr_calc], shell=True)
+            if exec_template == 'shelcommand.xsl':
+                out = ' > execute'
+            else: out =''
+            proc3 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
             proc3.communicate()
 
             if exec_template == 'loadleveler.xsl':

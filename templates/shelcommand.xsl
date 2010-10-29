@@ -14,14 +14,14 @@
  
  
 <xsl:variable name="inputfilename"><xsl:text></xsl:text></xsl:variable>
- 
+<xsl:variable name="calchome"><xsl:value-of select="/experiment/@path"/></xsl:variable>
 <!-- Loop over all elements named "set" from reference xml-file -->
 <xsl:for-each select = "/experiment/set">
  
   <!-- Define path here -->
   <xsl:variable name="path">
-          <xsl:value-of select="@path"/>
-          <xsl:text>/</xsl:text>
+          <xsl:value-of select="$calchome"/><xsl:value-of select="@path"/>
+          <xsl:text></xsl:text>
   </xsl:variable>
  
  <!-- Write document at Path $path -->

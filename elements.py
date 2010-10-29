@@ -64,6 +64,5 @@ if 'templatepath' not in setup.keys():
     setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
 elif setup['templatepath'] in ['./','.','']:
     setup['templatepath'] = currdir
-print setup['param']['scale']
 
 calc.CALC(setup)
