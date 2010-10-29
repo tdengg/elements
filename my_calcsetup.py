@@ -13,11 +13,10 @@ element={
                                           'dcovera': 1.6/50, 
                                           'steps': 11 } 
                              },
-                'species': 'Be',
+                'species': 'Be', 
                 'structure':'hcp',
                 'mod': 'eos',
-                'calchome' :"/fshome/tde/cluster/test4/",
-                'speciespath': "/appl/EXCITING/versions/hydrogen/species/",
-                'elementshome': "/fshome/tde/git/my_calc/gen/elements/",
-                'templatepath' : "templates/",
-                'calculate' : 'False'}
+                'speciespath': "http://xml/exciting-code.org/species/",
+                'calculate' : 'False',
+                'exectemplate':"shellcommand.xsl"
+                }
