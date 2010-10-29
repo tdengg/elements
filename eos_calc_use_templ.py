@@ -29,6 +29,7 @@ class CALC(object):
                        
         inpar = {}
         convpar = {}
+        
         scale = setup['param']['scale']
         for key in setup['param'].keys():
             if setup['structure'] in ['hcp','hex'] and key == 'scale' and setup['mod'] != 'simple_conv':
@@ -59,20 +60,15 @@ class CALC(object):
         #              also modify input template                 #
         ###########################################################
         paramset = """<?xml version="1.0" encoding="UTF-8"?><setup path="%s">"""%setup['calchome']
-        i=0
+        paramset = paramset + inpar['species']
         for parkey in inpar.keys():
-            
-                
             if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale' or parkey == 'species':
-                i=i+1
                 continue
-            if i==0:
-                paramset = paramset + inpar['species']
-            else:    
-                paramset = paramset + inpar[parkey]
-            i=i+1
+            elif parkey == 'species':
+                continue
+            paramset = paramset + inpar[parkey]
         paramset = paramset + '</setup>'
-             
+
         ############################################################
         ############################################################
         try:
@@ -138,13 +134,18 @@ class CALC(object):
         print "created dir tree-structure and inputs"
         
         if setup['calculate'] == 'True':
-            proc3 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'loadleveler.xsl ' + setup['calchome'] + curr_calc], shell=True)
-            proc3.communicate()
-            print "created lljob script"
             
-            proc4 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
-            proc4.communicate()
-            print "submitted lljob to cluster"
+            exec_template = setup['exectemplate']
+            
+            proc3 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template +' ' + setup['calchome'] + curr_calc], shell=True)
+            proc3.communicate()
+
+            if exec_template == 'loadleveler.xsl':
+                print "created lljob script"
+            
+                proc4 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
+                proc4.communicate()
+                print "submitted lljob to cluster"
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
             #proc5.communicate()
@@ -159,7 +160,7 @@ class CALC(object):
         elif setup['calculate'] == 'False':
             return
         else:
-            print 'ERROR: calculation mode not defined (mod = True/False)'
+            print 'ERROR: calculation mode not defined (calculate = True/False)'
             
             
 #test = CALC([])

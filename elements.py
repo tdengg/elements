@@ -49,6 +49,8 @@ if type(setup['param']['covera']) is dict and type(setup['param']['scale']) is d
     elif setup['mod'] == 'simple_conv':
         covera = [coverazero]
         scale = [azero]
+    elif setup['mod'] not in ['simple_conv','eos']:
+        print 'Error: calculation mode (mod) should be one of: simple_conv, eos!'
     else:
         covera = [1.0]
 
@@ -62,5 +64,6 @@ if 'templatepath' not in setup.keys():
     setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
 elif setup['templatepath'] in ['./','.','']:
     setup['templatepath'] = currdir
+print setup['param']['scale']
 
 calc.CALC(setup)

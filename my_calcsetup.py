@@ -5,7 +5,7 @@ element={
 					  'da': 0.05, 
 					  'steps': 11},
                              'rmt': [2.85],
-                             'rgkmax': [6,7,8,9,10],
+                             'rgkmax': [6,7],
                              'ngridk' : [8],
                              'swidth': [0.01],
                              'covera' :{ 
@@ -15,8 +15,8 @@ element={
                              },
                 'species': 'Be', 
                 'structure':'hcp',
-                'mod': 'eos',
+                'mod': 'simple_conv',
                 'speciespath': "http://xml/exciting-code.org/species/",
-                'calculate' : 'False',
-                'exectemplate':"shellcommand.xsl"
+                'calculate' : 'True',
+                'exectemplate':"shelcommand.xsl"
                 }
