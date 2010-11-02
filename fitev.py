@@ -223,6 +223,14 @@ class Birch(object):
             point = etree.SubElement(self.reschild, 'point')
             point.set('volume',str(lv[i]))
             point.set('energy',str(plote[i]))
+        self.reschild.set('energy_min',str(round(parnew1[0,3], 4)))
+        try:
+            self.reschild.set('coa_min',str(round(coamin, 4)))
+        except:
+            print ''
+        self.reschild.set('vol_min',str(round(parnew1[0,0], 4)))
+        self.reschild.set('B0',str(round(parnew1[0,1]*2.942104*10**4., 4)))
+        self.reschild.set('dB0',str(round(parnew1[0,2],4)))
         self.reschild2 = etree.Element('graph_exp')
         for i in range(len(v)):
             point2 = etree.SubElement(self.reschild2, 'point')

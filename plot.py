@@ -41,6 +41,14 @@ class Plot(object):
         expenergy_bad = []
         par = []
         parname = []
+        colLabel = []
+        e_min = []
+        v_min = []
+        b0_min = []
+        db0_min = []
+        rowLabel = []
+        cellText = []
+            
         eosdata = etree.parse('./eosplot.xml')
         root = eosdata.getroot()
         graphs = root.getiterator('graph')
@@ -50,6 +58,10 @@ class Plot(object):
             energy.append([])
             par.append(graph.get('param'))
             parname.append(graph.get('parname'))
+            e_min.append(graph.get('energy_min'))
+            v_min.append(graph.get('vol_min'))
+            b0_min.append(graph.get('B0'))
+            db0_min.append(graph.get('dB0'))
             points = graph.getiterator('point')
             for point in points:
                 vol[n].append(float(point.get('volume')))
@@ -83,15 +95,26 @@ class Plot(object):
         species = self.params.getroot().find('species').get('spc')
         
         n=0
+        plt.subplot(121)
         for graph in graphs:
-            plt.plot(vol[n], energy[n], '', label='Birch-Murnaghan: %(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
+            plt.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
             plt.plot(expvol[n], expenergy[n], '.')
-            plt.plot(expvol_bad[n], expenergy_bad[n], '.', label='calculation - screened by fit')
+            plt.plot(expvol_bad[n], expenergy_bad[n], '*')
             plt.xlabel(r'$volume$   $[{Bohr^3}]$')
             plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
             plt.legend(loc='best')
             plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            rowLabel.append('%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
             n=n+1
+        
+        cell = [v_min,e_min,b0_min,db0_min]
+        for column in cell:
+            cellText.append(['%s' % (x) for x in column])
+        plt.table(cellText=cellText, cellColours=None,
+                  cellLoc='right',# colWidths=[0.051,0.051,0.051,0.051,0.051],
+                  rowLabels=[r'$(c/a)_min$',r'$V_0$',r'$E_tot$$_,min$',r'$(c/a)_min$'], rowColours=None, rowLoc='right',
+                  colLabels=rowLabel, colColours=None, colLoc='center',
+                  loc='right', bbox=None)
         plt.show()
         
     def coaplot_mpl(self):
