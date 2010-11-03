@@ -1,5 +1,9 @@
 defaults={
-          'exectemplate':'shelcommand.xsl'}
+          'mod': 'simple_conv', 
+          'exectemplate':'shelcommand.xsl',
+          'calculate':"True",
+          'speciespath':"http://xml/exciting-code.org/species/"
+          }
 
 def set (setup):
     
