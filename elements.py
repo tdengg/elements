@@ -3,10 +3,11 @@ import eos_calc_use_templ as calc
 import series
 import pickle
 import sys
+import defaults
 
 currdir = os.getcwd() + '/'
-
-if str(sys.argv[1]) in ['.','./','']:
+print  len(sys.argv)
+if len(sys.argv)<=1:
     input = currdir + 'my_calcsetup.py'
 
 else:
@@ -24,6 +25,8 @@ else:
     for line in s.readlines():
         sustr = sustr + line
     setup = eval(sustr)
+
+defaults.set(setup)
 
 expand = series.Series(setup['structure'])      #instance of series expansion class
 if type(setup['param']['scale']) is dict: 

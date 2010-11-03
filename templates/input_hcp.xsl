@@ -61,6 +61,16 @@
   <xsl:attribute name="swidth"><xsl:value-of select="@swidth"/></xsl:attribute>
   <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="round(@ngridk div @covera)"/></xsl:attribute>
   <xsl:attribute name="rgkmax"><xsl:value-of select="@rgkmax"/></xsl:attribute>
+  	<xsl:if test="@xc|@correlation|exchange">
+							<libxc>
+								<xsl:attribute name="xc"><xsl:value-of
+									select="@xc" /></xsl:attribute>
+								<xsl:attribute name="correlation"><xsl:value-of
+									select="@correlation" /></xsl:attribute>
+								<xsl:attribute name="exchange"><xsl:value-of
+									select="@exchange" /></xsl:attribute>
+							</libxc>
+						</xsl:if>
 </groundstate>
 </input>
  
