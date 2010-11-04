@@ -95,28 +95,40 @@ class Plot(object):
         species = self.params.getroot().find('species').get('spc')
         
         n=0
-        plt.subplot(121)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+
+        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         for graph in graphs:
-            plt.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
-            plt.plot(expvol[n], expenergy[n], '.')
-            plt.plot(expvol_bad[n], expenergy_bad[n], '*')
-            plt.xlabel(r'$volume$   $[{Bohr^3}]$')
-            plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
-            plt.legend(loc='best')
-            plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])}, color=colors[n])
+            ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
+            ax.plot(v_min[n], e_min[n], 'o')
+            ax.plot(expvol_bad[n], expenergy_bad[n], '.')
+            ax.set_xlabel(r'$volume$   $[{Bohr^3}]$')
+            ax.set_ylabel(r'$total$ $energy$   $[{Hartree}]$')
+            ax.legend(loc='best')
+            #plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             rowLabel.append('%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
             n=n+1
         
+        width = 100
+
         cell = [v_min,e_min,b0_min,db0_min]
         for column in cell:
             cellText.append(['%s' % (x) for x in column])
-        plt.table(cellText=cellText, cellColours=None,
-                  cellLoc='right',# colWidths=[0.051,0.051,0.051,0.051,0.051],
-                  rowLabels=[r'$(c/a)_min$',r'$V_0$',r'$E_tot$$_,min$',r'$(c/a)_min$'], rowColours=None, rowLoc='right',
-                  colLabels=rowLabel, colColours=None, colLoc='center',
-                  loc='right', bbox=None)
-        plt.show()
+        cellText.reverse()
+        #table = plt.table(cellText=cellText, cellColours=None,
+        #          cellLoc='right',colWidths=[0.1,0.1,0.1,0.1,0.1],
+        #          rowLabels=[r'$(c/a)_min$',r'$V_0$',r'$E_tot$$_,min$',r'$(c/a)_min$'], rowColours=None, rowLoc='right',
+        #          colLabels=rowLabel, colColours=None, colLoc='center',
+        #          loc='right', bbox=None)
+        #for column in cell:
+        #table.scale(2,2)
+        #table.auto_set_font_size()
         
+        plt.show()
+        #table.auto_set_font_size()
     def coaplot_mpl(self):
         vol = []
         volume = []
