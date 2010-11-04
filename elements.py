@@ -3,10 +3,12 @@ import eos_calc_use_templ as calc
 import series
 import pickle
 import sys
+import defaults
+import numpy as np
 
 currdir = os.getcwd() + '/'
-
-if str(sys.argv[1]) in ['.','./','']:
+print  len(sys.argv)
+if len(sys.argv)<=1:
     input = currdir + 'my_calcsetup.py'
 
 else:
@@ -19,11 +21,11 @@ if os.path.exists('autoshift.setup'):
     s.close()
 else:
     s = open(input)
-    s.readline()
-    sustr = '{'
-    for line in s.readlines():
-        sustr = sustr + line
+    sustr= s.read()
+        
     setup = eval(sustr)
+
+defaults.set(setup)
 
 expand = series.Series(setup['structure'])      #instance of series expansion class
 if type(setup['param']['scale']) is dict: 
