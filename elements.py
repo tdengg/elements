@@ -4,6 +4,7 @@ import series
 import pickle
 import sys
 import defaults
+import numpy as np
 
 currdir = os.getcwd() + '/'
 print  len(sys.argv)
@@ -20,10 +21,8 @@ if os.path.exists('autoshift.setup'):
     s.close()
 else:
     s = open(input)
-    s.readline()
-    sustr = '{'
-    for line in s.readlines():
-        sustr = sustr + line
+    sustr= s.read()
+        
     setup = eval(sustr)
 
 defaults.set(setup)
