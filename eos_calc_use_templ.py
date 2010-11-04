@@ -137,16 +137,19 @@ class CALC(object):
             
             exec_template = setup['exectemplate']
             if exec_template == 'shelcommand.xsl':
+                if os.path.exists(setup['calchome'] + 'execute'):
+                    proc3 = subprocess.Popen(['rm ' + setup['calchome'] + 'execute'], shell=True)
+                    proc3.communicate()
                 out = ' > execute'
             else: out =''
-            proc3 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
-            proc3.communicate()
+            proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
+            proc4.communicate()
 
             if exec_template == 'loadleveler.xsl':
                 print "created lljob script"
             
-                proc4 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
-                proc4.communicate()
+                proc5 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
+                proc5.communicate()
                 print "submitted lljob to cluster"
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)

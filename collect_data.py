@@ -122,7 +122,8 @@ class XmlToFit(object):
             param2 = self.birch()
             if mpl:
                 plt.plot(param2['toten'], np.arange(len(param2['toten'])))
-                plt.show()
+                plt.savefig(self.calchome + 'conv.png')
+                #plt.show()
             else:
                 print param2['toten']
                 temp = open(self.calchome + 'temp','w')
@@ -131,8 +132,8 @@ class XmlToFit(object):
                     temp.writelines((str(par), ' ', str(energy[0]), '\n'))
                     par = par+1
                 temp.close()
-                proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
-                proc.communicate()
+                #proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
+                #proc.communicate()
         else:
             conv = convert_latt_vol.Convert(self.structure)
             param2 = self.birch()
@@ -144,13 +145,13 @@ class XmlToFit(object):
                 self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
                 self.write_eos()
                 self.n=self.n+1
-            if mpl:
-                n=0
-                for plots in self.p:
-                    plots.savefig(self.calchome + '%s_eos'%str(n))
-                    n=n+1
-            else:
-                grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
+            #if mpl:
+            #    n=0
+            #    for plots in self.p:
+            #        plots.savefig(self.calchome + '%s_eos'%str(n))
+            #        n=n+1
+            #else:
+            #    grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
                 
     def covera(self):
         param = {}
