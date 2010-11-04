@@ -2,7 +2,7 @@ defaults={
           'mod': 'simple_conv', 
           'exectemplate':'shelcommand.xsl',
           'calculate':"True",
-          'speciespath':"http://xml/exciting-code.org/species/"
+          'speciespath':"http://xml.exciting-code.org/species/"
           }
 
 def set (setup):
