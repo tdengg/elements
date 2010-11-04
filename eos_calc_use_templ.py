@@ -102,10 +102,13 @@ class CALC(object):
         convroot = etree.Element('convergence')
 
         for key in convpar.keys():
+            convchild = etree.SubElement(convroot, 'n_param')
             if len(convpar[key]) > 1:
                 convchild = etree.SubElement(convroot, 'n_param')
                 convchild.set('name',str(key))
                 convchild.set('val',str(convpar[key]))
+        
+        
 
         convroot.append(convchild)
         convtree = etree.ElementTree(convroot)
@@ -141,15 +144,18 @@ class CALC(object):
                     proc3 = subprocess.Popen(['rm ' + setup['calchome'] + 'execute'], shell=True)
                     proc3.communicate()
                 out = ' > execute'
+            
             else: out =''
-            proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
+            proc4 = subprocess.Popen(['xsltproc -v ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
             proc4.communicate()
-
+            if exec_template == 'shelcommand.xsl':
+                proc5 = subprocess.Popen(['chmod u+x ' + setup['calchome'] + 'execute'], shell=True)
+                proc5.communicate()
             if exec_template == 'loadleveler.xsl':
                 print "created lljob script"
             
-                proc5 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
-                proc5.communicate()
+                proc6 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
+                proc6.communicate()
                 print "submitted lljob to cluster"
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
