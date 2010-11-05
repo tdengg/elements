@@ -107,15 +107,26 @@ class Plot(object):
         for graph in graphs:
             ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])}, color=colors[n])
             ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
-            ax.plot(v_min[n], e_min[n], 'o')
+            point, = ax.plot(v_min[n], e_min[n], 'o',picker=5)
             ax.plot(expvol_bad[n], expenergy_bad[n], '.')
-            ax.set_xlabel(r'$volume$   $[{Bohr^3}]$')
-            ax.set_ylabel(r'$total$ $energy$   $[{Hartree}]$')
+            ax.set_xlabel(r'Volume   [Bohr$^3$]')
+            ax.set_ylabel(r'Total energy   [Hartree]')
             ax.legend(loc='best')
+            #ax.annotate('optimal volume '+str(min[0]), xy=(min,curve(min)), xycoords='data' ,
+            #            xytext=(min-10,curve(min)+0.002) ,  arrowprops=dict(arrowstyle="->"))
             #plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             rowLabel.append('%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
             n=n+1
         
+        #def onpick(event):
+        #    if isinstance(event.artist, Line2D):
+        #        thisline = event.artist
+        #        xdata = thisline.get_xdata()
+        #        ydata = thisline.get_ydata()
+        #        ind = event.ind
+        #        print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
+        #fig.canvas.mpl_connect('pick_event', onpick)
+
         width = 100
 
         cell = [v_min,e_min,b0_min,db0_min]
@@ -187,11 +198,11 @@ class Plot(object):
 
         n=0
         for graph in graphs:
-            plt.plot(vol[n], energy[n], '', label='volume: %(vol)s withs'%{'vol':volume[n],'parname':parname[n],'par':par[n]})
+            plt.plot(vol[n], energy[n], '', label='Volume: %(vol)s withs'%{'vol':volume[n],'parname':parname[n],'par':par[n]})
             plt.plot(expvol[n], expenergy[n], '.',color='k')
             plt.plot(expvol_bad[n], expenergy_bad[n], '.')
-            plt.xlabel(r'$c/a$')
-            plt.ylabel(r'$total$ $energy$   $[{Hartree}]$')
+            plt.xlabel(r'c/a')
+            plt.ylabel(r'Total energy   [Hartree]')
             plt.legend(loc='best')
             plt.title('c/a - plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             n=n+1
@@ -242,7 +253,7 @@ class Plot(object):
         ax1.set_title('Convergence for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
         colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         ax1.plot(par, v_min, '-', par, v_min, '.', color=colors[n])
-        ax1.set_ylabel(r'$volume$   $[{Bohr^3}]$')
+        ax1.set_ylabel(r'Volume   [Bohr$^3$]')
         ax1.set_xlabel(parname[0])
         ax1.axis('tight')
         
@@ -250,14 +261,14 @@ class Plot(object):
         #ax2.set_title('Convergence of energy for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
         colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         ax3.plot(par, e_min, '-',par, e_min, '.', color=colors[n])
-        ax3.set_ylabel(r'$energy$   $[{Hartree}]$')
+        ax3.set_ylabel(r'Energy   [Hartree]')
         ax3.set_xlabel(parname[0])
         ax3.axis('tight')
         ax4 = fig.add_subplot(223)
         #ax3.set_title('Convergence of bulk - modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
         colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         ax4.plot(par, b0_min, '-',par, b0_min, '.', color=colors[n])
-        ax4.set_ylabel(r'$B_0$   $[{GPa}]$')
+        ax4.set_ylabel(r'B$_0$   [GPa]')
         ax4.set_xlabel(parname[0])
         
         ax6 = fig.add_subplot(224)
@@ -265,7 +276,7 @@ class Plot(object):
         
         colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         ax6.plot( par, db0_min, '-',par, db0_min, '.', color=colors[n])
-        ax6.set_ylabel(r"$B_0'$   $[{Bohr^3}]$")
+        ax6.set_ylabel(r"B$_0$'")
         ax6.set_xlabel(parname[0])
         fig.subplots_adjust(left=0.1)
         plt.show()
