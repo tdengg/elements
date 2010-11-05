@@ -192,7 +192,7 @@ class Birch(object):
             
         if structure == 'fcc':
             a0 = (4.*parnew1[0,0])**(1./3.)
-            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((a0, 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0, 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
         elif structure == 'hcp':
             a0 = (2.*parnew1[0,0]/(3.**(1./2.)*float(coamin)))**(1./3.)
             print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(a0).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
