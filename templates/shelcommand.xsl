@@ -11,7 +11,10 @@
 
 	<xsl:output method="text" />
 	<xsl:template match="/">
-
+	<xsl:text>#!/bin/bash</xsl:text>
+	
+	<xsl:text> 
+	</xsl:text>
 
 		<xsl:variable name="inputfilename">
 			<xsl:text />
@@ -30,9 +33,7 @@
 			</xsl:variable>
 
 			<!-- Write document at Path $path -->
-			<xsl:text>cd </xsl:text>
-			<xsl:value-of select="$path" />
-			<xsl:text> 
+			<xsl:text>cd </xsl:text><xsl:value-of select="$path" /><xsl:text> 
 ~/git/exciting/bin/excitingser
 cd -
 </xsl:text>

@@ -32,6 +32,8 @@ class XmlToFit(object):
         self.db0_eos = []
         self.emin_eos = []
         self.res_eos = []
+        self.coa_eos = []
+        self.a_eos = []
         self.p = []
         self.results = []
         self.results_coa = []
@@ -77,9 +79,14 @@ class XmlToFit(object):
         params = fc.getiterator('n_param')
         nconv = 1
         for param in params:
-            nconv = int(len(eval(param.attrib['val']))) * nconv
-            self.conv_params.append(eval(param.attrib['val']))
-            self.conv_params_names.append(param.attrib['name'])
+            try:
+                nconv = int(len(eval(param.attrib['val']))) * nconv
+                self.conv_params.append(eval(param.attrib['val']))
+                self.conv_params_names.append(param.attrib['name'])
+            except:
+                nconv = 1
+                self.convergence = False
+          
         if self.structure in ['hcp', 'hex'] and mode == 'eos':
             
             conv = convert_latt_vol.Convert(self.structure)
@@ -122,7 +129,8 @@ class XmlToFit(object):
             param2 = self.birch()
             if mpl:
                 plt.plot(param2['toten'], np.arange(len(param2['toten'])))
-                plt.show()
+                plt.savefig(self.calchome + 'conv.png')
+                #plt.show()
             else:
                 print param2['toten']
                 temp = open(self.calchome + 'temp','w')
@@ -131,8 +139,8 @@ class XmlToFit(object):
                     temp.writelines((str(par), ' ', str(energy[0]), '\n'))
                     par = par+1
                 temp.close()
-                proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
-                proc.communicate()
+                #proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
+                #proc.communicate()
         else:
             conv = convert_latt_vol.Convert(self.structure)
             param2 = self.birch()
@@ -144,13 +152,13 @@ class XmlToFit(object):
                 self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
                 self.write_eos()
                 self.n=self.n+1
-            if mpl:
-                n=0
-                for plots in self.p:
-                    plots.savefig(self.calchome + '%s_eos'%str(n))
-                    n=n+1
-            else:
-                grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
+            #if mpl:
+            #    n=0
+            #    for plots in self.p:
+            #        plots.savefig(self.calchome + '%s_eos'%str(n))
+            #        n=n+1
+            #else:
+            #    grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
                 
     def covera(self):
         param = {}
@@ -233,6 +241,7 @@ class XmlToFit(object):
         for graph in graphs:
             graph.attrib['structure'] = str(self.structure)
             graph.attrib['species'] = str(self.species)
+            
             for j in range(len(self.conv_params)):
                 graph.attrib['param'] = str(self.conv_params[j][i])
                 graph.attrib['parname'] = str(self.conv_params_names[j])
@@ -251,6 +260,9 @@ class XmlToFit(object):
         self.db0_eos.append(eosFit.out2)
         self.emin_eos.append(eosFit.out3)
         self.res_eos.append(eosFit.deltamin)
+        if structure in ['hcp','hex']:
+            self.coa_eos.append(eosFit.out4)
+        self.a_eos.append(eosFit.out5)
         try:
             self.p.append(eosFit.p)
         except:
@@ -300,6 +312,9 @@ class XmlToFit(object):
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
                 graph.attrib['min_energy'] = str(self.emin_eos[i])                                
                 graph.attrib['norm_res_vect'] = str(self.res_eos[i])
+                if self.structure in ['hcp','hex']:
+                    graph.attrib['equi_coa'] = str(self.coa_eos[i])
+                graph.attrib['equi_a'] = str(self.a_eos[i])
             i = i+1
         #node = etree.SubElement(root,'eos')
         #node.attrib['bulk_mod'] = str(self.b0_eos[0])
