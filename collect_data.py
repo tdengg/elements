@@ -32,6 +32,8 @@ class XmlToFit(object):
         self.db0_eos = []
         self.emin_eos = []
         self.res_eos = []
+        self.coa_eos = []
+        self.a_eos = []
         self.p = []
         self.results = []
         self.results_coa = []
@@ -77,9 +79,14 @@ class XmlToFit(object):
         params = fc.getiterator('n_param')
         nconv = 1
         for param in params:
-            nconv = int(len(eval(param.attrib['val']))) * nconv
-            self.conv_params.append(eval(param.attrib['val']))
-            self.conv_params_names.append(param.attrib['name'])
+            try:
+                nconv = int(len(eval(param.attrib['val']))) * nconv
+                self.conv_params.append(eval(param.attrib['val']))
+                self.conv_params_names.append(param.attrib['name'])
+            except:
+                nconv = 1
+                self.convergence = False
+          
         if self.structure in ['hcp', 'hex'] and mode == 'eos':
             
             conv = convert_latt_vol.Convert(self.structure)
@@ -234,6 +241,7 @@ class XmlToFit(object):
         for graph in graphs:
             graph.attrib['structure'] = str(self.structure)
             graph.attrib['species'] = str(self.species)
+            
             for j in range(len(self.conv_params)):
                 graph.attrib['param'] = str(self.conv_params[j][i])
                 graph.attrib['parname'] = str(self.conv_params_names[j])
@@ -252,6 +260,9 @@ class XmlToFit(object):
         self.db0_eos.append(eosFit.out2)
         self.emin_eos.append(eosFit.out3)
         self.res_eos.append(eosFit.deltamin)
+        if structure in ['hcp','hex']:
+            self.coa_eos.append(eosFit.out4)
+        self.a_eos.append(eosFit.out5)
         try:
             self.p.append(eosFit.p)
         except:
@@ -301,6 +312,9 @@ class XmlToFit(object):
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
                 graph.attrib['min_energy'] = str(self.emin_eos[i])                                
                 graph.attrib['norm_res_vect'] = str(self.res_eos[i])
+                if self.structure in ['hcp','hex']:
+                    graph.attrib['equi_coa'] = str(self.coa_eos[i])
+                graph.attrib['equi_a'] = str(self.a_eos[i])
             i = i+1
         #node = etree.SubElement(root,'eos')
         #node.attrib['bulk_mod'] = str(self.b0_eos[0])

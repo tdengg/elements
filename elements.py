@@ -46,7 +46,7 @@ else: covera = setup['param']['covera']
 if type(setup['param']['covera']) is dict and type(setup['param']['scale']) is dict:
     if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv':
         vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 
-        dvolume = vzero/50                          #volume steps
+        dvolume = (azero+da)**3 * coverazero * 3**(1/2.)/2 - vzero                        #volume steps
         scale, covera = expand.volume_steps(vzero, dvolume, asteps, coverazero, dcovera, coasteps)    #generate steps in volume and c/a
     elif setup['mod'] == 'simple_conv':
         covera = [coverazero]

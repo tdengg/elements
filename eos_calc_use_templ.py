@@ -146,7 +146,7 @@ class CALC(object):
                 out = ' > execute'
             
             else: out =''
-            proc4 = subprocess.Popen(['xsltproc -v ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
+            proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
             proc4.communicate()
             if exec_template == 'shelcommand.xsl':
                 proc5 = subprocess.Popen(['chmod u+x ' + setup['calchome'] + 'execute'], shell=True)

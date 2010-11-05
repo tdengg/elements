@@ -186,19 +186,24 @@ class Birch(object):
             ddpoly = np.poly1d.deriv(dpoly)
             coamin = poly(parnew1[0,0])
             plt.plot(covera,v,coamin,parnew1[0,0])
-            print coamin
+            #print coamin
         
         #for vol in v:
             
         if structure == 'fcc':
-            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((4.*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
-        #elif structure == 'hcp':
-        #    print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str((2.*parnew1[0,0]/(3.**(1./2.)*float(covera[i])))**(1./3.)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            a0 = (4.*parnew1[0,0])**(1./3.)
+            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((a0, 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        elif structure == 'hcp':
+            a0 = (2.*parnew1[0,0]/(3.**(1./2.)*float(coamin)))**(1./3.)
+            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(a0).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            
         #elif structure == 'hex':
         #    print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str((2.*parnew1[0,0]/(3.**(1./2.)*float(covera[i])))**(1./3.)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
         elif structure == 'bcc':
+            a0 = (2.*parnew1[0,0])**(1./3.)
             print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((2*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
         elif structure == 'diamond':
+            a0 = (8.*parnew1[0,0])**(1./3.)
             print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
@@ -251,6 +256,9 @@ class Birch(object):
         self.out1 = parnew1[0,1]*2.942104*10**4. #bulk modulus in GPa
         self.out2 = parnew1[0,2]
         self.out3 = parnew1[0,3]
+        if len(v) == len(covera):
+            self.out4 = coamin
+        self.out5 = a0
         self.deltamin = deltamin
         
         self.a = a

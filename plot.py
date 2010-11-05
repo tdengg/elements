@@ -21,12 +21,16 @@ class Plot(object):
             else:
                 msg['msg_coa'] = ''
             msg['msg_eos'] = '\nFor energy vs. volume type: eos'
-            type = raw_input('What do you want to plot?%(msg_coa)s%(msg_eos)s\n>>>'%msg)
+            msg['msg_conv'] = '\nFor convergence type: conv'
+            type = raw_input('What do you want to plot?%(msg_coa)s%(msg_eos)s%(msg_conv)s\n>>>'%msg)
             if type == 'eos':
                 self.eosplot_mpl()
                 break
             elif type == 'covera' and coaplot == ', covera':
                 self.coaplot_mpl()
+                break
+            elif type == 'conv':
+                self.conv_mpl()
                 break
             else:
                 print 'Please try again and type one of: eos%s'%coaplot
@@ -192,5 +196,79 @@ class Plot(object):
             plt.title('c/a - plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             n=n+1
         plt.show()
+        
+    def conv_mpl(self):
+        vol = []
+        energy = []
+        expvol = []
+        expenergy = []
+        expvol_bad = []
+        expenergy_bad = []
+        par = []
+        parname = []
+        colLabel = []
+        e_min = []
+        v_min = []
+        b0_min = []
+        db0_min = []
+        
+        eosdata = etree.parse('./eosplot.xml')
+        root = eosdata.getroot()
+        graphs = root.getiterator('graph')
+        
+        structure = self.params.getroot().find('structure').get('str')
+        species = self.params.getroot().find('species').get('spc')
+        
+        n=0
+        for graph in graphs:
+            vol.append([])
+            energy.append([])
+            par.append(graph.get('param'))
+            parname.append(graph.get('parname'))
+            e_min.append(graph.get('energy_min'))
+            v_min.append(graph.get('vol_min'))
+            b0_min.append(graph.get('B0'))
+            db0_min.append(graph.get('dB0'))
+            points = graph.getiterator('point')
+            for point in points:
+                vol[n].append(float(point.get('volume')))
+                energy[n].append(float(point.get('energy')))
+            n=n+1
+        
+        
+        fig = plt.figure()
+        
+        ax1 = fig.add_subplot(221)
+        ax1.set_title('Convergence for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+        ax1.plot(par, v_min, '-', par, v_min, '.', color=colors[n])
+        ax1.set_ylabel(r'$volume$   $[{Bohr^3}]$')
+        ax1.set_xlabel(parname[0])
+        ax1.axis('tight')
+        
+        ax3 = fig.add_subplot(222)
+        #ax2.set_title('Convergence of energy for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+        ax3.plot(par, e_min, '-',par, e_min, '.', color=colors[n])
+        ax3.set_ylabel(r'$energy$   $[{Hartree}]$')
+        ax3.set_xlabel(parname[0])
+        ax3.axis('tight')
+        ax4 = fig.add_subplot(223)
+        #ax3.set_title('Convergence of bulk - modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+        ax4.plot(par, b0_min, '-',par, b0_min, '.', color=colors[n])
+        ax4.set_ylabel(r'$B_0$   $[{GPa}]$')
+        ax4.set_xlabel(parname[0])
+        
+        ax6 = fig.add_subplot(224)
+        #ax4.set_title('Convergence of derivative of bulk -modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+        
+        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+        ax6.plot( par, db0_min, '-',par, db0_min, '.', color=colors[n])
+        ax6.set_ylabel(r"$B_0'$   $[{Bohr^3}]$")
+        ax6.set_xlabel(parname[0])
+        fig.subplots_adjust(left=0.1)
+        plt.show()
 
+            
 test = Plot().eosplot_mpl()
