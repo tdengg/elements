@@ -26,7 +26,7 @@ class Plot(object):
             if type == 'eos':
                 self.eosplot_mpl()
                 break
-            elif type == 'covera' and coaplot == ', covera':
+            elif type == 'covera':
                 self.coaplot_mpl()
                 break
             elif type == 'conv':
@@ -198,7 +198,7 @@ class Plot(object):
 
         n=0
         for graph in graphs:
-            plt.plot(vol[n], energy[n], '', label='Volume: %(vol)s withs'%{'vol':volume[n],'parname':parname[n],'par':par[n]})
+            plt.plot(vol[n], energy[n], '', label='V: %(vol)s '%{'vol':str(int(round(float(volume[n])))),'parname':parname[n],'par':par[n]})
             plt.plot(expvol[n], expenergy[n], '.',color='k')
             plt.plot(expvol_bad[n], expenergy_bad[n], '.')
             plt.xlabel(r'c/a')
