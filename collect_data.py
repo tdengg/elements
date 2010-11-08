@@ -84,7 +84,7 @@ class XmlToFit(object):
                 self.conv_params.append(eval(param.attrib['val']))
                 self.conv_params_names.append(param.attrib['name'])
             except:
-                nconv = 1
+                nconv = nconv
                 self.convergence = False
           
         if self.structure in ['hcp', 'hex'] and mode == 'eos':
@@ -96,7 +96,7 @@ class XmlToFit(object):
                 
             ncoa = self.pointscovera
             nnconv = self.numb_coa/nconv
-
+            
             k=0
             while k<nconv:         
                 j=0
