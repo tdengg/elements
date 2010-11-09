@@ -31,6 +31,7 @@ class Polyfit(object):
     def fit(self):
         
         #check and remove points that do not seam to have reasonable energy values
+        """
         poly = []
         res = []
         devsq = []
@@ -70,7 +71,8 @@ class Polyfit(object):
             ebad.append(self.toten[index])
             self.covera.remove(valcoa)
             del self.toten[index]
-
+        """
+        coabad=[]
         #############
         
         coveramin = 0
