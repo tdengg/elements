@@ -96,19 +96,21 @@ class XmlToFit(object):
                 
             ncoa = self.pointscovera
             nnconv = self.numb_coa/nconv
-            
             k=0
-            while k<nconv:         
+            self.results = etree.Element('plot')
+            self.results_coa = etree.Element('plot')
+            while k<nconv:  
+                       
                 j=0
-                self.results_coa = etree.Element('plot')
+                
                 while j<self.numb_coa/nconv:
                     
-                    self.fitcoa(param1['covera'][nnconv*k+j],param1['toten'][nnconv*k+j],param1['volume'][nnconv*k+j])
+                    self.fitcoa(param1['covera'][k+j*nconv],param1['toten'][k+j*nconv],param1['volume'][k+j*nconv],k)
                     j=j+1
                     
-                scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa, self.coveramin)
-                self.results = etree.Element('plot')
-                self.fiteos(scalecoa,volumecovera,self.totencoamin, self.coveramin, self.structure, self.species)
+                scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[k], self.coveramin[k])
+                
+                self.fiteos(scalecoa,volumecovera,self.totencoamin[k], self.coveramin[k], self.structure, self.species)
                 k=k+1
                 
             k=0
@@ -268,8 +270,12 @@ class XmlToFit(object):
         except:
             return
 
-    def fitcoa(self, coa, toten, volume):
+    def fitcoa(self, coa, toten, volume, i):
         fitcoa = fitcovera.Polyfit(coa,toten,3,volume,self.calchome)
+        
+        self.coveramin.append([])
+        self.totencoamin.append([])
+        self.volumecoa.append([])
         
         self.results_coa.append(fitcoa.reschild)
         self.results_coa.append(fitcoa.reschild2)
@@ -284,9 +290,9 @@ class XmlToFit(object):
             graph.attrib['species'] = str(self.species)
         etree.ElementTree(root).write(self.dir + 'coaplot.xml')
         
-        self.coveramin.append(fitcoa.coamin)
-        self.totencoamin.append(fitcoa.totenmin)
-        self.volumecoa.append(fitcoa.volume)
+        self.coveramin[i].append(fitcoa.coamin)
+        self.totencoamin[i].append(fitcoa.totenmin)
+        self.volumecoa[i].append(fitcoa.volume)
     
     def write_covera(self):
         f = etree.parse(self.dir + 'coa_data.xml')

@@ -71,6 +71,20 @@ class Plot(object):
                 vol[n].append(float(point.get('volume')))
                 energy[n].append(float(point.get('energy')))
             n=n+1
+        if len(par)>1:
+            i=0
+            ind = []
+            names = []
+            for name in parname:
+                if name not in names:
+                    par_to_plot = (eval(raw_input("Specify which values of %s to plot (as list). e.g.[2,4]\n>>>"%name)))
+                    names.append(name)
+
+            for pars_to_plot in par_to_plot:
+                ind.append(par.index(str(pars_to_plot)))
+        else:
+            ind = range(len(graphs))
+                       
         graphs = root.getiterator('graph_exp')
         n=0
         for graph in graphs:
@@ -105,17 +119,18 @@ class Plot(object):
 
         colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         for graph in graphs:
-            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])}, color=colors[n])
-            ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
-            point, = ax.plot(v_min[n], e_min[n], 'o',picker=5)
-            ax.plot(expvol_bad[n], expenergy_bad[n], '.')
-            ax.set_xlabel(r'Volume   [Bohr$^3$]')
-            ax.set_ylabel(r'Total energy   [Hartree]')
-            ax.legend(loc='best')
-            #ax.annotate('optimal volume '+str(min[0]), xy=(min,curve(min)), xycoords='data' ,
-            #            xytext=(min-10,curve(min)+0.002) ,  arrowprops=dict(arrowstyle="->"))
-            #plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-            rowLabel.append('%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
+            if n in ind:
+                ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])}, color=colors[n])
+                ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
+                point, = ax.plot(v_min[n], e_min[n], 'o',picker=5)
+                ax.plot(expvol_bad[n], expenergy_bad[n], '.')
+                ax.set_xlabel(r'Volume   [Bohr$^3$]')
+                ax.set_ylabel(r'Total energy   [Hartree]')
+                ax.legend(loc='best')
+                #ax.annotate('optimal volume '+str(min[0]), xy=(min,curve(min)), xycoords='data' ,
+                #            xytext=(min-10,curve(min)+0.002) ,  arrowprops=dict(arrowstyle="->"))
+                #plt.title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+                rowLabel.append('%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])})
             n=n+1
         
         #def onpick(event):
@@ -195,9 +210,10 @@ class Plot(object):
             
         structure = self.params.getroot().find('structure').get('str')
         species = self.params.getroot().find('species').get('spc')
-
+        
         n=0
         for graph in graphs:
+
             plt.plot(vol[n], energy[n], '', label='V: %(vol)s '%{'vol':str(int(round(float(volume[n])))),'parname':parname[n],'par':par[n]})
             plt.plot(expvol[n], expenergy[n], '.',color='k')
             plt.plot(expvol_bad[n], expenergy_bad[n], '.')
