@@ -83,13 +83,17 @@ class Plot(object):
             par_to_plot = []
             for name in diff_parname:
                 if name not in names:
-                    p = eval('[' + raw_input("Specify which values of %s to plot. e.g.2,4\n>>>"%name) + ']')
-                    if p == 'all':
-                        p=[4]
-                    par_to_plot.append(p)
+                    p = ('[' + raw_input("Specify which values of %s to plot. e.g.2,4\n>>>"%name) + ']')
+                    if p == '[all]':
+                        par_to_plot.append('all')
+                    else:
+                        par_to_plot.append(eval(p))
                     names.append(name)
 
             for pars_to_plot in par_to_plot:
+                if pars_to_plot == 'all':
+                    ind = range(len(graphs))
+                    continue
                 for diff_pars in pars_to_plot:
                     try:
                         ind.append(par.index(str(diff_pars)))
@@ -170,8 +174,14 @@ class Plot(object):
         expenergy_bad = []
         par = []
         parname = []
-        eosdata = etree.parse('./coaplot.xml')
-        root = eosdata.getroot()
+        
+        eosdata = etree.parse('./eosplot.xml')
+        rooteos = eosdata.getroot()
+        graphs_eos = rooteos.getiterator('graph')
+        npar = len(graphs_eos)
+        
+        coadata = etree.parse('./coaplot.xml')
+        root = coadata.getroot()
         graphs = root.getiterator('graph')
         n=0
         for graph in graphs:
@@ -209,20 +219,54 @@ class Plot(object):
                 expenergy_bad[n].append(float(point.get('energy')))
             n=n+1
             
+        if len(par)>1:
+            diff_parname = []
+            for name in parname:
+                if name not in diff_parname:
+                    diff_parname.append(name)
+            ind = []
+            names = []
+            par_to_plot = []
+            for name in diff_parname:
+                if name not in names:
+                    p = ('[' + raw_input("Specify which values of %s to plot. e.g.2,4\n>>>"%name) + ']')
+                    if p == '[all]':
+                        par_to_plot.append('all')
+                    else:
+                        par_to_plot.append(eval(p))
+                    names.append(name)
+            for pars_to_plot in par_to_plot:
+                if pars_to_plot == 'all':
+                    ind = range(npar)
+                    continue
+                for diff_pars in pars_to_plot:
+                    try:
+                        ind.append(par.index(str(diff_pars)))
+                    except:
+                        print 'One or more parameters you chose are not in the calculated ones!'
+                        return
+
+        else:
+            ind = range(len(graphs))
+            
         structure = self.params.getroot().find('structure').get('str')
         species = self.params.getroot().find('species').get('spc')
-        
-        n=0
-        for graph in graphs:
 
-            plt.plot(vol[n], energy[n], '', label='V: %(vol)s '%{'vol':str(int(round(float(volume[n])))),'parname':parname[n],'par':par[n]})
-            plt.plot(expvol[n], expenergy[n], '.',color='k')
-            plt.plot(expvol_bad[n], expenergy_bad[n], '.')
-            plt.xlabel(r'c/a')
-            plt.ylabel(r'Total energy   [Hartree]')
-            plt.legend(loc='best')
-            plt.title('c/a - plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-            n=n+1
+        n=0
+        j=0
+        for j in range(len(parname)):
+            if j in ind:
+                ind.append(j+npar)
+                plt.plot(vol[ind[n]], energy[ind[n]], '', label='V: %(vol)s '%{'vol':str(int(round(float(volume[n])))),'parname':parname[n],'par':par[n]})
+                plt.plot(expvol[ind[n]], expenergy[ind[n]], '.',color='k')
+                plt.plot(expvol_bad[ind[n]], expenergy_bad[ind[n]], '.')
+                plt.xlabel(r'c/a')
+                plt.ylabel(r'Total energy   [Hartree]')
+                plt.legend(loc='best')
+                plt.title('c/a - plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+                n=n+1
+            j=j+1
+
         plt.show()
         
     def conv_mpl(self):
@@ -299,4 +343,4 @@ class Plot(object):
         plt.show()
 
             
-test = Plot().eosplot_mpl()
+test = Plot()

@@ -100,7 +100,7 @@ class XmlToFit(object):
             self.results = etree.Element('plot')
             self.results_coa = etree.Element('plot')
             while k<nconv:  
-                       
+                print "\n#################################################################\n#Performing equation of state calculations for parameter set %s. #\n#################################################################\n"%str(k+1)       
                 j=0
                 
                 while j<self.numb_coa/nconv:
@@ -112,7 +112,7 @@ class XmlToFit(object):
                 
                 self.fiteos(scalecoa,volumecovera,self.totencoamin[k], self.coveramin[k], self.structure, self.species)
                 k=k+1
-                
+                print "\n#################################################################\n"
             k=0
             f = etree.parse(self.dir + 'eos_data.xml')
             root = f.getroot()
@@ -285,9 +285,19 @@ class XmlToFit(object):
         coaplot = etree.parse(self.dir + 'coaplot.xml')
         root = coaplot.getroot()
         graphs = root.getiterator('graph')
+        k=0
+        number_all = 0
+        for l in self.conv_params:
+            number_all = number_all + len(l)
         for graph in graphs:
+            if k == number_all:
+                k=0
             graph.attrib['structure'] = str(self.structure)
             graph.attrib['species'] = str(self.species)
+            for j in range(len(self.conv_params)):
+                graph.attrib['param'] = str(self.conv_params[j][k])
+                graph.attrib['parname'] = str(self.conv_params_names[j])
+            k=k+1
         etree.ElementTree(root).write(self.dir + 'coaplot.xml')
         
         self.coveramin[i].append(fitcoa.coamin)

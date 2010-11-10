@@ -91,7 +91,7 @@ class Polyfit(object):
         for minima in minx:
             if float(minima.real) >= min(self.covera)+0.02 and float(minima.real) <= max(self.covera)-0.02 and ddpoly(minima) > 0:
                 coveramin = minima.real
-                print 'min(c/a) = ' + str(coveramin)
+                print 'Emin(c/a) = ' + str(coveramin) + '\n' 
                 coamingood = (coveramin)
                 totenmingood = (poly(coveramin))
                 recalculate.append(False)
@@ -116,12 +116,12 @@ class Polyfit(object):
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-                    print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
+                    #print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
             if coamingood < mincoa:
                 mincoa = coamingood
             if coamingood > maxcoa:
                 maxcoa = coamingood
-        print 'There are energy minima in the c/a range: %(min)s - %(max)s'%{'min':mincoa,'max':maxcoa}
+
         self.recalculate = recalculate
         self.newcovera = newcovera
             
