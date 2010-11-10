@@ -33,7 +33,9 @@ class Plot(object):
                 self.conv_mpl()
                 break
             else:
-                print 'Please try again and type one of: eos%s'%coaplot
+                print 'Please type one of the specified!'
+                
+                continue
                 
         #template = f.getroot().find('elementshome')
     def eosplot_mpl(self):
@@ -72,16 +74,29 @@ class Plot(object):
                 energy[n].append(float(point.get('energy')))
             n=n+1
         if len(par)>1:
-            i=0
+            diff_parname = []
+            for name in parname:
+                if name not in diff_parname:
+                    diff_parname.append(name)
             ind = []
             names = []
-            for name in parname:
+            par_to_plot = []
+            for name in diff_parname:
                 if name not in names:
-                    par_to_plot = (eval(raw_input("Specify which values of %s to plot (as list). e.g.[2,4]\n>>>"%name)))
+                    p = eval('[' + raw_input("Specify which values of %s to plot. e.g.2,4\n>>>"%name) + ']')
+                    if p == 'all':
+                        p=[4]
+                    par_to_plot.append(p)
                     names.append(name)
 
             for pars_to_plot in par_to_plot:
-                ind.append(par.index(str(pars_to_plot)))
+                for diff_pars in pars_to_plot:
+                    try:
+                        ind.append(par.index(str(diff_pars)))
+                    except:
+                        print 'One or more parameters you chose are not in the calculated ones!'
+                        return
+
         else:
             ind = range(len(graphs))
                        
@@ -141,23 +156,9 @@ class Plot(object):
         #        ind = event.ind
         #        print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
         #fig.canvas.mpl_connect('pick_event', onpick)
-
-        width = 100
-
-        cell = [v_min,e_min,b0_min,db0_min]
-        for column in cell:
-            cellText.append(['%s' % (x) for x in column])
-        cellText.reverse()
-        #table = plt.table(cellText=cellText, cellColours=None,
-        #          cellLoc='right',colWidths=[0.1,0.1,0.1,0.1,0.1],
-        #          rowLabels=[r'$(c/a)_min$',r'$V_0$',r'$E_tot$$_,min$',r'$(c/a)_min$'], rowColours=None, rowLoc='right',
-        #          colLabels=rowLabel, colColours=None, colLoc='center',
-        #          loc='right', bbox=None)
-        #for column in cell:
-        #table.scale(2,2)
-        #table.auto_set_font_size()
         
         plt.show()
+        return
         #table.auto_set_font_size()
     def coaplot_mpl(self):
         vol = []
