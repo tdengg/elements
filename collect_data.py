@@ -123,6 +123,9 @@ class XmlToFit(object):
                 node.attrib['equi_volume'] = str(self.vol0_eos[k])
                 node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
                 node.attrib['min_energy'] = str(self.emin_eos[k])
+                if self.structure in ['hcp','hex']:
+                    graph.attrib['equi_coa'] = str(self.coa_eos[k])
+                graph.attrib['equi_a'] = str(self.a_eos[k])
                 node.attrib['param'] = str()
                 etree.ElementTree(root).write(self.dir + 'eos_data.xml')
                 k=k+1
