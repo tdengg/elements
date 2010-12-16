@@ -44,11 +44,14 @@ class Manipulate(object):
         root_p = p.getroot()
         new = root_p.getiterator('set')
         combined = etree.parse(self.rootdir + 'parset.xml')
+        pi = etree.ProcessingInstruction('xml', "version='1.0' encoding='UTF-8'") 
+           
         root_combined = combined.getroot()
+        root_combined.append(pi)
         for element in new:
             root_combined.append(element)
         combined.write(self.rootdir + 'parset.xml')
-                
+            
                 
         print 'written new parameterfile to ' + self.pm_old
 

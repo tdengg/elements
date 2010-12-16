@@ -15,7 +15,7 @@
                              },
                 'species': 'Be', 
                 'structure':'hcp',
-                'mod': 'simple_conv',
+                'mod': 'eos',
                 'speciespath': "http://xml/exciting-code.org/species/",
                 'calculate' : 'True',
                 'exectemplate':"shelcommand.xsl"
