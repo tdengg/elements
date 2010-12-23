@@ -62,8 +62,9 @@ else:
     sys.path.append(sys.argv[1])
 
 if os.path.exists('autoshift.setup'):
-    s = open('autoshift.setup','rb')
-    setup = pickle.load(s)
+    s = open('autoshift.setup','r')
+    sustr= s.read()
+    setup = eval(sustr)
     s.close()
 else:
     s = open(input)
@@ -98,6 +99,7 @@ if 'elements' in setup.keys():
         setup['calchome'] = path + '/' + name + '/'
         
         setup_element(setup)
+
 else:
     setup_element(setup)        
 

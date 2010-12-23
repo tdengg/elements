@@ -1,5 +1,5 @@
 defaults={
-          'mod': 'simple_conv', 
+          'mod': 'eos', 
           'exectemplate':'shelcommand.xsl',
           'calculate':"True",
           'speciespath':"http://xml.exciting-code.org/species/"

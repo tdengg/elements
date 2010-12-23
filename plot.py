@@ -287,5 +287,5 @@ class Plot(object):
         fig.subplots_adjust(left=0.1)
         plt.show()
 
-            
-test = Plot().eosplot_mpl()
+if __name__=='__main__':            
+    Plot().eosplot_mpl()

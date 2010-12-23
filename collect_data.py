@@ -38,6 +38,9 @@ class XmlToFit(object):
         self.results = []
         self.results_coa = []
         
+        self.newcovera = []
+        self.recalculate = []
+        
         coamin = []
         tmin = []
         plt = []
@@ -45,6 +48,7 @@ class XmlToFit(object):
         v1coa = []
         self.conv_params = []
         self.conv_params_names = []
+        
         self.dir = str(os.getcwd()) + '/'
         tempf = open(self.dir + 'eosplot.xml','w')
         tempf.write('<plot></plot>')
@@ -287,7 +291,9 @@ class XmlToFit(object):
         self.coveramin.append(fitcoa.coamin)
         self.totencoamin.append(fitcoa.totenmin)
         self.volumecoa.append(fitcoa.volume)
-    
+        self.recalculate.append(fitcoa.recalculate)
+        self.newcovera.append(fitcoa.newcovera)
+        
     def write_covera(self):
         f = etree.parse(self.dir + 'coa_data.xml')
         root = f.getroot()
@@ -338,5 +344,6 @@ class XmlToFit(object):
         #delete all .OUT files
         remove = subprocess.Popen(["find . -type f -name '*.OUT' -exec rm -f {} \;"],shell=True)
         remove.communicate()
-                
-test = XmlToFit('')
+
+if __name__=='__main__':                
+    XmlToFit('')

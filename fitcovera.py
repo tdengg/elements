@@ -74,11 +74,10 @@ class Polyfit(object):
         """
         coabad=[]
         #############
-        
         coveramin = 0
         coaminima = []
         totenmin = []
-        recalculate = []
+
         newcovera = []
         coeff = np.polyfit(self.covera, self.toten, self.deg)
         poly = np.poly1d(coeff)
@@ -94,7 +93,8 @@ class Polyfit(object):
                 print 'min(c/a) = ' + str(coveramin)
                 coamingood = (coveramin)
                 totenmingood = (poly(coveramin))
-                recalculate.append(False)
+                recalculate = False
+                newcovera = coamingood
                 break
             else:
                 if float(minima.real) < min(self.covera)+0.02 and ddpoly(minima) > 0:
@@ -124,8 +124,8 @@ class Polyfit(object):
         print 'There are energy minima in the c/a range: %(min)s - %(max)s'%{'min':mincoa,'max':maxcoa}
         self.recalculate = recalculate
         self.newcovera = newcovera
-            
-             
+        
+        
         
         x = np.linspace(min(self.covera),max(self.covera),100)
         if mpl:

@@ -13,6 +13,7 @@ import time
 
 import search_dir
 import check_for_existing
+import collect_data
 
 class CALC(object):
     def __init__(self, setup):
@@ -161,6 +162,10 @@ class CALC(object):
                 proc6 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
                 proc6.communicate()
                 print "submitted lljob to cluster"
+            
+            if autoconv == 'True':
+                cdata = collect_data()
+                cdata.XmlToFit('')
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
             #proc5.communicate()
