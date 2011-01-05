@@ -163,7 +163,7 @@ class CALC(object):
                 proc6.communicate()
                 print "submitted lljob to cluster"
             
-            if autoconv == 'True':
+            if setup['autoconv'] == 'True':
                 cdata = collect_data()
                 cdata.XmlToFit('')
             

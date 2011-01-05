@@ -19,6 +19,7 @@ import fitev
 import fitcovera
 import search_dir
 import my_calcsetup
+import auto_calc_setup
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -40,6 +41,9 @@ class XmlToFit(object):
         
         self.newcovera = []
         self.recalculate = []
+        
+        self.a0 = []
+        self.recalculateeos = []
         
         coamin = []
         tmin = []
@@ -156,7 +160,29 @@ class XmlToFit(object):
                 self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
                 self.write_eos()
                 self.n=self.n+1
+        
+        n=0
+        print self.recalculateeos
+        for recalculate in self.recalculate:
+            if recalculate:
+                print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
+                newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
+                auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
+                n=n+1
+            else:
+                print 'Minimum c/a %s in accepted range.'(self.newcovera[n])
+        
+        n=0
+        for recalculate in self.recalculateeos:
+            if recalculate:
+                print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
+                newset = auto_calc_setup.Autosetup(self.calchome + 'setup.py').setup({'azero' : self.vol0_eos[n]})
+                auto_calc_setup.Autosetup('setup.py').calculate(newset)
+                n=n+1
+            else:
+                print 'Minimum volume %s in accepted range.'(self.newcovera[n])
             #if mpl:
+            
             #    n=0
             #    for plots in self.p:
             #        plots.savefig(self.calchome + '%s_eos'%str(n))
@@ -264,6 +290,8 @@ class XmlToFit(object):
         self.db0_eos.append(eosFit.out2)
         self.emin_eos.append(eosFit.out3)
         self.res_eos.append(eosFit.deltamin)
+        self.recalculateeos.append(eosFit.recalculate)
+        self.a0.append(eosFit.a0)
         if structure in ['hcp','hex']:
             self.coa_eos.append(eosFit.out4)
         self.a_eos.append(eosFit.out5)

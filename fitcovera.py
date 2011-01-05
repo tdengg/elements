@@ -116,6 +116,7 @@ class Polyfit(object):
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
+                    newcovera = errmin
                     print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
             if coamingood < mincoa:
                 mincoa = coamingood
