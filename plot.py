@@ -3,39 +3,43 @@ import numpy as np
 import xml.etree.ElementTree as etree
 
 class Plot(object):
-    def __init__(self):
+    def __init__(self, autompl=False):
+
         self.params = etree.parse('./const_parameters.xml')
         self.eos_data = etree.parse('./eos_data.xml')
         self.convergence = etree.parse('./convergence.xml')
+        self.autompl = autompl
         
         structure = self.params.getroot().find('structure').get('str')
         if structure in ['hcp','hex']:
             coaplot=True
         else:
             coaplot=False
-        
-        for i in range(5):
-            msg = {}
-            if coaplot:
-                msg['msg_coa'] = '\nFor energy vs. c/a type: covera'
-            else:
-                msg['msg_coa'] = ''
-            msg['msg_eos'] = '\nFor energy vs. volume type: eos'
-            msg['msg_conv'] = '\nFor convergence type: conv'
-            type = raw_input('What do you want to plot?%(msg_coa)s%(msg_eos)s%(msg_conv)s\n>>>'%msg)
-            if type == 'eos':
-                self.eosplot_mpl()
-                break
-            elif type == 'covera':
-                self.coaplot_mpl()
-                break
-            elif type == 'conv':
-                self.conv_mpl()
-                break
-            else:
-                print 'Please type one of the specified!'
-                
-                continue
+
+        if not self.autompl:
+            for i in range(5):
+                msg = {}
+                if coaplot:
+                    msg['msg_coa'] = '\nFor energy vs. c/a type: covera'
+                else:
+                    msg['msg_coa'] = ''
+                msg['msg_eos'] = '\nFor energy vs. volume type: eos'
+                msg['msg_conv'] = '\nFor convergence type: conv'
+                type = raw_input('What do you want to plot?%(msg_coa)s%(msg_eos)s%(msg_conv)s\n>>>'%msg)
+                if type == 'eos':
+                    self.eosplot_mpl()
+                    break
+                elif type == 'covera':
+                    self.coaplot_mpl()
+                    break
+                elif type == 'conv':
+                    self.conv_mpl()
+                    break
+                else:
+                    print 'Please try again and type one of: eos%s'%coaplot
+        else:
+            self.eosplot_mpl()
+
                 
         #template = f.getroot().find('elementshome')
     def eosplot_mpl(self):
@@ -160,9 +164,27 @@ class Plot(object):
         #        ind = event.ind
         #        print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
         #fig.canvas.mpl_connect('pick_event', onpick)
-        
-        plt.show()
-        return
+
+
+        width = 100
+
+        cell = [v_min,e_min,b0_min,db0_min]
+        for column in cell:
+            cellText.append(['%s' % (x) for x in column])
+        cellText.reverse()
+        #table = plt.table(cellText=cellText, cellColours=None,
+        #          cellLoc='right',colWidths=[0.1,0.1,0.1,0.1,0.1],
+        #          rowLabels=[r'$(c/a)_min$',r'$V_0$',r'$E_tot$$_,min$',r'$(c/a)_min$'], rowColours=None, rowLoc='right',
+        #          colLabels=rowLabel, colColours=None, colLoc='center',
+        #          loc='right', bbox=None)
+        #for column in cell:
+        #table.scale(2,2)
+        #table.auto_set_font_size()
+        if not self.autompl:
+            plt.show()
+        else:
+            plt.savefig('eos.ps')
+
         #table.auto_set_font_size()
     def coaplot_mpl(self):
         vol = []
@@ -342,5 +364,7 @@ class Plot(object):
         fig.subplots_adjust(left=0.1)
         plt.show()
 
-            
-test = Plot()
+
+if __name__=='__main__':            
+    Plot().eosplot_mpl()
+

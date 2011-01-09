@@ -265,6 +265,12 @@ class Birch(object):
         self.v = v
         self.ein = ein
         
+        if parnew1[0,0] <= min(v)*(1.2) or parnew1[0,0] >= 0.8*max(v):
+            self.recalculate = True
+        else:
+            self.recalculate = False
+        self.a0 = a0
+        
             
     def minIn(self, ein, vin):
         """ find minimum of total energy

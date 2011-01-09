@@ -74,11 +74,10 @@ class Polyfit(object):
         """
         coabad=[]
         #############
-        
         coveramin = 0
         coaminima = []
         totenmin = []
-        recalculate = []
+
         newcovera = []
         coeff = np.polyfit(self.covera, self.toten, self.deg)
         poly = np.poly1d(coeff)
@@ -94,7 +93,8 @@ class Polyfit(object):
                 print 'Emin(c/a) = ' + str(coveramin) + '\n' 
                 coamingood = (coveramin)
                 totenmingood = (poly(coveramin))
-                recalculate.append(False)
+                recalculate = False
+                newcovera = coamingood
                 break
             else:
                 if float(minima.real) < min(self.covera)+0.02 and ddpoly(minima) > 0:
@@ -116,7 +116,10 @@ class Polyfit(object):
                     errmin = minima.real
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-                    #print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
+
+                    newcovera = errmin
+                    print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
+
             if coamingood < mincoa:
                 mincoa = coamingood
             if coamingood > maxcoa:
@@ -124,8 +127,8 @@ class Polyfit(object):
 
         self.recalculate = recalculate
         self.newcovera = newcovera
-            
-             
+        
+        
         
         x = np.linspace(min(self.covera),max(self.covera),100)
         if mpl:

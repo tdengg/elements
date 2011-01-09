@@ -13,6 +13,7 @@ import time
 
 import search_dir
 import check_for_existing
+import collect_data
 
 class CALC(object):
     def __init__(self, setup):
@@ -119,6 +120,7 @@ class CALC(object):
             print "created parset.xml"
             curr_calc = 'parset.xml'
         else:
+            usr_or = raw_input('Calculations in same directory found.\nFor overwriting old calculations type: OVERWRITE. Otherwise new calculations will be appended to old ones.\n>>>')
             for i in range(50):
                 if os.path.exists(setup['calchome'] +  'parset_%s.xml'%str(i)):
                     continue
@@ -146,17 +148,24 @@ class CALC(object):
                 out = ' > execute'
             
             else: out =''
+            
             proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
             proc4.communicate()
             if exec_template == 'shelcommand.xsl':
                 proc5 = subprocess.Popen(['chmod u+x ' + setup['calchome'] + 'execute'], shell=True)
                 proc5.communicate()
+                proc6 = subprocess.Popen([setup['calchome'] + 'execute'], shell=True)
+                proc6.communicate()
             if exec_template == 'loadleveler.xsl':
                 print "created lljob script"
             
                 proc6 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
                 proc6.communicate()
                 print "submitted lljob to cluster"
+            
+            if setup['autoconv'] == 'True':
+                cdata = collect_data()
+                cdata.XmlToFit('')
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
             #proc5.communicate()
