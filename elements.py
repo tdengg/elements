@@ -9,11 +9,11 @@ import subprocess
 from copy import deepcopy
 
 class Elements(object):
-    def __main__(self):
-        currdir = os.getcwd() + '/'
+    def __init__(self):
+        self.currdir = os.getcwd() + '/'
         print  len(sys.argv)
         if len(sys.argv)<=1:
-            input = currdir + 'my_calcsetup.py'
+            input = self.currdir + 'my_calcsetup.py'
         
         else:
             input = os.path.abspath(str(sys.argv[1]))
@@ -99,13 +99,13 @@ class Elements(object):
         setup['param']['scale'] = scale
         setup['param']['covera'] = covera
         if 'calchome' not in setup.keys() or setup['calchome'] in ['./','.','']:
-            setup['calchome'] = currdir
+            setup['calchome'] = self.currdir
         if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
             setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
         if 'templatepath' not in setup.keys():
             setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
         elif setup['templatepath'] in ['./','.','']:
-            setup['templatepath'] = currdir
+            setup['templatepath'] = self.currdir
         
         calc.CALC(setup)
 

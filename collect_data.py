@@ -268,14 +268,15 @@ class XmlToFit(object):
         root = eosplot.getroot()
         graphs = root.getiterator('graph')
         i=0
-        for graph in graphs:
-            graph.attrib['structure'] = str(self.structure)
-            graph.attrib['species'] = str(self.species)
+
+        #for graph in graphs:
+        graph.attrib['structure'] = str(self.structure)
+        graph.attrib['species'] = str(self.species)
             
-            for j in range(len(self.conv_params)):
-                graph.attrib['param'] = str(self.conv_params[j][i])
-                graph.attrib['parname'] = str(self.conv_params_names[j])
-            i=i+1
+        for j in range(len(self.conv_params)):
+            graph.attrib['param'] = str(self.conv_params[j][i])
+            graph.attrib['parname'] = str(self.conv_params_names[j])
+        #i=i+1
         etree.ElementTree(root).write(self.dir + 'eosplot.xml')
         
         
