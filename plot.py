@@ -8,6 +8,20 @@ class Plot(object):
         self.params = etree.parse('./const_parameters.xml')
         self.eos_data = etree.parse('./eos_data.xml')
         self.convergence = etree.parse('./convergence.xml')
+        
+        self.conv_params_names = []
+        
+        fc = etree.parse('./convergence.xml')
+        root = fc.getroot()
+        params = fc.getiterator('n_param')
+        nconv = 1
+        for param in params:
+            try:
+                self.conv_params_names.append(param.attrib['name'])
+            except:
+                nconv = nconv
+          
+        
         self.autompl = autompl
         
         structure = self.params.getroot().find('structure').get('str')
@@ -64,8 +78,13 @@ class Plot(object):
         for graph in graphs:
             vol.append([])
             energy.append([])
-            par.append(graph.get('param'))
-            parname.append(graph.get('parname'))
+            par.append([])
+            parname.append([])
+
+            for names in self.conv_params_names:
+                print graph.get(names)
+                par[n].append(str(graph.get(names)))
+                parname[n].append(names)
             e_min.append(graph.get('energy_min'))
             v_min.append(graph.get('vol_min'))
             b0_min.append(graph.get('B0'))
@@ -106,10 +125,10 @@ class Plot(object):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.set_title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-
+        print par, parname
         colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
         for graph in graphs:
-            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n], 'val':str(par[n])}, color=colors[n])
+            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n][:], 'val':str(par[n][:])}, color=colors[n])
             ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
             point, = ax.plot(v_min[n], e_min[n], 'o',picker=5)
             ax.plot(expvol_bad[n], expenergy_bad[n], '.')

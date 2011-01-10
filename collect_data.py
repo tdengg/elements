@@ -227,6 +227,10 @@ class XmlToFit(object):
         scale = []
         toten = []
         covera = []
+        
+        self.curr_par = {}
+        self.par_out = {}
+        
         f = etree.parse(self.dir + 'eos_data.xml')
         root = f.getroot()
     	graphs = f.getiterator('graph')
@@ -241,14 +245,22 @@ class XmlToFit(object):
             for point in points:
                 scale[n].append(float(point.get('scale')))
                 toten[n].append(float(point.get('totalEnergy')))
+                for name in self.conv_params_names:
+                    self.curr_par[name] = point.get(name)
+                
+                    
                 try:
                     covera[n].append(float(point.get('covera')))
                 except:
                     covera[n].append(0)
+            
+                self.par_out[str(n)] = (self.curr_par)
+            print self.par_out
             n=n+1
         param['scale'] = scale
         param['toten'] = toten
         param['covera'] = covera
+        print self.par_out
     	return param
         
     def fiteos(self, scale, volume, toten, coveramin, structure, species):
@@ -259,25 +271,32 @@ class XmlToFit(object):
         eosFit = fitev.Birch(self.structure, scale,coveramin,volume,toten,self.calchome)
         
         #write important parameters to eosplot.xml#
+        eosFit.reschild.set('structure',str(self.structure))
+        eosFit.reschild.set('species',str(self.species))
+        
+        for name in self.curr_par:
+            eosFit.reschild.set(name,str(self.par_out[self.n][name]))
+        eosFit.reschild.set('structure',str(self.structure))
         self.results.append(eosFit.reschild)
         self.results.append(eosFit.reschild2)
         self.results.append(eosFit.reschild3)
         restree = etree.ElementTree(self.results)
         restree.write(self.dir + 'eosplot.xml')
-        eosplot = etree.parse(self.dir + 'eosplot.xml')
-        root = eosplot.getroot()
-        graphs = root.getiterator('graph')
-        i=0
+        #eosplot = etree.parse(self.dir + 'eosplot.xml')
+        #root = eosplot.getroot()
+        #graphs = root.getiterator('graph')
+        #i=0
 
         #for graph in graphs:
-        graph.attrib['structure'] = str(self.structure)
-        graph.attrib['species'] = str(self.species)
+        #    graph.attrib['structure'] = str(self.structure)
+        #    graph.attrib['species'] = str(self.species)
             
-        for j in range(len(self.conv_params)):
-            graph.attrib['param'] = str(self.conv_params[j][i])
-            graph.attrib['parname'] = str(self.conv_params_names[j])
-        #i=i+1
-        etree.ElementTree(root).write(self.dir + 'eosplot.xml')
+        #    for name in self.curr_par:
+        #        #graphs[-1].attrib[self.curr_par[name]] = str(self.conv_params[j][i])
+        #        graph.attrib[name] = self.curr_par[name]
+
+        
+        #etree.ElementTree(root).write(self.dir + 'eosplot.xml')
         
         
         ###########################################    
