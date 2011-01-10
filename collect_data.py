@@ -8,6 +8,7 @@
 import xml.etree.ElementTree as etree
 import subprocess
 import os
+from copy import deepcopy
 try:
     import matplotlib.pyplot as plt
     mpl = True
@@ -44,6 +45,8 @@ class XmlToFit(object):
         
         self.a0 = []
         self.recalculateeos = []
+        
+        self.par_out = []
         
         coamin = []
         tmin = []
@@ -162,7 +165,6 @@ class XmlToFit(object):
                 self.n=self.n+1
         
         n=0
-        print self.recalculateeos
         for recalculate in self.recalculate:
             if recalculate:
                 print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
@@ -180,7 +182,9 @@ class XmlToFit(object):
                 auto_calc_setup.Autosetup('setup.py').calculate(newset)
                 n=n+1
             else:
-                print 'Minimum volume %s in accepted range.'(self.newcovera[n])
+                print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
+                
+                n=n+1
             #if mpl:
             
             #    n=0
@@ -228,8 +232,8 @@ class XmlToFit(object):
         toten = []
         covera = []
         
-        self.curr_par = {}
-        self.par_out = {}
+        curr_par = {}
+        
         
         f = etree.parse(self.dir + 'eos_data.xml')
         root = f.getroot()
@@ -246,21 +250,19 @@ class XmlToFit(object):
                 scale[n].append(float(point.get('scale')))
                 toten[n].append(float(point.get('totalEnergy')))
                 for name in self.conv_params_names:
-                    self.curr_par[name] = point.get(name)
-                
-                    
+                    curr_par[name] = point.get(name)
+                 
                 try:
                     covera[n].append(float(point.get('covera')))
                 except:
                     covera[n].append(0)
             
-                self.par_out[str(n)] = (self.curr_par)
-            print self.par_out
+            self.par_out.append(deepcopy(curr_par))
             n=n+1
         param['scale'] = scale
         param['toten'] = toten
         param['covera'] = covera
-        print self.par_out
+        
     	return param
         
     def fiteos(self, scale, volume, toten, coveramin, structure, species):
@@ -274,7 +276,7 @@ class XmlToFit(object):
         eosFit.reschild.set('structure',str(self.structure))
         eosFit.reschild.set('species',str(self.species))
         
-        for name in self.curr_par:
+        for name in self.conv_params_names:
             eosFit.reschild.set(name,str(self.par_out[self.n][name]))
         eosFit.reschild.set('structure',str(self.structure))
         self.results.append(eosFit.reschild)

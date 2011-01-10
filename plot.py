@@ -126,9 +126,9 @@ class Plot(object):
         ax = fig.add_subplot(111)
         ax.set_title('Equation of state plot of %(spc)s (%(str)s)'%{'spc':species,'str':structure})
         print par, parname
-        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+        colors = ['b','g','r','c','m','k','#ff9933','#006600','#66ccff','y']
         for graph in graphs:
-            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n][:], 'val':str(par[n][:])}, color=colors[n])
+            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n][0], 'val':str(par[n][0])}, color=colors[n])
             ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
             point, = ax.plot(v_min[n], e_min[n], 'o',picker=5)
             ax.plot(expvol_bad[n], expenergy_bad[n], '.')
@@ -223,7 +223,7 @@ class Plot(object):
 
         n=0
         for graph in graphs:
-            plt.plot(vol[n], energy[n], '', label='V: %(vol)s '%{'vol':str(int(round(float(volume[n])))),'parname':parname[n],'par':par[n]})
+            plt.plot(vol[n], energy[n], '', label='V: %(vol)s '%{'vol':str(int(round(float(volume[n])))),'parname':parname[n],'par':str(par[n])})
             plt.plot(expvol[n], expenergy[n], '.',color='k')
             plt.plot(expvol_bad[n], expenergy_bad[n], '.')
             plt.xlabel(r'c/a')

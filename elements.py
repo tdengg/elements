@@ -11,7 +11,10 @@ from copy import deepcopy
 class Elements(object):
     def __init__(self):
         self.currdir = os.getcwd() + '/'
-        print  len(sys.argv)
+        
+        if __name__!='__main__':
+            return
+        
         if len(sys.argv)<=1:
             input = self.currdir + 'my_calcsetup.py'
         
@@ -45,7 +48,7 @@ class Elements(object):
                 name = '%s_'%element
                 for key in elements[element].keys():
                     name = name + str(elements[element][key])
-                    print initsetup
+                    
                     if key == 'azero':
                         setup['param']['scale']['azero'] = elements[element]['azero']
                     else:
@@ -66,7 +69,7 @@ class Elements(object):
             self.setup_element(setup) 
 
     def setup_element(self, setup):
-        print setup
+        
         expand = series.Series(setup['structure'])      #instance of series expansion class
         if type(setup['param']['scale']) is dict: 
             azero = setup['param']['scale']['azero']
