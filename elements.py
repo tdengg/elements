@@ -6,6 +6,7 @@ import sys
 import defaults
 import numpy as np
 import subprocess
+import xml.etree.ElementTree as etree
 from copy import deepcopy
 
 class Elements(object):
@@ -32,8 +33,10 @@ class Elements(object):
             sustr= s.read()
                 
             setup = eval(sustr)
+        setup['setupname'] = input
         
         defaults.set(setup)
+
         if 'autoconv' in setup.keys():
             
             is_autoconv = True
@@ -41,6 +44,8 @@ class Elements(object):
             s = open(os.getcwd() + '/' + 'autoconv.py', 'w')
             s.write(str(autoconv))
             s.close()
+        else:
+            is_autoconv = False
         
         if 'elements' in setup.keys():
             path = os.getcwd()
@@ -85,7 +90,8 @@ class Elements(object):
             self.setup_element(setup) 
 
     def setup_element(self, setup):
-        
+        if 'setupname' not in setup:
+            setup['setupname'] = ''
         expand = series.Series(setup['structure'])      #instance of series expansion class
         if type(setup['param']['scale']) is dict: 
             azero = setup['param']['scale']['azero']
@@ -119,12 +125,20 @@ class Elements(object):
         setup['param']['covera'] = covera
         if 'calchome' not in setup.keys() or setup['calchome'] in ['./','.','']:
             setup['calchome'] = self.currdir
-        if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
-            setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
-        if 'templatepath' not in setup.keys():
-            setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
-        elif setup['templatepath'] in ['./','.','']:
-            setup['templatepath'] = self.currdir
+        if __name__=='__main__':
+            if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
+                setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
+            if 'templatepath' not in setup.keys():
+                setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
+        else:
+            f = etree.parse(self.currdir + 'const_parameters.xml')
+            elementshome = f.getroot().find('elementshome').get('elementsdir')
+            if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
+                setup['elementshome'] = elementshome
+            if 'templatepath' not in setup.keys():
+                setup['templatepath'] = elementshome
+                print setup['templatepath']
+
         
         calc.CALC(setup)
 

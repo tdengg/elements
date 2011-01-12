@@ -1,5 +1,4 @@
 defaults={
-          'autoconv' : 'False',
           'mod': 'eos', 
           'exectemplate':'shelcommand.xsl',
           'calculate':"True",
