@@ -120,7 +120,7 @@ class CALC(object):
             print "created parset.xml"
             curr_calc = 'parset.xml'
         else:
-            usr_or = raw_input('Calculations in same directory found.\nFor overwriting old calculations type: OVERWRITE. Otherwise new calculations will be appended to old ones.\n>>>')
+            #usr_or = raw_input('Calculations in same directory found.\nFor overwriting old calculations type: OVERWRITE. Otherwise new calculations will be appended to old ones.\n>>>')
             for i in range(50):
                 if os.path.exists(setup['calchome'] +  'parset_%s.xml'%str(i)):
                     continue
@@ -163,9 +163,9 @@ class CALC(object):
                 proc6.communicate()
                 print "submitted lljob to cluster"
             
-            if setup['autoconv'] == 'True':
-                cdata = collect_data()
-                cdata.XmlToFit('')
+            #if setup['autoconv'] == 'True':
+            #    cdata = collect_data()
+            #    cdata.XmlToFit('')
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
             #proc5.communicate()

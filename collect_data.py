@@ -173,18 +173,20 @@ class XmlToFit(object):
                 n=n+1
             else:
                 print 'Minimum c/a %s in accepted range.'(self.newcovera[n])
+                n=n+1
         
         n=0
         for recalculate in self.recalculateeos:
             if recalculate:
                 print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
-                newset = auto_calc_setup.Autosetup(self.calchome + 'setup.py').setup({'azero' : self.vol0_eos[n]})
+                newset = auto_calc_setup.Autosetup(self.calchome + 'setup.py').setup({'azero' : self.a0[n]})
                 auto_calc_setup.Autosetup('setup.py').calculate(newset)
                 n=n+1
             else:
                 print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
-                
                 n=n+1
+        
+        
             #if mpl:
             
             #    n=0

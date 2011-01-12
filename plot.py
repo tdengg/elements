@@ -259,8 +259,11 @@ class Plot(object):
         for graph in graphs:
             vol.append([])
             energy.append([])
-            par.append(graph.get('param'))
-            parname.append(graph.get('parname'))
+            par.append([])
+            parname.append([])
+            for names in self.conv_params_names:
+                par[n].append(str(graph.get(names)))
+                parname[n].append(names)
             e_min.append(graph.get('energy_min'))
             v_min.append(graph.get('vol_min'))
             b0_min.append(graph.get('B0'))
@@ -271,38 +274,39 @@ class Plot(object):
                 energy[n].append(float(point.get('energy')))
             n=n+1
         
+        print par, parname
         
         fig = plt.figure()
-        
-        ax1 = fig.add_subplot(221)
-        ax1.set_title('Convergence for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-        ax1.plot(par, v_min, '-', par, v_min, '.', color=colors[n])
-        ax1.set_ylabel(r'Volume   [Bohr$^3$]')
-        ax1.set_xlabel(parname[0])
-        ax1.axis('tight')
-        
-        ax3 = fig.add_subplot(222)
-        #ax2.set_title('Convergence of energy for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-        ax3.plot(par, e_min, '-',par, e_min, '.', color=colors[n])
-        ax3.set_ylabel(r'Energy   [Hartree]')
-        ax3.set_xlabel(parname[0])
-        ax3.axis('tight')
-        ax4 = fig.add_subplot(223)
-        #ax3.set_title('Convergence of bulk - modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-        ax4.plot(par, b0_min, '-',par, b0_min, '.', color=colors[n])
-        ax4.set_ylabel(r'B$_0$   [GPa]')
-        ax4.set_xlabel(parname[0])
-        
-        ax6 = fig.add_subplot(224)
-        #ax4.set_title('Convergence of derivative of bulk -modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
-        
-        colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-        ax6.plot( par, db0_min, '-',par, db0_min, '.', color=colors[n])
-        ax6.set_ylabel(r"B$_0$'")
-        ax6.set_xlabel(parname[0])
+        for i in range(len(par)):
+            ax1 = fig.add_subplot(221)
+            ax1.set_title('Convergence for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+            ax1.plot(range(len(par)), v_min, '-', range(len(par)), v_min, '.', color=colors[n])
+            ax1.set_ylabel(r'Volume   [Bohr$^3$]')
+            ax1.set_xlabel(parname[0])
+            ax1.axis('tight')
+            
+            ax3 = fig.add_subplot(222)
+            #ax2.set_title('Convergence of energy for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+            ax3.plot(range(len(par)), e_min, '-',range(len(par)), e_min, '.', color=colors[n])
+            ax3.set_ylabel(r'Energy   [Hartree]')
+            ax3.set_xlabel(parname[0])
+            ax3.axis('tight')
+            ax4 = fig.add_subplot(223)
+            #ax3.set_title('Convergence of bulk - modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+            ax4.plot(range(len(par)), b0_min, '-',range(len(par)), b0_min, '.', color=colors[n])
+            ax4.set_ylabel(r'B$_0$   [GPa]')
+            ax4.set_xlabel(parname[0])
+            
+            ax6 = fig.add_subplot(224)
+            #ax4.set_title('Convergence of derivative of bulk -modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
+            
+            colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
+            ax6.plot( range(len(par)), db0_min, '-',range(len(par)), db0_min, '.', color=colors[n])
+            ax6.set_ylabel(r"B$_0$'")
+            ax6.set_xlabel(parname[0])
         fig.subplots_adjust(left=0.1)
         plt.show()
 

@@ -34,6 +34,13 @@ class Elements(object):
             setup = eval(sustr)
         
         defaults.set(setup)
+        if 'autoconv' in setup.keys():
+            
+            is_autoconv = True
+            autoconv = setup.pop('autoconv')
+            s = open(os.getcwd() + '/' + 'autoconv.py', 'w')
+            s.write(str(autoconv))
+            s.close()
         
         if 'elements' in setup.keys():
             path = os.getcwd()
@@ -66,6 +73,15 @@ class Elements(object):
                 self.setup_element(setup)
         
         else:
+            if is_autoconv:
+                print 'true'
+                if 'rgkmax' in autoconv['start'].keys():
+                    proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
+                    proc2.communicate()
+                    proc3 = subprocess.Popen(['mkdir conv_rgkmax/conv_step_0'], shell=True)
+                    proc3.communicate()
+                    setup['calchome'] = os.getcwd() + '/conv_rgkmax/conv_step_0/'
+                    setup['param']['rgkmax'] = [autoconv['start']['rgkmax'], autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax'],autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax']*2]
             self.setup_element(setup) 
 
     def setup_element(self, setup):
