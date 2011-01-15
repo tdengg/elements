@@ -265,7 +265,7 @@ class Birch(object):
         self.v = v
         self.ein = ein
         
-        if parnew1[0,0] <= min(v)*(1.2) or parnew1[0,0] >= 0.8*max(v):
+        if parnew1[0,0] <= min(v)+(max(v)-min(v))*(0.2) or parnew1[0,0] >= max(v)-(max(v)-min(v))*(0.2):
             self.recalculate = True
         else:
             self.recalculate = False

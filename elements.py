@@ -6,14 +6,18 @@ import sys
 import defaults
 import numpy as np
 import subprocess
+import xml.etree.ElementTree as etree
 from copy import deepcopy
 
 class Elements(object):
-    def __main__(self):
-        currdir = os.getcwd() + '/'
-        print  len(sys.argv)
+    def __init__(self):
+        self.currdir = os.getcwd() + '/'
+        
+        if __name__!='__main__':
+            return
+        
         if len(sys.argv)<=1:
-            input = currdir + 'my_calcsetup.py'
+            input = self.currdir + 'my_calcsetup.py'
         
         else:
             input = os.path.abspath(str(sys.argv[1]))
@@ -29,8 +33,19 @@ class Elements(object):
             sustr= s.read()
                 
             setup = eval(sustr)
+        setup['setupname'] = input
         
         defaults.set(setup)
+
+        if 'autoconv' in setup.keys():
+            
+            is_autoconv = True
+            autoconv = setup.pop('autoconv')
+            s = open(os.getcwd() + '/' + 'autoconv.py', 'w')
+            s.write(str(autoconv))
+            s.close()
+        else:
+            is_autoconv = False
         
         if 'elements' in setup.keys():
             path = os.getcwd()
@@ -45,7 +60,7 @@ class Elements(object):
                 name = '%s_'%element
                 for key in elements[element].keys():
                     name = name + str(elements[element][key])
-                    print initsetup
+                    
                     if key == 'azero':
                         setup['param']['scale']['azero'] = elements[element]['azero']
                     else:
@@ -63,10 +78,20 @@ class Elements(object):
                 self.setup_element(setup)
         
         else:
+            if is_autoconv:
+                print 'true'
+                if 'rgkmax' in autoconv['start'].keys():
+                    proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
+                    proc2.communicate()
+                    proc3 = subprocess.Popen(['mkdir conv_rgkmax/conv_step_0'], shell=True)
+                    proc3.communicate()
+                    setup['calchome'] = os.getcwd() + '/conv_rgkmax/conv_step_0/'
+                    setup['param']['rgkmax'] = [autoconv['start']['rgkmax'], autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax'],autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax']*2]
             self.setup_element(setup) 
 
     def setup_element(self, setup):
-        print setup
+        if 'setupname' not in setup:
+            setup['setupname'] = ''
         expand = series.Series(setup['structure'])      #instance of series expansion class
         if type(setup['param']['scale']) is dict: 
             azero = setup['param']['scale']['azero']
@@ -99,13 +124,21 @@ class Elements(object):
         setup['param']['scale'] = scale
         setup['param']['covera'] = covera
         if 'calchome' not in setup.keys() or setup['calchome'] in ['./','.','']:
-            setup['calchome'] = currdir
-        if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
-            setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
-        if 'templatepath' not in setup.keys():
-            setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
-        elif setup['templatepath'] in ['./','.','']:
-            setup['templatepath'] = currdir
+            setup['calchome'] = self.currdir
+        if __name__=='__main__':
+            if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
+                setup['elementshome'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/'
+            if 'templatepath' not in setup.keys():
+                setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
+        else:
+            f = etree.parse(self.currdir + 'const_parameters.xml')
+            elementshome = f.getroot().find('elementshome').get('elementsdir')
+            if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
+                setup['elementshome'] = elementshome
+            if 'templatepath' not in setup.keys():
+                setup['templatepath'] = elementshome
+                print setup['templatepath']
+
         
         calc.CALC(setup)
 

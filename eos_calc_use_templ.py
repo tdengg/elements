@@ -82,8 +82,6 @@ class CALC(object):
         f = open('./set.xml', 'w')
         f.write(paramset)
         f.close()
-        
-        
         # write constant calculation parameters to xml file:
         const_param = """
         <calc>
@@ -93,12 +91,16 @@ class CALC(object):
             <speciespath spa = '%(speciespath)s'/>
             <elementshome elementsdir ='%(elementshome)stemplates/'/>
             <mode mod='%(mod)s'/>
+            <autoconv_root root = ''/>
+            <setupname sun = '%(setupname)s'/>
         </calc>
         """ %setup
         
         f1 = open('./const_parameters.xml', 'w')
         f1.write(const_param)
         f1.close()
+        
+        print setup['elementshome'] + 'templates/'
         
         convroot = etree.Element('convergence')
 
@@ -120,11 +122,12 @@ class CALC(object):
             print "created parset.xml"
             curr_calc = 'parset.xml'
         else:
-            usr_or = raw_input('Calculations in same directory found.\nFor overwriting old calculations type: OVERWRITE. Otherwise new calculations will be appended to old ones.\n>>>')
+            #usr_or = raw_input('Calculations in same directory found.\nFor overwriting old calculations type: OVERWRITE. Otherwise new calculations will be appended to old ones.\n>>>')
             for i in range(50):
                 if os.path.exists(setup['calchome'] +  'parset_%s.xml'%str(i)):
                     continue
                 else:    
+                    print setup['templatepath']
                     proc1 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'permute_set.xsl ' + setup['calchome'] + 'set.xml > ' + setup['calchome'] +  'parset_%s.xml'%str(i)], shell=True)
                     proc1.communicate()
                     newcalc = check_for_existing.Manipulate(setup['calchome'] +  'calc_filelist.xml', setup['calchome'] +  'parset_%s.xml'%str(i), setup['calchome'])
@@ -163,9 +166,9 @@ class CALC(object):
                 proc6.communicate()
                 print "submitted lljob to cluster"
             
-            if setup['autoconv'] == 'True':
-                cdata = collect_data()
-                cdata.XmlToFit('')
+            #if setup['autoconv'] == 'True':
+            #    cdata = collect_data()
+            #    cdata.XmlToFit('')
             
             #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
             #proc5.communicate()
