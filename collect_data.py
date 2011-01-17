@@ -360,19 +360,13 @@ class XmlToFit(object):
             k=k+1
         etree.ElementTree(root).write(self.dir + 'coaplot.xml')
         
-<<<<<<< HEAD
-        self.coveramin[i].append(fitcoa.coamin)
-        self.totencoamin[i].append(fitcoa.totenmin)
-        self.volumecoa[i].append(fitcoa.volume)
-    
-=======
+
         self.coveramin.append(fitcoa.coamin)
         self.totencoamin.append(fitcoa.totenmin)
         self.volumecoa.append(fitcoa.volume)
         self.recalculate.append(fitcoa.recalculate)
         self.newcovera.append(fitcoa.newcovera)
-        
->>>>>>> 9c8a2e964053b277847e11553846c70630dfe3a6
+
     def write_covera(self):
         f = etree.parse(self.dir + 'coa_data.xml')
         root = f.getroot()

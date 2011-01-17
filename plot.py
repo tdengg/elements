@@ -356,7 +356,7 @@ class Plot(object):
             ax1 = fig.add_subplot(221)
             ax1.set_title('Convergence for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-            ax1.plot(range(len(par)), v_min, '-', range(len(par)), v_min, '.', color=colors[n])
+            ax1.plot(range(len(par)), v_min[i], '-', range(len(par)), v_min[i], '.', color=colors[n])
             ax1.set_ylabel(r'Volume   [Bohr$^3$]')
             ax1.set_xlabel(parname[0])
             ax1.axis('tight')

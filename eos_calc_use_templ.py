@@ -144,17 +144,15 @@ class CALC(object):
         if setup['calculate'] == 'True':
             
             exec_template = setup['exectemplate']
+
+            proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc], shell=True, stdout=subprocess.PIPE)
+            exec_out = proc4.communicate()[0]
             if exec_template == 'shelcommand.xsl':
-                if os.path.exists(setup['calchome'] + 'execute'):
-                    proc3 = subprocess.Popen(['rm ' + setup['calchome'] + 'execute'], shell=True)
-                    proc3.communicate()
-                out = ' > execute'
-            
-            else: out =''
-            
-            proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc + out], shell=True)
-            proc4.communicate()
-            if exec_template == 'shelcommand.xsl':
+                print '##### Preparing the following calculations: #####'
+                print exec_out
+                execute = open(setup['calchome'] + 'execute','w')
+                execute.write(exec_out)
+                execute.close()
                 proc5 = subprocess.Popen(['chmod u+x ' + setup['calchome'] + 'execute'], shell=True)
                 proc5.communicate()
                 proc6 = subprocess.Popen([setup['calchome'] + 'execute'], shell=True)
