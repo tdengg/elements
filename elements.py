@@ -131,7 +131,7 @@ class Elements(object):
             if 'templatepath' not in setup.keys():
                 setup['templatepath'] = os.path.abspath(os.path.dirname(sys.argv[0])) + '/templates/'
         else:
-            f = etree.parse(self.currdir + 'const_parameters.xml')
+            f = etree.parse(setup['calchome'] + 'const_parameters.xml')
             elementshome = f.getroot().find('elementshome').get('elementsdir')
             if 'elementshome' not in setup.keys() or setup['elementshome'] in ['./','.','']:
                 setup['elementshome'] = elementshome

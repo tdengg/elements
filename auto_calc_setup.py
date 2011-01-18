@@ -15,6 +15,8 @@ class Autosetup(object):
                 setup['param']['scale'][key] = param[key]
             elif key == 'coazero':
                 setup['param']['covera'][key] = param[key]
+	    elif key == 'calchome':
+                setup[key] = param[key]
                 
         return setup
     def calculate(self, setup):

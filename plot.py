@@ -162,8 +162,8 @@ class Plot(object):
         colors = ['b','g','r','c','m','k','#ff9933','#006600','#66ccff','y']
         for graph in graphs:
 
-            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n][0], 'val':str(par[n][0])}, color=colors[n])
-            ax.plot(expvol[n], expenergy[n], '.', color=colors[n])
+            ax.plot(vol[n], energy[n], '', label='%(name)s = %(val)s'%{'name':parname[n][0], 'val':str(par[n][0])})
+            ax.plot(expvol[n], expenergy[n], '.')
             point, = ax.plot(v_min[n], e_min[n], 'o',picker=5)
             ax.plot(expvol_bad[n], expenergy_bad[n], '.')
             ax.set_xlabel(r'Volume   [Bohr$^3$]')
@@ -339,6 +339,7 @@ class Plot(object):
             for names in self.conv_params_names:
                 par[n].append(str(graph.get(names)))
                 parname[n].append(names)
+                
             e_min.append(graph.get('energy_min'))
             v_min.append(graph.get('vol_min'))
             b0_min.append(graph.get('B0'))
@@ -349,39 +350,75 @@ class Plot(object):
                 energy[n].append(float(point.get('energy')))
             n=n+1
         
-        print par, parname
+        
+        val_list = []
+        
+        n=0
+        for names in self.conv_params_names:
+            val_list.append([])
+            for graph in graphs:
+                if str(graph.get(names)) not in val_list[n]: val_list[n].append(str(graph.get(names)))
+            n=n+1
+        
+        vol_sort = []
+        e_min_sort = []
+        b0_min_sort = []
+        db0_min_sort = []
+        j_what = []
+        j=0
+        for val in val_list[1]:
+            vol_sort.append([])
+            e_min_sort.append([])
+            b0_min_sort.append([])
+            db0_min_sort.append([])
+            for graph in graphs:
+                if graph.get(self.conv_params_names[1]) == val: 
+                    vol_sort[j].append(graph.get('vol_min'))
+                    e_min_sort[j].append(graph.get('energy_min'))
+                    b0_min_sort[j].append(graph.get('B0'))
+                    db0_min_sort[j].append(graph.get('dB0'))
+            j_what.append(str(val))
+            j=j+1
+                            
+            
+        print vol_sort
         
         fig = plt.figure()
-        for i in range(len(par)):
+        i=0
+        for i in range(len(vol_sort)):
             ax1 = fig.add_subplot(221)
             ax1.set_title('Convergence for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-            ax1.plot(range(len(par)), v_min[i], '-', range(len(par)), v_min[i], '.', color=colors[n])
+            ax1.plot(range(len(vol_sort[i])), vol_sort[i], '-', range(len(vol_sort[i])), vol_sort[i], '.', color=colors[i])
             ax1.set_ylabel(r'Volume   [Bohr$^3$]')
-            ax1.set_xlabel(parname[0])
+            ax1.set_xlabel(parname[0][0])
             ax1.axis('tight')
             
             ax3 = fig.add_subplot(222)
             #ax2.set_title('Convergence of energy for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-            ax3.plot(range(len(par)), e_min, '-',range(len(par)), e_min, '.', color=colors[n])
+            ax3.plot(range(len(e_min_sort[i])), e_min_sort[i], '-', range(len(vol_sort[i])), e_min_sort[i], '.', color=colors[i])
             ax3.set_ylabel(r'Energy   [Hartree]')
-            ax3.set_xlabel(parname[0])
+            ax3.set_xlabel(parname[0][0])
             ax3.axis('tight')
             ax4 = fig.add_subplot(223)
             #ax3.set_title('Convergence of bulk - modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-            ax4.plot(range(len(par)), b0_min, '-',range(len(par)), b0_min, '.', color=colors[n])
+            ax4.plot(range(len(b0_min_sort[i])), b0_min_sort[i], '-', range(len(b0_min_sort[i])), b0_min_sort[i], '.', color=colors[i])
             ax4.set_ylabel(r'B$_0$   [GPa]')
-            ax4.set_xlabel(parname[0])
+            ax4.set_xlabel(parname[0][0])
             
             ax6 = fig.add_subplot(224)
             #ax4.set_title('Convergence of derivative of bulk -modulus for %(spc)s (%(str)s)'%{'spc':species,'str':structure})
             
             colors = ['b','g','r','c','m','k','FF9933','006600','66CCFF','y']
-            ax6.plot( range(len(par)), db0_min, '-',range(len(par)), db0_min, '.', color=colors[n])
+            ax6.plot( range(len(db0_min_sort[i])), db0_min_sort[i], '-', label=j_what[i], color=colors[i])
+            ax6.plot( range(len(db0_min_sort[i])), db0_min_sort[i], '.', color=colors[i])
             ax6.set_ylabel(r"B$_0$'")
-            ax6.set_xlabel(parname[0])
+            ax6.set_xlabel(parname[0][0])
+            i=i+1
+            
+        plt.legend(loc='best')
         fig.subplots_adjust(left=0.1)
         plt.show()
 

@@ -95,10 +95,10 @@ class CALC(object):
             <setupname sun = '%(setupname)s'/>
         </calc>
         """ %setup
-        
-        f1 = open('./const_parameters.xml', 'w')
-        f1.write(const_param)
-        f1.close()
+        if not os.path.exists('./const_parameters.xml'):
+            f1 = open('./const_parameters.xml', 'w')
+            f1.write(const_param)
+            f1.close()
         
         print setup['elementshome'] + 'templates/'
         
