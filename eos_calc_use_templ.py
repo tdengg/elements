@@ -157,6 +157,9 @@ class CALC(object):
                 proc5.communicate()
                 proc6 = subprocess.Popen([setup['calchome'] + 'execute'], shell=True)
                 proc6.communicate()
+                
+                collect_data.XmlToFit('')
+                
             if exec_template == 'loadleveler.xsl':
                 print "created lljob script"
             
