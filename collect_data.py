@@ -21,6 +21,7 @@ import fitcovera
 import search_dir
 import my_calcsetup
 import auto_calc_setup
+import analyze_conv
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -185,15 +186,18 @@ class XmlToFit(object):
         for recalculate in self.recalculateeos:
             if recalculate:
                 print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
-		autoset = auto_calc_setup.Autosetup(setupname)
-                newset = autoset.setup({'azero' : self.a0[n],'calchome':self.calchome})
+                autoset = auto_calc_setup.Autosetup(setupname)
+                newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
                 autoset.calculate(newset)
                 n=n+1
             else:
                 print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
                 n=n+1
         
-        
+        analyze = analyze_conv(self.conv_params, self.conv_params_names)
+        analyze.status
+        if analyze.status:
+            analyze.new_pars
             #if mpl:
             
             #    n=0

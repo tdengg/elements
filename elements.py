@@ -79,13 +79,15 @@ class Elements(object):
         
         else:
             if is_autoconv:
-                print 'true'
+                print 'Automatic convergence active.'
+                setup['autoconv'] = True
                 if 'rgkmax' in autoconv['start'].keys():
-                    proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
-                    proc2.communicate()
-                    proc3 = subprocess.Popen(['mkdir conv_rgkmax/conv_step_0'], shell=True)
-                    proc3.communicate()
-                    setup['calchome'] = os.getcwd() + '/conv_rgkmax/conv_step_0/'
+                    #proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
+                    #proc2.communicate()
+                    #proc3 = subprocess.Popen(['mkdir conv_rgkmax/conv_step_0'], shell=True)
+                    #proc3.communicate()
+                    #setup['calchome'] = os.getcwd() + '/conv_rgkmax/conv_step_0/'
+                    
                     setup['param']['rgkmax'] = [autoconv['start']['rgkmax'], autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax'],autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax']*2]
             self.setup_element(setup) 
 
