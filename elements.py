@@ -82,18 +82,24 @@ class Elements(object):
                 print 'Automatic convergence active.'
                 setup['autoconv'] = True
                 if 'rgkmax' in autoconv['start'].keys():
-                    #proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
-                    #proc2.communicate()
-                    #proc3 = subprocess.Popen(['mkdir conv_rgkmax/conv_step_0'], shell=True)
-                    #proc3.communicate()
-                    #setup['calchome'] = os.getcwd() + '/conv_rgkmax/conv_step_0/'
+
+                    proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
+                    proc2.communicate()
                     
-                    setup['param']['rgkmax'] = [autoconv['start']['rgkmax'], autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax'],autoconv['start']['rgkmax']+autoconv['stepsize']['rgkmax']*2]
+                    setup['calchome'] = os.getcwd() + '/conv_rgkmax/'
+                    setup['param']['rgkmax'] = [float(autoconv['start']['rgkmax']), float(autoconv['start']['rgkmax'])+float(autoconv['stepsize']['rgkmax']),float(autoconv['start']['rgkmax'])+float(autoconv['stepsize']['rgkmax'])*2]
+                    setup['param']['ngridk'] = [2]
+                    setup['param']['swidth'] = [0.01]
+
             self.setup_element(setup) 
 
     def setup_element(self, setup):
         if 'setupname' not in setup:
             setup['setupname'] = ''
+        s=open(setup['setupname'],'w')
+        print setup
+        s.write(str(setup))
+        s.close()
         expand = series.Series(setup['structure'])      #instance of series expansion class
         if type(setup['param']['scale']) is dict: 
             azero = setup['param']['scale']['azero']
