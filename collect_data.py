@@ -196,10 +196,21 @@ class XmlToFit(object):
                 print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
                 n=n+1
         
-        analyze = analyze_conv(self.conv_params, self.conv_params_names)
-        analyze.status
-        if analyze.status:
-            analyze.new_pars
+        ##auto convergence:
+        f = etree.parse(self.dir + 'auto_conv.xml')
+        root = f.getroot()
+        graphs = f.getiterator('conv')
+        i=0
+        for graph in graphs:
+            graph.set('energy',str(self.emin_eos[i]))
+            graph.set('B',str(self.b0_eos[i]))
+            graph.set('V',str(self.vol0_eos[i]))
+            graph.set('err',str(self.res_eos[i]))
+            i=i+1
+        f.write(self.dir + 'auto_conv.xml')
+        
+        converged = analyze_conv.ANALYZE()
+
             #if mpl:
             
             #    n=0

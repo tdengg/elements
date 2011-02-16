@@ -83,13 +83,24 @@ class Elements(object):
                 setup['autoconv'] = True
                 if 'rgkmax' in autoconv['start'].keys():
 
-                    proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
-                    proc2.communicate()
+                    #proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
+                    #proc2.communicate()
                     
-                    setup['calchome'] = os.getcwd() + '/conv_rgkmax/'
+                    setup['calchome'] = os.getcwd() + '/'#conv_rgkmax/'
                     setup['param']['rgkmax'] = [float(autoconv['start']['rgkmax']), float(autoconv['start']['rgkmax'])+float(autoconv['stepsize']['rgkmax']),float(autoconv['start']['rgkmax'])+float(autoconv['stepsize']['rgkmax'])*2]
                     setup['param']['ngridk'] = [2]
                     setup['param']['swidth'] = [0.01]
+                    
+                    
+
+                    conv_info = etree.Element('conv',{'par':'rgkmax','val':setup['param']['rgkmax']})
+                    root = etree.Element('auto_conv', {})
+                    tree = etree.ElementTree(root)
+                    for par in setup['param']['rgkmax']:
+                        etree.SubElement(root, 'conv',{'par':'rgkmax','val':str(par)})
+                    tree.write(self.currdir + 'auto_conv.xml')
+                    #conv_info.write(self.currdir + 'auto_conv.xml')
+                    
 
             self.setup_element(setup) 
 
@@ -97,7 +108,7 @@ class Elements(object):
         if 'setupname' not in setup:
             setup['setupname'] = ''
         s=open(setup['setupname'],'w')
-        print setup
+
         s.write(str(setup))
         s.close()
         expand = series.Series(setup['structure'])      #instance of series expansion class
