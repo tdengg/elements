@@ -1,10 +1,13 @@
 import xml.etree.ElementTree as etree
+import os
 
 
 class ANALYZE(object):
-    def __init__(self):
+    def __init__(self, calcdir):
+        self.currdir = calcdir
         self.deltas()
         return
+    
     def deltas(self):
         self.delta = []
 
@@ -14,22 +17,27 @@ class ANALYZE(object):
         converged = True
         delta = {}
         
-        f = etree.parse('auto_conv.xml')
+        f = etree.parse(self.currdir + 'auto_conv.xml')
         root = f.getroot()
         tags = f.getiterator('conv')
         i=0
         for tag in tags:
             if i >= ( len(tags) - 3 ):
-                conv['energy'].append(float(tag.get('energy')))
-                conv['B'].append(float(tag.get('B')))
-                conv['V'].append(float(tag.get('V')))
-                conv['err'].append(float(tag.get('err')))
+                try:
+                    conv['energy'].append(float(tag.get('energy')))
+                    conv['B'].append(float(tag.get('B')))
+                    conv['V'].append(float(tag.get('V')))
+                    conv['err'].append(float(tag.get('err')))
+                except:
+                    print 'Bad fit'
+                    self.converged = False
+                    return
                 param.append(tag.get('par'))
                 value.append(tag.get('val'))
             i=i+1
         
         #Predefined deltas:
-        s = open('autoconv.py')
+        s = open(self.currdir + 'autoconv.py')
         sustr= s.read()
         setup = eval(sustr)
         
@@ -50,7 +58,7 @@ class ANALYZE(object):
             print '#' + ('%8s' %out) + ' :' + ('%15.5f' %delta[out])
         print '#####################################################\n'
         
-        return converged
+        self.converged = converged
 
     def status(self):
         if self.ok:

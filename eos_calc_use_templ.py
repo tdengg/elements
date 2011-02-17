@@ -123,11 +123,10 @@ class CALC(object):
             curr_calc = 'parset.xml'
         else:
             #usr_or = raw_input('Calculations in same directory found.\nFor overwriting old calculations type: OVERWRITE. Otherwise new calculations will be appended to old ones.\n>>>')
-            for i in range(50):
+            for i in range(1000):
                 if os.path.exists(setup['calchome'] +  'parset_%s.xml'%str(i)):
                     continue
                 else:    
-                    print setup['templatepath']
                     proc1 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + 'permute_set.xsl ' + setup['calchome'] + 'set.xml > ' + setup['calchome'] +  'parset_%s.xml'%str(i)], shell=True)
                     proc1.communicate()
                     newcalc = check_for_existing.Manipulate(setup['calchome'] +  'calc_filelist.xml', setup['calchome'] +  'parset_%s.xml'%str(i), setup['calchome'])
@@ -148,7 +147,9 @@ class CALC(object):
             proc4 = subprocess.Popen(['xsltproc ' + setup['templatepath'] + exec_template + ' ' + setup['calchome'] + curr_calc], shell=True, stdout=subprocess.PIPE)
             exec_out = proc4.communicate()[0]
             if exec_template == 'shelcommand.xsl':
+                print '\n#################################################'
                 print '##### Preparing the following calculations: #####'
+                print '#################################################\n'
                 print exec_out
                 execute = open(setup['calchome'] + 'execute','w')
                 execute.write(exec_out)
@@ -159,8 +160,8 @@ class CALC(object):
                 proc6.communicate()
                 
 
-                if setup['autoconv']:
-                    collect_data.XmlToFit('./')
+                if setup['isautoconv']:
+                    collect_data.XmlToFit(setup['calchome'])
 
                 
             if exec_template == 'loadleveler.xsl':
@@ -169,13 +170,6 @@ class CALC(object):
                 proc6 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
                 proc6.communicate()
                 print "submitted lljob to cluster"
-            
-            #if setup['autoconv'] == 'True':
-            #    cdata = collect_data()
-            #    cdata.XmlToFit('')
-            
-            #proc5 = subprocess.Popen(['cp '+ setup['elementshome'] + 'my_calcsetup.py ' + setup['calchome']], shell=True)
-            #proc5.communicate()
             
             #check for calculation to be finished:
             #for i in range(100):

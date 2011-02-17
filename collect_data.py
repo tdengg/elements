@@ -56,8 +56,8 @@ class XmlToFit(object):
         v1coa = []
         self.conv_params = []
         self.conv_params_names = []
-        
-        self.dir = str(os.getcwd()) + '/'
+        if self.dir == '':
+            self.dir = str(os.getcwd()) + '/'
         tempf = open(self.dir + 'eosplot.xml','w')
         tempf.write('<plot></plot>')
         tempf.close()
@@ -202,24 +202,31 @@ class XmlToFit(object):
         graphs = f.getiterator('conv')
         i=0
         for graph in graphs:
-            graph.set('energy',str(self.emin_eos[i]))
-            graph.set('B',str(self.b0_eos[i]))
-            graph.set('V',str(self.vol0_eos[i]))
-            graph.set('err',str(self.res_eos[i]))
-            i=i+1
+            if self.fit_OK:
+                graph.set('energy',str(self.emin_eos[i]))
+                graph.set('B',str(self.b0_eos[i]))
+                graph.set('V',str(self.vol0_eos[i]))
+                graph.set('err',str(self.res_eos[i]))
+                i=i+1
+            lastpar = graph.get('par')
+            lastvar = graph.get('val')
+            
         f.write(self.dir + 'auto_conv.xml')
         
-        converged = analyze_conv.ANALYZE()
+        s = open(self.dir + 'autoconv.py')
+        sustr= s.read()
+        autosetup = eval(sustr)
+        
+        converged = analyze_conv.ANALYZE(self.dir).converged
 
-            #if mpl:
-            
-            #    n=0
-            #    for plots in self.p:
-            #        plots.savefig(self.calchome + '%s_eos'%str(n))
-            #        n=n+1
-            #else:
-            #    grace_plot.Plot([range(0,len(self.vol0_eos))],[self.vol0_eos,self.db0_eos,self.b0_eos,self.emin_eos], self.calchome).simple2D()
-                
+        if not converged and float(lastvar) < float(autosetup['end'][lastpar]):
+            newvar = float(lastvar) + float(autosetup['stepsize'][lastpar])
+            etree.SubElement(root, 'conv',{'par':lastpar, 'val':str(newvar)})
+            f.write(self.dir + 'auto_conv.xml')
+            autoset = auto_calc_setup.Autosetup(setupname)
+            newset = autoset.setup({lastpar:[float(newvar)]})
+            autoset.calculate(newset)
+
     def covera(self):
         param = {}
         scale = []
@@ -295,21 +302,22 @@ class XmlToFit(object):
         a=[]
         v = []
         ein = []
-        
-        eosFit = fitev.Birch(self.structure, scale,coveramin,volume,toten,self.calchome)
-        
-        #write important parameters to eosplot.xml#
-        eosFit.reschild.set('structure',str(self.structure))
-        eosFit.reschild.set('species',str(self.species))
-        
-        for name in self.conv_params_names:
-            eosFit.reschild.set(name,str(self.par_out[self.n][name]))
-        eosFit.reschild.set('structure',str(self.structure))
-        self.results.append(eosFit.reschild)
-        self.results.append(eosFit.reschild2)
-        self.results.append(eosFit.reschild3)
-        restree = etree.ElementTree(self.results)
-        restree.write(self.dir + 'eosplot.xml')
+        try:
+            eosFit = fitev.Birch(self.structure, scale,coveramin,volume,toten,self.calchome)
+            
+            #write important parameters to eosplot.xml#
+            eosFit.reschild.set('structure',str(self.structure))
+            eosFit.reschild.set('species',str(self.species))
+            
+            for name in self.conv_params_names:
+                eosFit.reschild.set(name,str(self.par_out[self.n][name]))
+            eosFit.reschild.set('structure',str(self.structure))
+            self.results.append(eosFit.reschild)
+            self.results.append(eosFit.reschild2)
+            self.results.append(eosFit.reschild3)
+            restree = etree.ElementTree(self.results)
+            restree.write(self.dir + 'eosplot.xml')
+
         #eosplot = etree.parse(self.dir + 'eosplot.xml')
         #root = eosplot.getroot()
         #graphs = root.getiterator('graph')
@@ -329,20 +337,24 @@ class XmlToFit(object):
         
         ###########################################    
         
-        a.append(eosFit.a)
-        v.append(eosFit.v)
-        ein.append(eosFit.ein)
-        
-        self.vol0_eos.append(eosFit.out0)
-        self.b0_eos.append(eosFit.out1)
-        self.db0_eos.append(eosFit.out2)
-        self.emin_eos.append(eosFit.out3)
-        self.res_eos.append(eosFit.deltamin)
-        self.recalculateeos.append(eosFit.recalculate)
-        self.a0.append(eosFit.a0)
-        if structure in ['hcp','hex']:
-            self.coa_eos.append(eosFit.out4)
-        self.a_eos.append(eosFit.out5)
+            a.append(eosFit.a)
+            v.append(eosFit.v)
+            ein.append(eosFit.ein)
+            
+            self.vol0_eos.append(eosFit.out0)
+            self.b0_eos.append(eosFit.out1)
+            self.db0_eos.append(eosFit.out2)
+            self.emin_eos.append(eosFit.out3)
+            self.res_eos.append(eosFit.deltamin)
+            self.recalculateeos.append(eosFit.recalculate)
+            self.a0.append(eosFit.a0)
+            if structure in ['hcp','hex']:
+                self.coa_eos.append(eosFit.out4)
+            self.a_eos.append(eosFit.out5)
+            self.fit_OK = True
+        except:
+            self.fit_OK = False
+            print 'Failed to fit using Birch Murnaghan EOS!'
         try:
             self.p.append(eosFit.p)
         except:
@@ -403,7 +415,7 @@ class XmlToFit(object):
         graphs = root.getiterator('graph')
         i=0
         for graph in graphs:
-            if i==self.n:
+            if i==self.n and self.fit_OK:
                 graph.attrib['bulk_mod'] = str(self.b0_eos[i])
                 graph.attrib['equi_volume'] = str(self.vol0_eos[i])
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
@@ -412,7 +424,7 @@ class XmlToFit(object):
                 if self.structure in ['hcp','hex']:
                     graph.attrib['equi_coa'] = str(self.coa_eos[i])
                 graph.attrib['equi_a'] = str(self.a_eos[i])
-            i = i+1
+                i = i+1
         #node = etree.SubElement(root,'eos')
         #node.attrib['bulk_mod'] = str(self.b0_eos[0])
         #node.attrib['equi_volume'] = str(self.vol0_eos[0])

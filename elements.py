@@ -38,7 +38,7 @@ class Elements(object):
         defaults.set(setup)
 
         if 'autoconv' in setup.keys():
-            
+            setup['isautoconv'] = True
             is_autoconv = True
             autoconv = setup.pop('autoconv')
             s = open(os.getcwd() + '/' + 'autoconv.py', 'w')
@@ -80,7 +80,7 @@ class Elements(object):
         else:
             if is_autoconv:
                 print 'Automatic convergence active.'
-                setup['autoconv'] = True
+                #setup['autoconv'] = True
                 if 'rgkmax' in autoconv['start'].keys():
 
                     #proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
