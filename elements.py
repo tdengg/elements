@@ -81,24 +81,35 @@ class Elements(object):
             if is_autoconv:
                 print 'Automatic convergence active.'
                 #setup['autoconv'] = True
-                if 'rgkmax' in autoconv['start'].keys():
+                #proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
+                #proc2.communicate()
+                parameter = autoconv['order']['1'] 
+                setup['calchome'] = os.getcwd() + '/'#conv_rgkmax/'
+                setup['param'][parameter] = [float(autoconv['start'][parameter]), float(autoconv['start'][parameter])+float(autoconv['stepsize'][parameter]),float(autoconv['start'][parameter])+float(autoconv['stepsize'][parameter])*2]
+                setup['param']['ngridk'] = [2]
+                setup['param']['swidth'] = [0.1]
+                
+                new = {}
+                i=0
+                if type(autoconv['order']['1']) == str:
+                    n=1
+                    newpar = autoconv['order']['1']
+                    newvar = setup['param'][parameter]
+                    new[newpar] = str(newvar)
+                else:
+                    n=len(autoconv['order']['1'])
+                    while i < n:
+                        newpar = autoconv['order']['1'][i]
+                        newvar = setup['param'][parameter]
+                        new[newpar] = str(newvar)
+                        i+=1
 
-                    #proc2 = subprocess.Popen(['mkdir conv_rgkmax'], shell=True)
-                    #proc2.communicate()
-                    
-                    setup['calchome'] = os.getcwd() + '/'#conv_rgkmax/'
-                    setup['param']['rgkmax'] = [float(autoconv['start']['rgkmax']), float(autoconv['start']['rgkmax'])+float(autoconv['stepsize']['rgkmax']),float(autoconv['start']['rgkmax'])+float(autoconv['stepsize']['rgkmax'])*2]
-                    setup['param']['ngridk'] = [2]
-                    setup['param']['swidth'] = [0.01]
-                    
-                    
-
-                    conv_info = etree.Element('conv',{'par':'rgkmax','val':setup['param']['rgkmax']})
-                    root = etree.Element('auto_conv', {})
-                    tree = etree.ElementTree(root)
-                    for par in setup['param']['rgkmax']:
-                        etree.SubElement(root, 'conv',{'par':'rgkmax','val':str(par)})
-                    tree.write(self.currdir + 'auto_conv.xml')
+                #conv_info = etree.Element('conv',{'par':parameter,'val':setup['param'][parameter]})
+                root = etree.Element('auto_conv', {})
+                tree = etree.ElementTree(root)
+                for par in setup['param'][parameter]:
+                    etree.SubElement(root, 'conv',{'par':str([parameter]),'parval':str(new)})
+                tree.write(self.currdir + 'auto_conv.xml')
                     #conv_info.write(self.currdir + 'auto_conv.xml')
                     
 
@@ -156,7 +167,7 @@ class Elements(object):
                 setup['elementshome'] = elementshome
             if 'templatepath' not in setup.keys():
                 setup['templatepath'] = elementshome
-                print setup['templatepath']
+                
 
         
         calc.CALC(setup)

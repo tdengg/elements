@@ -8,6 +8,7 @@
 import xml.etree.ElementTree as etree
 import subprocess
 import os
+import re
 from copy import deepcopy
 try:
     import matplotlib.pyplot as plt
@@ -49,6 +50,8 @@ class XmlToFit(object):
         
         self.par_out = []
         
+        self.fit_OK = []
+        
         coamin = []
         tmin = []
         plt = []
@@ -71,6 +74,19 @@ class XmlToFit(object):
         #search for calculations and create filelist
         search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
+        parlist = []
+        stri = os.listdir(self.dir)
+        for s in stri:
+            if re.match('parset',s) != None and s.rstrip('.xml').lstrip('parset_') != '':
+                parlist.append(int(s.rstrip('.xml').lstrip('parset_')))
+        try:
+            parnum = '_' + str(max(parlist))
+        except:
+            parnum = ''
+            print ''
+        
+        
+        
         #create output
         if os.path.exists(self.dir + 'coa_data.xml'):
             remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
@@ -79,13 +95,21 @@ class XmlToFit(object):
         proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
         proc1.communicate()
             
-        if os.path.exists(self.dir + 'eos_data.xml'):
-            remove = subprocess.Popen(['rm ' + self.dir + 'eos_data.xml'], shell=True)
-            remove.communicate()
+        #if os.path.exists(self.dir + 'eos_data.xml'):
+        #    remove = subprocess.Popen(['rm ' + self.dir + 'eos_data.xml'], shell=True)
+        #    remove.communicate()
+        if not os.path.exists(self.dir + 'eos_data.xml'):    
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
+            proc1.communicate()
+        else:
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset%s.xml > '%str(parnum) + self.dir +  'eos_data_temp.xml'], shell=True)
+            proc1.communicate()
             
-        proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'eos_data.xml'], shell=True)
-        proc1.communicate()
-            
+            proc2 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'merge.xsl ' + self.dir + 'eos_data.xml > ' + self.dir +  'eos_data_temp2.xml'], shell=True)
+            proc2.communicate()
+
+            proc3 = subprocess.Popen(['cp ' + self.dir + 'eos_data_temp2.xml ' + self.dir +  'eos_data.xml'], shell=True)
+            proc3.communicate()
         #Get number of convergence test parameters    
         fc = etree.parse(self.dir + 'convergence.xml')
         root = fc.getroot()
@@ -197,36 +221,80 @@ class XmlToFit(object):
                 n=n+1
         
         ##auto convergence:
-        f = etree.parse(self.dir + 'auto_conv.xml')
-        root = f.getroot()
-        graphs = f.getiterator('conv')
+        self.f = etree.parse(self.dir + 'auto_conv.xml')
+        self.root = self.f.getroot()
+        graphs = self.f.getiterator('conv')
         i=0
+        j=0
         for graph in graphs:
-            if self.fit_OK:
+            if self.fit_OK[j]:
                 graph.set('energy',str(self.emin_eos[i]))
                 graph.set('B',str(self.b0_eos[i]))
                 graph.set('V',str(self.vol0_eos[i]))
                 graph.set('err',str(self.res_eos[i]))
                 i=i+1
-            lastpar = graph.get('par')
-            lastvar = graph.get('val')
+            j=j+1
+            lastpar = eval(graph.get('par'))[0]
+            lastvar = eval(eval(graph.get('parval'))[lastpar])[-1]
+
             
-        f.write(self.dir + 'auto_conv.xml')
+        self.f.write(self.dir + 'auto_conv.xml')
         
         s = open(self.dir + 'autoconv.py')
         sustr= s.read()
         autosetup = eval(sustr)
         
+        allelements = self.f.getiterator()
+        for element in allelements:
+            elem = etree.tostring(element)
+
+        if re.match('CONVERGED',elem) != None:
+            for index in autosetup['order'].keys():
+                if autosetup['order'][index] == lastpar:
+                    newind = str(int(index) + 1)
+            lastpar = autosetup['order'][newind]
+            lastvar = autosetup['start'][lastpar]
+        
         converged = analyze_conv.ANALYZE(self.dir).converged
 
         if not converged and float(lastvar) < float(autosetup['end'][lastpar]):
+            #newvar = float(lastvar) + float(autosetup['stepsize'][lastpar])
+            #etree.SubElement(root, 'conv',{'par':lastpar, 'val':str(newvar)})
+            #f.write(self.dir + 'auto_conv.xml')
+            #autoset = auto_calc_setup.Autosetup(setupname)
+            #newset = autoset.setup({lastpar:[float(newvar)]})
+            #autoset.calculate(newset)
+            self.setCalc(lastpar,lastvar,autosetup,setupname)
+        else:
+            etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
+            self.f.write(self.dir + 'auto_conv.xml')
+            for index in autosetup['order'].keys():
+                if autosetup['order'][index] == lastpar:
+                    newind = str(int(index) + 1)
+            lastpar = autosetup['order'][newind]
+            lastvar = autosetup['start'][lastpar]
+            self.setCalc(lastpar,lastvar,autosetup,setupname)
+            
+    def setCalc(self,lastpar,lastvar,autosetup,setupname):
+        new = {}
+        newvar = []
+        i=1
+        if type(autosetup['order'][str(i)]) == str:
+            n=1
+        else:
+            n=len(autosetup['order'][str(i)])
+            
+        while i<=n:
             newvar = float(lastvar) + float(autosetup['stepsize'][lastpar])
-            etree.SubElement(root, 'conv',{'par':lastpar, 'val':str(newvar)})
-            f.write(self.dir + 'auto_conv.xml')
-            autoset = auto_calc_setup.Autosetup(setupname)
-            newset = autoset.setup({lastpar:[float(newvar)]})
-            autoset.calculate(newset)
-
+            new[lastpar]= str([newvar])
+            i+=1
+            
+        etree.SubElement(self.root, 'conv',{'par':str([lastpar]), 'parval':str(new)})
+        self.f.write(self.dir + 'auto_conv.xml')
+        autoset = auto_calc_setup.Autosetup(setupname)
+        newset = autoset.setup({lastpar:[float(newvar)]})
+        autoset.calculate(newset)
+        
     def covera(self):
         param = {}
         scale = []
@@ -351,9 +419,9 @@ class XmlToFit(object):
             if structure in ['hcp','hex']:
                 self.coa_eos.append(eosFit.out4)
             self.a_eos.append(eosFit.out5)
-            self.fit_OK = True
+            self.fit_OK.append(True)
         except:
-            self.fit_OK = False
+            self.fit_OK.append(False)
             print 'Failed to fit using Birch Murnaghan EOS!'
         try:
             self.p.append(eosFit.p)
@@ -366,7 +434,6 @@ class XmlToFit(object):
         self.coveramin.append([])
         self.totencoamin.append([])
         self.volumecoa.append([])
-        
         self.results_coa.append(fitcoa.reschild)
         self.results_coa.append(fitcoa.reschild2)
         self.results_coa.append(fitcoa.reschild3)
@@ -414,8 +481,9 @@ class XmlToFit(object):
         root = f.getroot()
         graphs = root.getiterator('graph')
         i=0
+        j=0
         for graph in graphs:
-            if i==self.n and self.fit_OK:
+            if i==self.n and self.fit_OK[j]:
                 graph.attrib['bulk_mod'] = str(self.b0_eos[i])
                 graph.attrib['equi_volume'] = str(self.vol0_eos[i])
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
@@ -425,6 +493,7 @@ class XmlToFit(object):
                     graph.attrib['equi_coa'] = str(self.coa_eos[i])
                 graph.attrib['equi_a'] = str(self.a_eos[i])
                 i = i+1
+            j=j+1
         #node = etree.SubElement(root,'eos')
         #node.attrib['bulk_mod'] = str(self.b0_eos[0])
         #node.attrib['equi_volume'] = str(self.vol0_eos[0])

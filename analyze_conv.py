@@ -32,8 +32,8 @@ class ANALYZE(object):
                     print 'Bad fit'
                     self.converged = False
                     return
-                param.append(tag.get('par'))
-                value.append(tag.get('val'))
+                param.append(eval(tag.get('par'))[0])
+                
             i=i+1
         
         #Predefined deltas:
