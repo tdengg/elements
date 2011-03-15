@@ -108,7 +108,7 @@ class Elements(object):
                 root = etree.Element('auto_conv', {})
                 tree = etree.ElementTree(root)
                 for par in setup['param'][parameter]:
-                    etree.SubElement(root, 'conv',{'par':str([parameter]),'parval':str(new)})
+                    etree.SubElement(root, 'conv',{'par':str(parameter),'parval':str(new)})
                 tree.write(self.currdir + 'auto_conv.xml')
                     #conv_info.write(self.currdir + 'auto_conv.xml')
                     

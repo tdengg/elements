@@ -9,7 +9,7 @@
 <xsl:for-each select="//graph" >
 <xsl:copy-of select='.'></xsl:copy-of>
 </xsl:for-each>
-<xsl:for-each select="document('/fshome/tde/elements/convergencetest/eos_data_temp.xml')//graph" > 
+<xsl:for-each select="document('eos_data_temp.xml')//graph" > 
 
 <xsl:copy-of select='.'></xsl:copy-of>
 </xsl:for-each>

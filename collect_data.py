@@ -139,15 +139,18 @@ class XmlToFit(object):
             while k<nconv:  
                 print "\n#################################################################\n#Performing equation of state calculations for parameter set %s. #\n#################################################################\n"%str(k+1)       
                 j=0
-                
+                self.coveramin.append([])
+                self.totencoamin.append([])
+                self.volumecoa.append([])
                 while j<self.numb_coa/nconv:
                     
                     self.fitcoa(param1['covera'][k+j*nconv],param1['toten'][k+j*nconv],param1['volume'][k+j*nconv],k)
                     j=j+1
-                    
+                
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[k], self.coveramin[k])
                 
                 self.fiteos(scalecoa,volumecovera,self.totencoamin[k], self.coveramin[k], self.structure, self.species)
+                print self.b0_eos
                 k=k+1
                 print "\n#################################################################\n"
             k=0
@@ -155,17 +158,18 @@ class XmlToFit(object):
             root = f.getroot()
             graphs = root.getiterator('graph')
             for graph in graphs:
-                node = etree.SubElement(graph,'eos')
-                node.attrib['bulk_mod'] = str(self.b0_eos[k])
-                node.attrib['equi_volume'] = str(self.vol0_eos[k])
-                node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
-                node.attrib['min_energy'] = str(self.emin_eos[k])
-                if self.structure in ['hcp','hex']:
-                    graph.attrib['equi_coa'] = str(self.coa_eos[k])
-                graph.attrib['equi_a'] = str(self.a_eos[k])
-                node.attrib['param'] = str()
-                etree.ElementTree(root).write(self.dir + 'eos_data.xml')
-                k=k+1
+                if self.fit_OK[k]:
+                    node = etree.SubElement(graph,'eos')
+                    node.attrib['bulk_mod'] = str(self.b0_eos[k])
+                    node.attrib['equi_volume'] = str(self.vol0_eos[k])
+                    node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
+                    node.attrib['min_energy'] = str(self.emin_eos[k])
+                    if self.structure in ['hcp','hex']:
+                        graph.attrib['equi_coa'] = str(self.coa_eos[k])
+                    graph.attrib['equi_a'] = str(self.a_eos[k])
+                    node.attrib['param'] = str()
+                    etree.ElementTree(root).write(self.dir + 'eos_data.xml')
+                    k=k+1
                     
         elif mode == 'simple_conv':
             param2 = self.birch()
@@ -203,7 +207,7 @@ class XmlToFit(object):
                 auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
                 n=n+1
             else:
-                print 'Minimum c/a %s in accepted range.'(self.newcovera[n])
+                print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
                 n=n+1
         
         n=0
@@ -234,8 +238,8 @@ class XmlToFit(object):
                 graph.set('err',str(self.res_eos[i]))
                 i=i+1
             j=j+1
-            lastpar = eval(graph.get('par'))[0]
-            lastvar = eval(eval(graph.get('parval'))[lastpar])[-1]
+            lastpar = eval(graph.get('par'))
+            lastvar = eval(graph.get('parval'))
 
             
         self.f.write(self.dir + 'auto_conv.xml')
@@ -244,16 +248,24 @@ class XmlToFit(object):
         sustr= s.read()
         autosetup = eval(sustr)
         
-        allelements = self.f.getiterator()
+        
+            
+        allelements = self.f.getiterator(tag='CONVERGED')
         for element in allelements:
-            elem = etree.tostring(element)
-
-        if re.match('CONVERGED',elem) != None:
-            for index in autosetup['order'].keys():
-                if autosetup['order'][index] == lastpar:
-                    newind = str(int(index) + 1)
-            lastpar = autosetup['order'][newind]
-            lastvar = autosetup['start'][lastpar]
+            elem = element
+        if elem == '':
+            lastpar = autosetup['order']['1']
+        else:
+            lastpar = elem.get('par')
+            if type(lastpar) == list and 'swidth' in lastpar:
+                if elem.get('par') == 'swidth':
+                    par = ''
+        #if re.match('CONVERGED',elem) != None:
+         #   for index in autosetup['order'].keys():
+         #       if autosetup['order'][index] == lastpar:
+        ##            newind = str(int(index) + 1)
+         #   lastpar = autosetup['order'][newind]
+         #   lastvar = autosetup['start'][lastpar]
         
         converged = analyze_conv.ANALYZE(self.dir).converged
 
@@ -272,24 +284,33 @@ class XmlToFit(object):
                 if autosetup['order'][index] == lastpar:
                     newind = str(int(index) + 1)
             lastpar = autosetup['order'][newind]
-            lastvar = autosetup['start'][lastpar]
+            lastvar = autosetup['start'][str(lastpar)]
             self.setCalc(lastpar,lastvar,autosetup,setupname)
             
     def setCalc(self,lastpar,lastvar,autosetup,setupname):
+        
+        def single():
+            return
+        def oneD():
+            return
+        def twoD():
+            return
         new = {}
         newvar = []
+        
         i=1
         if type(autosetup['order'][str(i)]) == str:
             n=1
-        else:
-            n=len(autosetup['order'][str(i)])
-            
-        while i<=n:
             newvar = float(lastvar) + float(autosetup['stepsize'][lastpar])
             new[lastpar]= str([newvar])
-            i+=1
-            
-        etree.SubElement(self.root, 'conv',{'par':str([lastpar]), 'parval':str(new)})
+        else:
+            n=len(autosetup['order'][str(i)])
+            while i<=n:
+                newvar = float(lastvar) + float(autosetup['stepsize'][lastpar[i]])
+                new[lastpar[i]]= str([newvar])
+                i+=1
+
+        etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
         self.f.write(self.dir + 'auto_conv.xml')
         autoset = auto_calc_setup.Autosetup(setupname)
         newset = autoset.setup({lastpar:[float(newvar)]})
@@ -334,7 +355,6 @@ class XmlToFit(object):
         covera = []
         
         curr_par = {}
-        
         
         f = etree.parse(self.dir + 'eos_data.xml')
         root = f.getroot()
@@ -431,9 +451,9 @@ class XmlToFit(object):
     def fitcoa(self, coa, toten, volume, i):
         fitcoa = fitcovera.Polyfit(coa,toten,3,volume,self.calchome)
         
-        self.coveramin.append([])
-        self.totencoamin.append([])
-        self.volumecoa.append([])
+        #self.coveramin.append([])
+        #self.totencoamin.append([])
+        #self.volumecoa.append([])
         self.results_coa.append(fitcoa.reschild)
         self.results_coa.append(fitcoa.reschild2)
         self.results_coa.append(fitcoa.reschild3)
@@ -458,9 +478,9 @@ class XmlToFit(object):
         etree.ElementTree(root).write(self.dir + 'coaplot.xml')
         
 
-        self.coveramin.append(fitcoa.coamin)
-        self.totencoamin.append(fitcoa.totenmin)
-        self.volumecoa.append(fitcoa.volume)
+        self.coveramin[i].append(fitcoa.coamin)
+        self.totencoamin[i].append(fitcoa.totenmin)
+        self.volumecoa[i].append(fitcoa.volume)
         self.recalculate.append(fitcoa.recalculate)
         self.newcovera.append(fitcoa.newcovera)
 
