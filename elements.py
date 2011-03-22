@@ -95,13 +95,17 @@ class Elements(object):
                     n=1
                     newpar = autoconv['order']['1']
                     newvar = setup['param'][parameter]
-                    new[newpar] = str(newvar)
+                    new['ngridk'] = setup['param']['ngridk']
+                    new['swidth'] = setup['param']['swidth']
+                    new[newpar] = newvar
                 else:
                     n=len(autoconv['order']['1'])
                     while i < n:
                         newpar = autoconv['order']['1'][i]
                         newvar = setup['param'][parameter]
-                        new[newpar] = str(newvar)
+                        new['ngridk'] = setup['param']['ngridk']
+                        new['swidth'] = setup['param']['swidth']
+                        new[newpar] = newvar
                         i+=1
 
                 #conv_info = etree.Element('conv',{'par':parameter,'val':setup['param'][parameter]})

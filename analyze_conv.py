@@ -32,7 +32,7 @@ class ANALYZE(object):
                     print 'Bad fit'
                     self.converged = False
                     return
-                param.append(eval(tag.get('par'))[0])
+                param.append((tag.get('par')))
                 
             i=i+1
         
@@ -47,7 +47,7 @@ class ANALYZE(object):
             d = [abs(conv[var][2]-conv[var][0]),abs(conv[var][2]-conv[var][1]),abs(conv[var][1]-conv[var][0])]
             delta['d%s'%var]= max(d)
             
-            max_delta = setup['err'][param[0]][var]
+            max_delta = setup['err'][var]
             if delta['d%s'%var] > max_delta: converged = False
             
         

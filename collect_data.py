@@ -23,6 +23,7 @@ import search_dir
 import my_calcsetup
 import auto_calc_setup
 import analyze_conv
+import setCalc
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -104,8 +105,9 @@ class XmlToFit(object):
         else:
             proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fiteos.xsl ' + self.dir + 'parset%s.xml > '%str(parnum) + self.dir +  'eos_data_temp.xml'], shell=True)
             proc1.communicate()
-            
-            proc2 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'merge.xsl ' + self.dir + 'eos_data.xml > ' + self.dir +  'eos_data_temp2.xml'], shell=True)
+            proc2 = subprocess.Popen(['cp ' + template.get('elementsdir') + 'merge.xsl ' + self.dir + 'merge.xsl'], shell=True)
+            proc2.communicate()
+            proc2 = subprocess.Popen(['xsltproc ' + self.dir + 'merge.xsl ' + self.dir + 'eos_data.xml > ' + self.dir +  'eos_data_temp2.xml'], shell=True)
             proc2.communicate()
 
             proc3 = subprocess.Popen(['cp ' + self.dir + 'eos_data_temp2.xml ' + self.dir +  'eos_data.xml'], shell=True)
@@ -211,18 +213,18 @@ class XmlToFit(object):
                 n=n+1
         
         n=0
-        for recalculate in self.recalculateeos:
-            if recalculate:
-                print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
-                autoset = auto_calc_setup.Autosetup(setupname)
-
-                newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
-
-                autoset.calculate(newset)
-                n=n+1
-            else:
-                print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
-                n=n+1
+        #for recalculate in self.recalculateeos:
+        #    if recalculate:
+        #        print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
+        #        autoset = auto_calc_setup.Autosetup(setupname)
+        #        
+        #        newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
+        #        print newset
+        #        autoset.calculate(newset)
+        #        n=n+1
+        #    else:
+        #        print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
+        #        n=n+1
         
         ##auto convergence:
         self.f = etree.parse(self.dir + 'auto_conv.xml')
@@ -230,7 +232,9 @@ class XmlToFit(object):
         graphs = self.f.getiterator('conv')
         i=0
         j=0
+        
         for graph in graphs:
+            print len(graphs), len(self.fit_OK)
             if self.fit_OK[j]:
                 graph.set('energy',str(self.emin_eos[i]))
                 graph.set('B',str(self.b0_eos[i]))
@@ -238,7 +242,7 @@ class XmlToFit(object):
                 graph.set('err',str(self.res_eos[i]))
                 i=i+1
             j=j+1
-            lastpar = eval(graph.get('par'))
+            lastpar = (graph.get('par'))
             lastvar = eval(graph.get('parval'))
 
             
@@ -251,70 +255,120 @@ class XmlToFit(object):
         
             
         allelements = self.f.getiterator(tag='CONVERGED')
+        elem = ''
         for element in allelements:
             elem = element
         if elem == '':
             lastpar = autosetup['order']['1']
-        else:
-            lastpar = elem.get('par')
-            if type(lastpar) == list and 'swidth' in lastpar:
-                if elem.get('par') == 'swidth':
-                    par = ''
-        #if re.match('CONVERGED',elem) != None:
-         #   for index in autosetup['order'].keys():
-         #       if autosetup['order'][index] == lastpar:
-        ##            newind = str(int(index) + 1)
-         #   lastpar = autosetup['order'][newind]
-         #   lastvar = autosetup['start'][lastpar]
-        
-        converged = analyze_conv.ANALYZE(self.dir).converged
 
-        if not converged and float(lastvar) < float(autosetup['end'][lastpar]):
-            #newvar = float(lastvar) + float(autosetup['stepsize'][lastpar])
-            #etree.SubElement(root, 'conv',{'par':lastpar, 'val':str(newvar)})
-            #f.write(self.dir + 'auto_conv.xml')
-            #autoset = auto_calc_setup.Autosetup(setupname)
-            #newset = autoset.setup({lastpar:[float(newvar)]})
-            #autoset.calculate(newset)
-            self.setCalc(lastpar,lastvar,autosetup,setupname)
+        converged = analyze_conv.ANALYZE(self.dir).converged
+        print lastvar, lastpar
+
+        if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
+            setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+        elif lastpar == 'ngridk' and not converged:
+            lastvar['par'] = 'rgkmax'
+            setCalc.setCalc('rgkmax',lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
+        elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
+            setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
         else:
             etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
             self.f.write(self.dir + 'auto_conv.xml')
             for index in autosetup['order'].keys():
-                if autosetup['order'][index] == lastpar:
+                if autosetup['order'][index] == lastpar and lastpar != 'ngridk':
                     newind = str(int(index) + 1)
+                    break
+                elif autosetup['order'][index] == lastpar and lastpar == 'ngridk':
+                    return
             lastpar = autosetup['order'][newind]
             lastvar = autosetup['start'][str(lastpar)]
-            self.setCalc(lastpar,lastvar,autosetup,setupname)
+            if lastpar == 'swidth':
+                #initial values of parameters for swidht convergence:
+                initsw = 0.1
+                steps = 3
+                initrgkmax = 2
+                initngridk = 6 
+                ###############
+                setCalc.setCalc('swidth',{'swidth':[initsw],'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)
+            elif lastpar == 'ngridk':
+                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
+            else:
+                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
             
     def setCalc(self,lastpar,lastvar,autosetup,setupname):
         
-        def single():
+        def zeroD(self):
+            su = open(setupname)
+            sustr= su.read()
+            setup = eval(sustr)
+            new = {}
+            newvar = []
+            
+            i=1
+            if type(autosetup['order'][str(i)]) == str:
+                n=1
+                newvar = float(lastvar[lastpar][-1]) + float(autosetup['stepsize'][lastpar])
+                new[lastpar]= str([newvar])
+                for par in autosetup['order'].keys():
+                    new[autosetup['order'][par]] = setup['param'][autosetup['order'][par]]
+                    
+                new['par'] = lastpar
+            else:
+                n=len(autosetup['order'][str(i)])
+                while i<=n:
+                    newvar = float(lastvar) + float(autosetup['stepsize'][lastpar[i]])
+                    new['ngridk'] = setup['param']['ngridk']
+                    new['swidth'] = setup['param']['swidth']
+                    new[lastpar[i]]= str([newvar])
+                    i+=1
+    
+            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
+            self.f.write(self.dir + 'auto_conv.xml')
+            autoset = auto_calc_setup.Autosetup(setupname)
+            newset = autoset.setup({lastpar:[float(newvar)]})
+            autoset.calculate(newset)
             return
-        def oneD():
+            
+        def oneD(self,steps):
+            su = open(setupname)
+            sustr= su.read()
+            setup = eval(sustr)
+            new = {}
+            newvar = []
+            
+            i=1
+            if type(autosetup['order'][str(i)]) == str:
+                n=1
+                newvar = []
+                init = float(lastvar[lastpar][-1])
+                for j in range(steps):
+                    newvar.append(init)
+                    init = init + float(autosetup['stepsize'][lastpar])
+                new[lastpar]= str(newvar)
+                for par in lastvar.keys():
+                    if par != lastpar:
+                        new[par] = lastvar[par]
+                    
+                new['par'] = lastpar
+            else:
+                n=len(autosetup['order'][str(i)])
+                while i<=n:
+                    newvar = float(lastvar) + float(autosetup['stepsize'][lastpar[i]])
+                    new['ngridk'] = setup['param']['ngridk']
+                    new['swidth'] = setup['param']['swidth']
+                    new[lastpar[i]]= str([newvar])
+                    i+=1
+    
+            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
+            self.f.write(self.dir + 'auto_conv.xml')
+            autoset = auto_calc_setup.Autosetup(setupname)
+            newset = autoset.setup(new)
+            autoset.calculate(newset)
             return
         def twoD():
             return
-        new = {}
-        newvar = []
+            
         
-        i=1
-        if type(autosetup['order'][str(i)]) == str:
-            n=1
-            newvar = float(lastvar) + float(autosetup['stepsize'][lastpar])
-            new[lastpar]= str([newvar])
-        else:
-            n=len(autosetup['order'][str(i)])
-            while i<=n:
-                newvar = float(lastvar) + float(autosetup['stepsize'][lastpar[i]])
-                new[lastpar[i]]= str([newvar])
-                i+=1
-
-        etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
-        self.f.write(self.dir + 'auto_conv.xml')
-        autoset = auto_calc_setup.Autosetup(setupname)
-        newset = autoset.setup({lastpar:[float(newvar)]})
-        autoset.calculate(newset)
         
     def covera(self):
         param = {}

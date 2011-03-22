@@ -133,6 +133,7 @@ class CALC(object):
                     newcalc.append_calc()
 
                     curr_calc = 'parset_%s.xml'%str(i)
+                    print 'New parameter file: ' + curr_calc
                     print 'appended new calculations to parset.xml'
                     break
         
