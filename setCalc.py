@@ -26,10 +26,16 @@ class setCalc(object):
         i=1
         if type(autosetup['order'][str(i)]) == str:
             n=1
+            if lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.1:
+                autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.01:
+                autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
             newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
-            new[lastpar]= newvar
+            new[lastpar]= [newvar]
+
             for par in autosetup['order'].keys():
-                new[autosetup['order'][par]] = setup['param'][autosetup['order'][par]]
+                if autosetup['order'][par] != lastpar:
+                    new[autosetup['order'][par]] = setup['param'][autosetup['order'][par]]
                 
             new['par'] = lastpar
         else:
@@ -44,10 +50,11 @@ class setCalc(object):
         etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
         self.f.write(self.dir + 'auto_conv.xml')
         new.pop('par')
+
         autoset = auto_calc_setup.Autosetup(setupname)
         newset = autoset.setup({lastpar:[float(newvar)]})
         autoset.calculate(newset)
-        return
+        
         
     def oneD(self,steps):
         lastpar = self.lastpar
@@ -66,6 +73,8 @@ class setCalc(object):
             newvar = []
             if lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.1:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.01:
+                autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
             init = float(lastvar[lastpar][-1]) - float(autosetup['stepsize'][lastpar])
             for j in range(steps):
                 newvar.append(init)
@@ -91,8 +100,8 @@ class setCalc(object):
         new.pop('par')
         newset = autoset.setup(new)
         autoset.calculate(newset)
-        return
-    def twoD():
+        
+    def twoD(self):
         return
         
     
