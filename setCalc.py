@@ -26,11 +26,15 @@ class setCalc(object):
         i=1
         if type(autosetup['order'][str(i)]) == str:
             n=1
-            if lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.1:
+            if lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
-            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.01:
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
-            newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
+            if lastpar == 'ngridk':
+                autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
+                newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
+            else:
+                newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
             new[lastpar]= [newvar]
 
             for par in autosetup['order'].keys():
@@ -71,14 +75,21 @@ class setCalc(object):
         if type(autosetup['order'][str(i)]) == str:
             n=1
             newvar = []
-            if lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.1:
+            if lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
-            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.01:
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
-            init = float(lastvar[lastpar][-1]) - float(autosetup['stepsize'][lastpar])
+            if lastpar == 'ngridk':
+                autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
+                init = int(lastvar[lastpar][-1]) - int(autosetup['stepsize'][lastpar])
+            else:
+                init = float(lastvar[lastpar][-1]) - float(autosetup['stepsize'][lastpar])
             for j in range(steps):
                 newvar.append(init)
-                init = init + float(autosetup['stepsize'][lastpar])
+                if lastpar == 'ngridk':
+                    init = init + int(autosetup['stepsize'][lastpar])
+                else:
+                    init = init + float(autosetup['stepsize'][lastpar])
             new[lastpar]= newvar
             for par in lastvar.keys():
                 if par != lastpar:
