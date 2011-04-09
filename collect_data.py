@@ -12,6 +12,7 @@ except:
 import subprocess
 import os
 import re
+import sys
 from copy import deepcopy
 try:
     import matplotlib.pyplot as plt
@@ -228,7 +229,12 @@ class XmlToFit(object):
         #    else:
         #        print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
         #        n=n+1
-        
+        try:
+            inp = sys.argv[1]
+        except:
+            inp = None
+        if __name__=='__main__' and inp != 'continue':
+            return
         ##auto convergence:
         self.f = etree.parse(self.dir + 'auto_conv.xml')
         self.root = self.f.getroot()
