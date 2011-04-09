@@ -3,7 +3,10 @@
 import os
 import glob
 from xml.dom.minidom import Document
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.ElementTree as ET
+except:
+    import elementteree.ElementTree as etree
 
 class SearchDir(object):
     def __init__(self, files, root, xmlout=False):

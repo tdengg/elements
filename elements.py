@@ -6,7 +6,10 @@ import sys
 import defaults
 import numpy as np
 import subprocess
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    import elementteree.ElementTree as etree
 from copy import deepcopy
 
 class Elements(object):

@@ -5,7 +5,10 @@
     returns:    none
     
 """
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    import elementteree.ElementTree as etree
 import subprocess
 import os
 import re
@@ -287,7 +290,7 @@ class XmlToFit(object):
                 #initial values of parameters for swidht convergence:
                 initsw = 0.1
                 steps = 3
-                initrgkmax = 2
+                initrgkmax = 9
                 initngridk = autosetup['start']['ngridk']
                 ###############
                 setCalc.setCalc('swidth',{'swidth':[initsw],'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)

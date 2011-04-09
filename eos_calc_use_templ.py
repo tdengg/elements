@@ -6,7 +6,10 @@
     
     set calculation parameters here!
 """
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    import elementteree.ElementTree as etree
 import subprocess
 import os
 import time

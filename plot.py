@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    import elementteree.ElementTree as etree
 
 class Plot(object):
     def __init__(self, autompl=False):

@@ -1,7 +1,9 @@
 """ Compare two .xml files and write the difference (for attribute 'path' in filelist.xml and parset.xml) to a new one
 """
-
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    import elementteree.ElementTree as etree
 import os
 
 import search_dir

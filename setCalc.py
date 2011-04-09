@@ -1,5 +1,7 @@
-
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    import elementteree.ElementTree as etree
 import auto_calc_setup
 
 class setCalc(object):
