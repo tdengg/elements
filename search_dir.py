@@ -6,7 +6,7 @@ from xml.dom.minidom import Document
 try:
     import xml.etree.ElementTree as ET
 except:
-    import elementteree.ElementTree as etree
+    import elementtree.ElementTree as ET
 
 class SearchDir(object):
     def __init__(self, files, root, xmlout=False):

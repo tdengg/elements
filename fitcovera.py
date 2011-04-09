@@ -14,7 +14,7 @@
 try:
     import xml.etree.ElementTree as etree
 except:
-    import elementteree.ElementTree as etree
+    import elementtree.ElementTree as etree
 import numpy as np
 try:
     import matplotlib.pyplot as plt

@@ -9,7 +9,7 @@
 try:
     import xml.etree.ElementTree as etree
 except:
-    import elementteree.ElementTree as etree
+    import elementtree.ElementTree as etree
 import subprocess
 import os
 import time

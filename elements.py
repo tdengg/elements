@@ -9,7 +9,7 @@ import subprocess
 try:
     import xml.etree.ElementTree as etree
 except:
-    import elementteree.ElementTree as etree
+    import elementtree.ElementTree as etree
 from copy import deepcopy
 
 class Elements(object):

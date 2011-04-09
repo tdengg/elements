@@ -3,7 +3,7 @@ import numpy as np
 try:
     import xml.etree.ElementTree as etree
 except:
-    import elementteree.ElementTree as etree
+    import elementtree.ElementTree as etree
 
 class Plot(object):
     def __init__(self, autompl=False):

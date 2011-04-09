@@ -32,7 +32,7 @@ import random
 try:
     import xml.etree.ElementTree as etree
 except:
-    import elementteree.ElementTree as etree
+    import elementtree.ElementTree as etree
 
 import convert_latt_vol
 
