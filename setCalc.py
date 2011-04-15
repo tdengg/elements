@@ -106,7 +106,7 @@ class setCalc(object):
                 new['swidth'] = setup['param']['swidth']
                 new[lastpar[i]]= [newvar]
                 i+=1
-
+#TODO:  #for i in range(steps):
         etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
         self.f.write(self.dir + 'auto_conv.xml')
         autoset = auto_calc_setup.Autosetup(setupname)

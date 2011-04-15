@@ -202,8 +202,9 @@ class XmlToFit(object):
                 l, v = conv.lattToVolume(param2, param2['scale'][self.n])
                 
                 self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
-                self.write_eos()
+                #self.write_eos()
                 self.n=self.n+1
+            self.write_eos()
         
         n=0
         for recalculate in self.recalculate:
@@ -243,7 +244,7 @@ class XmlToFit(object):
         j=0
         
         for graph in graphs:
-            print len(graphs), len(self.fit_OK)
+            
             if self.fit_OK[j]:
                 graph.set('energy',str(self.emin_eos[i]))
                 graph.set('B',str(self.b0_eos[i]))
@@ -567,7 +568,7 @@ class XmlToFit(object):
         i=0
         j=0
         for graph in graphs:
-            if i==self.n and self.fit_OK[j]:
+            if self.fit_OK[j]:
                 graph.attrib['bulk_mod'] = str(self.b0_eos[i])
                 graph.attrib['equi_volume'] = str(self.vol0_eos[i])
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
@@ -576,7 +577,10 @@ class XmlToFit(object):
                 if self.structure in ['hcp','hex']:
                     graph.attrib['equi_coa'] = str(self.coa_eos[i])
                 graph.attrib['equi_a'] = str(self.a_eos[i])
+                graph.attrib['status'] = 'OK'
                 i = i+1
+            else:
+                graph.attrib['status'] = 'failed'
             j=j+1
         #node = etree.SubElement(root,'eos')
         #node.attrib['bulk_mod'] = str(self.b0_eos[0])

@@ -75,7 +75,7 @@ class Birch(object):
             a=l
         
         #check and remove points that do not seam to have reasonable energy values
-        '''
+        """
         poly = []
         res = []
         devsq = []
@@ -114,7 +114,7 @@ class Birch(object):
             v.remove(valv)
             del ein[index],l[index]
         x = np.linspace(min(v),max(v),100)
-        '''
+        """
         #############
             
         v0, emin = self.minIn(ein,v)
