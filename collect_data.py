@@ -207,15 +207,15 @@ class XmlToFit(object):
             self.write_eos()
         
         n=0
-        for recalculate in self.recalculate:
-            if recalculate:
-                print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
-                newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
-                auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
-                n=n+1
-            else:
-                print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
-                n=n+1
+        #for recalculate in self.recalculate:
+        #    if recalculate:
+        #        print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
+        #        newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
+        #        auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
+        #        n=n+1
+        #    else:
+        #        print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
+        #        n=n+1
         
         n=0
         #for recalculate in self.recalculateeos:

@@ -116,10 +116,10 @@ class Polyfit(object):
                     print 'Volume: %(vol)s; minimum of c/a not in calculation range (higher):  setting new range --> shift mean of calculation range to %(errmin)s'%{'errmin':errmin,'vol':self.volume}
                     
                 else:
-                    errmin = minima.real
+                    errmin = abs(minima.real)
                     coamingood = errmin
                     totenmingood = (poly(errmin))
-
+                    recalculate = False
                     newcovera = errmin
                     print 'Not able to determine minimum of c/a-fit', errmin, totenmingood
 

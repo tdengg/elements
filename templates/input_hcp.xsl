@@ -71,6 +71,7 @@
 									select="@exchange" /></xsl:attribute>
 							</libxc>
 						</xsl:if>
+						<xsl:if test="@spin"><spin></spin></xsl:if>
 </groundstate>
 </input>
  
