@@ -13,18 +13,14 @@
 			<xsl:text>input.xml</xsl:text>
 		</xsl:variable>
 		<xsl:variable name="constpar">
-			<xsl:value-of select="/experiment/@path" />
-			const_parameters.xml
-		</xsl:variable>
+			<xsl:value-of select="/experiment/@path" />const_parameters.xml</xsl:variable>
 		<!-- Loop over all elements named "set" from reference xml-file -->
 		<xsl:for-each select="/experiment/set">
 
 			<!-- Define path here -->
 			<xsl:variable name="path">
 				<xsl:value-of select="/experiment/@path" />
-				<xsl:value-of select="./@path" />
-				/input.xml
-			</xsl:variable>
+				<xsl:value-of select="./@path" />/input.xml</xsl:variable>
 
 			<!-- Write document at Path $path -->
 			<xsl:document href="{$path}" method="xml" indent="yes">
@@ -39,8 +35,8 @@
 						<xsl:text> </xsl:text>
 						<xsl:value-of select="." />
 						<xsl:text>
->
-</xsl:text>
+						>
+						</xsl:text>
 						<xsl:value-of select="$path" />
 					</xsl:for-each>
 					<xsl:text></xsl:text>
@@ -68,14 +64,17 @@
 							<basevect>0.0 0.5 0.5 </basevect>
 						</xsl:element>
 						<species speciesfile="Al.xml">
-							<xsl:attribute name="speciesfile"><xsl:value-of
+						<xsl:attribute name="speciesfile"><xsl:value-of
 								select="@species" />.xml</xsl:attribute>
+						<xsl:if test="@rmt"><xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute></xsl:if>
+							
 							<atom coord="-0.125 -0.125 -0.125" />
 							<atom coord="0.125 0.125 0.125" />
 						</species>
 					</structure>
 
 					<groundstate vkloff="0.5  0.5  0.5" mixer="msec">
+					<xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
 						<xsl:attribute name="swidth"><xsl:value-of
 							select="@swidth" /></xsl:attribute>
 						<xsl:attribute name="ngridk"><xsl:value-of

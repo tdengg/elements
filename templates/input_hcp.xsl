@@ -51,6 +51,7 @@
       	<basevect>0.0  0.0 <xsl:value-of select="@covera"/></basevect>
 </xsl:element>
 <species speciesfile="Al.xml">
+<xsl:if test="@rmt"><xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute></xsl:if>
 <xsl:attribute name = "speciesfile"><xsl:value-of select="@species"/>.xml</xsl:attribute>
 	<atom coord="0.33333334 0.66666667 0.25" />
     <atom coord="0.66666667 0.33333334 0.75" />
@@ -58,6 +59,7 @@
 </structure>
  
 <groundstate vkloff="0.0  0.0  0.5"   mixer="msec">
+<xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
   <xsl:attribute name="swidth"><xsl:value-of select="@swidth"/></xsl:attribute>
   <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="round(@ngridk div @covera)"/></xsl:attribute>
   <xsl:attribute name="rgkmax"><xsl:value-of select="@rgkmax"/></xsl:attribute>

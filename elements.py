@@ -141,12 +141,13 @@ class Elements(object):
             coverazero = setup['param']['covera']['coverazero']
             dcovera = setup['param']['covera']['dcovera']
             coasteps = setup['param']['covera']['steps']
+            if coasteps == 1: setup['structure'] = 'hcp_fixedcoa'
             #del setup['param']['covera']
         else: covera = setup['param']['covera']
         
         
         if type(setup['param']['covera']) is dict and type(setup['param']['scale']) is dict:
-            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv':
+            if setup['structure'] in ['hcp','hex','hcp_fixedcoa'] and setup['mod'] != 'simple_conv':
                 vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 
                 dvolume = (azero+da)**3 * coverazero * 3**(1/2.)/2 - vzero                        #volume steps
                 scale, covera = expand.volume_steps(vzero, dvolume, asteps, coverazero, dcovera, coasteps)    #generate steps in volume and c/a

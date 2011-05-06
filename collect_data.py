@@ -79,6 +79,10 @@ class XmlToFit(object):
         #search for calculations and create filelist
         search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
+        s = open(setupname)
+        sustr= s.read()
+        setup = eval(sustr)
+        
         parlist = []
         stri = os.listdir(self.dir)
         for s in stri:
@@ -148,11 +152,11 @@ class XmlToFit(object):
                 self.coveramin.append([])
                 self.totencoamin.append([])
                 self.volumecoa.append([])
+
                 while j<self.numb_coa/nconv:
-                    
                     self.fitcoa(param1['covera'][k+j*nconv],param1['toten'][k+j*nconv],param1['volume'][k+j*nconv],k)
                     j=j+1
-                
+                    
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[k], self.coveramin[k])
                 
                 self.fiteos(scalecoa,volumecovera,self.totencoamin[k], self.coveramin[k], self.structure, self.species)
@@ -200,8 +204,10 @@ class XmlToFit(object):
             self.results = etree.Element('plot')
             while self.n < len(param2['scale']):
                 l, v = conv.lattToVolume(param2, param2['scale'][self.n])
-                
-                self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
+                if self.structure == 'hcp_fixedcoa':
+                    self.fiteos(l, v, param2['toten'][self.n],setup['param']['covera']['coverazero'],'hcp' ,self.species)
+                else:
+                    self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
                 #self.write_eos()
                 self.n=self.n+1
             self.write_eos()

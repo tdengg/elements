@@ -2,7 +2,8 @@ defaults={
           'mod': 'eos', 
           'exectemplate':'shelcommand.xsl',
           'calculate':"True",
-          'speciespath':"http://xml.exciting-code.org/species/"
+          'speciespath':"http://xml.exciting-code.org/species/",
+          'isautoconv':False
           }
 
 def set (setup):

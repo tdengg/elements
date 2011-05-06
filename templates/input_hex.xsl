@@ -52,7 +52,7 @@
 </xsl:element>
 <species speciesfile="Al.xml">
 <xsl:attribute name = "speciesfile"><xsl:value-of select="@species"/>.xml</xsl:attribute>
-<xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute>
+<xsl:if test="@rmt"><xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute></xsl:if>
 	<atom coord="0.0 0.0 0.25" />
     <atom coord="0.0 0.0 0.75" />
     <atom coord="0.333333333 0.666666667 0.25" />
@@ -62,6 +62,7 @@
  
 <groundstate vkloff="0.0  0.0  0.5"   mixer="msec">
   <xsl:attribute name="swidth"><xsl:value-of select="@swidth"/></xsl:attribute>
+  <xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
   <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="round(@ngridk div @covera)"/></xsl:attribute>
   <xsl:attribute name="rgkmax"><xsl:value-of select="@rgkmax"/></xsl:attribute>
 	<xsl:if test="@xc|@correlation|exchange">
