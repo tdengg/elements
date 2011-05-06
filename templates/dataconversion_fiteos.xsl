@@ -29,6 +29,11 @@
 							<xsl:text>convergence.xml</xsl:text>
 						</xsl:variable>
 						
+						<xsl:variable name="parpath">
+							<xsl:value-of select="$root"/>
+							<xsl:text>const_parameters.xml</xsl:text>
+						</xsl:variable>
+						
 						<xsl:variable name="infopath">
 							<xsl:value-of select="$fullpath"/>
 							<xsl:text>info.xml</xsl:text>
@@ -39,10 +44,27 @@
 							<xsl:text>input.xml</xsl:text>
 						</xsl:variable>
 						
+						<xsl:variable name="covera">
+							<xsl:value-of select="@covera"/>
+						</xsl:variable>
+						
 						<point>
 							<xsl:attribute name="volume">
-								
-								<xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) *2.0"/>
+								<xsl:if test="document($parpath)//structure/@str = 'fcc'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale ,3) div 4.0"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'bcc'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 2.0"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'hcp'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)*math:sqrt(3)*($covera) div 2.0"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'diamond'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 8.0"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'hex'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)*math:sqrt(3)*($covera)"/>
+								</xsl:if>
 							</xsl:attribute>
 							
 							<xsl:attribute name="scale">
