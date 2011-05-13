@@ -277,7 +277,7 @@ class XmlToFit(object):
         if elem == '':
             lastpar = autosetup['order']['1']
 
-        converged = analyze_conv.ANALYZE(self.dir).converged
+        converged = analyze_conv.ANALYZE(self.dir, lastpar).converged
         print lastvar, lastpar
 
         if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
@@ -303,7 +303,7 @@ class XmlToFit(object):
                 #initial values of parameters for swidht convergence:
                 initsw = 0.1
                 steps = 3
-                initrgkmax = 9
+                initrgkmax = 6
                 initngridk = autosetup['start']['ngridk']
                 ###############
                 setCalc.setCalc('swidth',{'swidth':[initsw],'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)

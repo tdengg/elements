@@ -155,7 +155,7 @@ class Birch(object):
         if structure == 'fcc':
             latt = (4. * parnew1[0,0])**(1./3.)
         elif structure == 'bcc':
-            latt = (4. * parnew1[0,0])**(1./3.)
+            latt = (2. * parnew1[0,0])**(1./3.)
         #elif structure == 'hcp' and len(args) == 0:
             #covera = input('c over a ratio: ')
             #latta = (parnew1[0,0]/(param['covera']*0.866))**(1./3.)
