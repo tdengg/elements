@@ -16,11 +16,12 @@ class ANALYZE(object):
 
         param = []
         value = []
-        if convpar == 'rgkmax':
-            conv = {'B':[],'err':[]}
-        else:
-            conv = {'B':[],'V':[],'err':[],'energy':[]}
+
+        conv = {'B':[],'err':[]}
+        conv_all = {'B':[],'V':[],'err':[],'energy':[]}
+        
         converged = True
+        converged_all = True
         delta = {}
         
         f = etree.parse(self.currdir + 'auto_conv.xml')
@@ -30,10 +31,14 @@ class ANALYZE(object):
         for tag in tags:
             if i >= ( len(tags) - 3 ):
                 try:
-                    conv['energy'].append(float(tag.get('energy')))
-                    conv['B'].append(float(tag.get('B')))
-                    conv['V'].append(float(tag.get('V')))
-                    conv['err'].append(float(tag.get('err')))
+                    for key in conv.keys():
+                        conv[key].append(float(tag.get(key)))
+                    for key in conv_all.keys():
+                        conv_all[key].append(float(tag.get(key)))
+                        
+                    #conv['B'].append(float(tag.get('B')))
+                    #conv['V'].append(float(tag.get('V')))
+                    #conv['err'].append(float(tag.get('err')))
                 except:
                     print 'Bad fit'
                     self.converged = False
@@ -55,6 +60,13 @@ class ANALYZE(object):
             print max(d)
             max_delta = setup['err'][var]
             if delta['d%s'%var] > max_delta: converged = False
+        
+        for var in conv_all.keys():
+            d = [abs(conv_all[var][2]-conv_all[var][0]),abs(conv_all[var][2]-conv_all[var][1]),abs(conv_all[var][1]-conv_all[var][0])]
+            delta['d%s'%var]= max(d)
+            print max(d)
+            max_delta = setup['err'][var]
+            if delta['d%s'%var] > max_delta: converged_all = False
             
         
         #Output
@@ -64,8 +76,19 @@ class ANALYZE(object):
             print '#' + ('%8s' %out) + ' :' + ('%15.5f' %delta[out])
         print '#####################################################\n'
         
+        
+        logfile = open(self.currdir + 'log','a')
+        log = """\n#####################################################
+        ## Maximal errors of last three convergence steps: ##\n"""
+        for out in delta:
+            log += '#' + ('%8s' %out) + ' :' + ('%15.5f' %delta[out]) + '\n'
+        log += '#####################################################\n'
+        logfile.write(log)
+        logfile.close()
+        
         self.converged = converged
-
+        self.converged_all = converged_all
+        
     def status(self):
         if self.ok:
             return True

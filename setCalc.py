@@ -32,6 +32,8 @@ class setCalc(object):
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
             elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0001:
+                return
             if lastpar == 'ngridk':
                 autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
                 newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
@@ -81,6 +83,8 @@ class setCalc(object):
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
             elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0001:
+                return
             if lastpar == 'ngridk':
                 autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
                 init = int(lastvar[lastpar][-1]) - int(autosetup['stepsize'][lastpar])

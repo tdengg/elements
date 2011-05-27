@@ -28,6 +28,8 @@ import my_calcsetup
 import auto_calc_setup
 import analyze_conv
 import setCalc
+#import manipulate_input
+import calc_from_parset
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -76,6 +78,23 @@ class XmlToFit(object):
         mode = f.getroot().find('mode').get('mod')
         self.calchome = f.getroot().find('calchome').get('path')
         setupname = f.getroot().find('setupname').get('sun')
+        
+        #Remove aborted calculations to be recalculated:
+        try:
+            inp = sys.argv[1]
+        except:
+            inp = None
+        if inp == 'continue':
+            flist = etree.parse(self.dir + 'calc_filelist.xml')
+            flroot = flist.getroot()
+            dirs = flroot.getiterator('dir')
+            for dir in dirs:
+                if dir.get('info.xml') == 'NO info.xml':
+                    removedir = subprocess.Popen(['rm -r ' + dir.get('path')], shell=True)
+                    removedir.communicate()
+                    recalculate = True
+                else: recalculate = False
+            if recalculate: calc_from_parset.calculate(self.dir)
         #search for calculations and create filelist
         search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
@@ -94,8 +113,7 @@ class XmlToFit(object):
             parnum = ''
             print ''
         
-        
-        
+
         #create output
         if os.path.exists(self.dir + 'coa_data.xml'):
             remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
@@ -236,10 +254,7 @@ class XmlToFit(object):
         #    else:
         #        print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
         #        n=n+1
-        try:
-            inp = sys.argv[1]
-        except:
-            inp = None
+
         if __name__=='__main__' and inp != 'continue':
             return
         ##auto convergence:
@@ -278,13 +293,14 @@ class XmlToFit(object):
             lastpar = autosetup['order']['1']
 
         converged = analyze_conv.ANALYZE(self.dir, lastpar).converged
+        converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged_all
         print lastvar, lastpar
 
         if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
             setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
         elif lastpar == 'ngridk' and not converged:
-            lastvar['par'] = 'rgkmax'
-            setCalc.setCalc('rgkmax',lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
+            lastvar['par'] = 'ngridk'
+            setCalc.setCalc('ngridk',lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
         elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
             setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
         else:
@@ -293,20 +309,24 @@ class XmlToFit(object):
             for index in autosetup['order'].keys():
                 if autosetup['order'][index] == lastpar and lastpar != 'ngridk':
                     newind = str(int(index) + 1)
+                    
                     break
                 elif autosetup['order'][index] == lastpar and lastpar == 'ngridk':
+                    newind = str(int(index) - 1)
+                    break
+                elif converged_all:
                     os.mkdir(self.dir + 'converged')
                     return
             lastpar = autosetup['order'][newind]
             lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
             if lastpar == 'swidth':
                 #initial values of parameters for swidht convergence:
-                initsw = 0.1
+                initsw = lastvar[lastpar]
                 steps = 3
                 initrgkmax = 6
                 initngridk = autosetup['start']['ngridk']
                 ###############
-                setCalc.setCalc('swidth',{'swidth':[initsw],'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)
+                setCalc.setCalc('swidth',{'swidth':initsw,'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)
             elif lastpar == 'ngridk':
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
             else:

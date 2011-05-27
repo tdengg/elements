@@ -53,6 +53,7 @@
 						<xsl:value-of select="position()" />
 					</title>
 					<structure>
+					<xsl:if test="@autormt"><xsl:attribute name="autormt"><xsl:value-of select="@autormt" /></xsl:attribute></xsl:if>
 						<xsl:attribute name="speciespath"><xsl:value-of
 							select="document($constpar)//speciespath/@spa" /></xsl:attribute>
 						<xsl:element name="crystal">

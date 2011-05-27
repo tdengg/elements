@@ -48,6 +48,7 @@ class Birch(object):
         vbad = []
         ebad = []
         
+        
         ## start parameters:
         b0 = np.float32(0.004) # Bulk-Modulus
         db0 = np.float32(3.)   # derivative of Bulk-Modulus with respect to V 
@@ -73,6 +74,9 @@ class Birch(object):
             ein = args[3]
             calchome = args[4]
             a=l
+        
+        ## open logfile to write
+        logfile = open(calchome + 'log','a')
         
         #check and remove points that do not seam to have reasonable energy values
         """
@@ -146,10 +150,11 @@ class Birch(object):
         #print deltamin
         if deltamin < norm_diff1:
             parnew1 = parmin
-            print '2-Norm of residual vector: ' + str(deltamin)
+            out = '2-Norm of residual vector: ' + str(deltamin)
         else:
             deltamin = norm_diff1
-            print '2-Norm of residual vector: ' + str(deltamin)
+            out = '2-Norm of residual vector: ' + str(deltamin)
+        print out
         # convert volume to lattice parameter:
                     
         if structure == 'fcc':
@@ -195,19 +200,25 @@ class Birch(object):
             
         if structure == 'fcc':
             a0 = (4.*parnew1[0,0])**(1./3.)
-            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0, 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0, 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            print out
         elif structure == 'hcp':
             a0 = (2.*parnew1[0,0]/(3.**(1./2.)*float(coamin)))**(1./3.)
-            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(a0).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(a0).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+            print out
             
         #elif structure == 'hex':
         #    print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str((2.*parnew1[0,0]/(3.**(1./2.)*float(covera[i])))**(1./3.)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
         elif structure == 'bcc':
             a0 = (2.*parnew1[0,0])**(1./3.)
-            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((2*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((2*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+            print out
         elif structure == 'diamond':
             a0 = (8.*parnew1[0,0])**(1./3.)
-            print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+            print out
+        logfile.write(out + '\n')
+        logfile.close()
         #plt.plot(v, fite0)#
         lv = np.linspace(min(v),max(v),100)
         dump, plote, dump = (self.fitev(parnew1, lv, ein))
