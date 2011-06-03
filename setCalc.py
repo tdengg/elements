@@ -36,7 +36,7 @@ class setCalc(object):
                 return
             if lastpar == 'ngridk':
                 autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
-                newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
+                newvar = int(lastvar[self.lastpar][-1]) + int(autosetup['stepsize'][lastpar])
             else:
                 newvar = float(lastvar[self.lastpar][-1]) + float(autosetup['stepsize'][lastpar])
             new[lastpar]= [newvar]
@@ -111,7 +111,8 @@ class setCalc(object):
                 new[lastpar[i]]= [newvar]
                 i+=1
 #TODO:  #for i in range(steps):
-        etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
+        for i in range(len(new[lastpar])):
+            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
         self.f.write(self.dir + 'auto_conv.xml')
         autoset = auto_calc_setup.Autosetup(setupname)
         new.pop('par')

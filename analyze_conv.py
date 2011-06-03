@@ -64,7 +64,7 @@ class ANALYZE(object):
         for var in conv_all.keys():
             d = [abs(conv_all[var][2]-conv_all[var][0]),abs(conv_all[var][2]-conv_all[var][1]),abs(conv_all[var][1]-conv_all[var][0])]
             delta['d%s'%var]= max(d)
-            print max(d)
+            #print max(d)
             max_delta = setup['err'][var]
             if delta['d%s'%var] > max_delta: converged_all = False
             
@@ -86,8 +86,8 @@ class ANALYZE(object):
         logfile.write(log)
         logfile.close()
         
-        self.converged = converged
-        self.converged_all = converged_all
+        self.converged = converged,converged_all
+        
         
     def status(self):
         if self.ok:

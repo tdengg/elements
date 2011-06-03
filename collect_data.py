@@ -292,8 +292,8 @@ class XmlToFit(object):
         if elem == '':
             lastpar = autosetup['order']['1']
 
-        converged = analyze_conv.ANALYZE(self.dir, lastpar).converged
-        converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged_all
+        converged,converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged
+        
         print lastvar, lastpar
 
         if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
@@ -306,6 +306,9 @@ class XmlToFit(object):
         else:
             etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
             self.f.write(self.dir + 'auto_conv.xml')
+            
+            if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
+            
             for index in autosetup['order'].keys():
                 if autosetup['order'][index] == lastpar and lastpar != 'ngridk':
                     newind = str(int(index) + 1)
@@ -314,7 +317,7 @@ class XmlToFit(object):
                 elif autosetup['order'][index] == lastpar and lastpar == 'ngridk':
                     newind = str(int(index) - 1)
                     break
-                elif converged_all:
+                elif converged_all and lastpar == 'ngridk':
                     os.mkdir(self.dir + 'converged')
                     return
             lastpar = autosetup['order'][newind]
