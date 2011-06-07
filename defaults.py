@@ -3,7 +3,8 @@ defaults={
           'exectemplate':'shelcommand.xsl',
           'calculate':"True",
           'speciespath':"http://xml.exciting-code.org/species/",
-          'isautoconv':False
+          'isautoconv':False,
+          'convmode':'swidth+ngridk'
           }
 
 def set (setup):

@@ -30,6 +30,7 @@ import analyze_conv
 import setCalc
 #import manipulate_input
 import calc_from_parset
+import read_eigval
 
 class XmlToFit(object):
     def __init__(self, dir):
@@ -291,50 +292,60 @@ class XmlToFit(object):
             elem = element
         if elem == '':
             lastpar = autosetup['order']['1']
-
-        converged,converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged
         
-        print lastvar, lastpar
-
-        if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
-            setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
-        elif lastpar == 'ngridk' and not converged:
-            lastvar['par'] = 'ngridk'
-            setCalc.setCalc('ngridk',lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
-        elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
-            setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
-        else:
-            etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
-            self.f.write(self.dir + 'auto_conv.xml')
+        if autosetup['convmode'] == 'swidth+ngridk':
+            converged,converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged
             
-            if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
-            
-            for index in autosetup['order'].keys():
-                if autosetup['order'][index] == lastpar and lastpar != 'ngridk':
-                    newind = str(int(index) + 1)
-                    
-                    break
-                elif autosetup['order'][index] == lastpar and lastpar == 'ngridk':
-                    newind = str(int(index) - 1)
-                    break
-                elif converged_all and lastpar == 'ngridk':
-                    os.mkdir(self.dir + 'converged')
-                    return
-            lastpar = autosetup['order'][newind]
-            lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
-            if lastpar == 'swidth':
-                #initial values of parameters for swidht convergence:
-                initsw = lastvar[lastpar]
-                steps = 3
-                initrgkmax = 6
-                initngridk = autosetup['start']['ngridk']
-                ###############
-                setCalc.setCalc('swidth',{'swidth':initsw,'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)
-            elif lastpar == 'ngridk':
-                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
-            else:
+            print lastvar, lastpar
+    
+            if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+            elif lastpar == 'ngridk' and not converged:
+                lastvar['par'] = 'ngridk'
+                setCalc.setCalc('ngridk',lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+            elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
+                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+            else:
+                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
+                self.f.write(self.dir + 'auto_conv.xml')
+                
+                if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
+                
+                for index in autosetup['order'].keys():
+                    if autosetup['order'][index] == lastpar and lastpar != 'ngridk':
+                        newind = str(int(index) + 1)
+                        
+                        break
+                    elif autosetup['order'][index] == lastpar and lastpar == 'ngridk':
+                        newind = str(int(index) - 1)
+                        break
+                    elif converged_all and lastpar == 'ngridk':
+                        os.mkdir(self.dir + 'converged')
+                        return
+                lastpar = autosetup['order'][newind]
+                lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
+                if lastpar == 'swidth':
+                    #initial values of parameters for swidht convergence:
+                    initsw = lastvar[lastpar]
+                    steps = 3
+                    initrgkmax = 6
+                    initngridk = autosetup['start']['ngridk']
+                    ###############
+                    setCalc.setCalc('swidth',{'swidth':initsw,'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)
+                elif lastpar == 'ngridk':
+                    setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
+                else:
+                    setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+                    
+        elif autosetup['convmode'] == 'const_ngridk/swidth':
+            print 'Convergence mode: ngridk/swidth = const.'
             
+            read_eigval()
+            
+            if lastpar == 'rgkmax' and not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
+                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+                
+                
     def setCalc(self,lastpar,lastvar,autosetup,setupname):
         
         def zeroD(self):
