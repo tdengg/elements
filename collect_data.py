@@ -30,7 +30,7 @@ import analyze_conv
 import setCalc
 #import manipulate_input
 import calc_from_parset
-import read_eigval
+#import read_eigval
 
 class XmlToFit(object):
     def __init__(self, dir):

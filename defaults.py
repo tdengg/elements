@@ -4,7 +4,6 @@ defaults={
           'calculate':"True",
           'speciespath':"http://xml.exciting-code.org/species/",
           'isautoconv':False,
-          'convmode':'swidth+ngridk'
           }
 
 def set (setup):
@@ -13,3 +12,5 @@ def set (setup):
     for param in defaults.keys():
         if not(param in setup.keys()):
             setup[param]=defaults[param]
+        if 'autoconv' in setup.keys():
+            setup['autoconv']['convmode'] = 'swidth+ngridk'
