@@ -60,7 +60,7 @@ class setCalc(object):
         new.pop('par')
 
         autoset = auto_calc_setup.Autosetup(setupname)
-        newset = autoset.setup({lastpar:[float(newvar)]})
+        newset = autoset.setup({lastpar:[newvar]})
         autoset.calculate(newset)
         
         
@@ -111,13 +111,21 @@ class setCalc(object):
                 new[lastpar[i]]= [newvar]
                 i+=1
 #TODO:  #for i in range(steps):
-        for i in range(len(new[lastpar])):
-            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
-        self.f.write(self.dir + 'auto_conv.xml')
+    
+        
+
+        
         autoset = auto_calc_setup.Autosetup(setupname)
         new.pop('par')
         newset = autoset.setup(new)
         autoset.calculate(newset)
+        
+        calcs = etree.parse(dir + 'eos_data_temp.xml')
+        rootel = calcs.getroot()
+        g = calcs.getiterator('graph')
+        for i in g:
+            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
+        self.f.write(self.dir + 'auto_conv.xml')
         
     def twoD(self):
         return
