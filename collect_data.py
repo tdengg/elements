@@ -321,15 +321,24 @@ class XmlToFit(object):
                         break
                     elif converged_all and lastpar == 'ngridk':
                         os.mkdir(self.dir + 'converged')
+                        
                         return
                 lastpar = autosetup['order'][newind]
-                lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
+                #lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
                 if lastpar == 'swidth':
                     #initial values of parameters for swidht convergence:
-                    initsw = lastvar[lastpar]
-                    steps = 3
-                    initrgkmax = 6
-                    initngridk = autosetup['start']['ngridk']
+                    try: 
+                        allelements[0]
+                        print allelements
+                        initsw = lastvar[lastpar]
+                        steps = 3
+                        initrgkmax = 6
+                        initngridk = lastvar['ngridk'][-1]
+                    except:
+                        initsw = lastvar[lastpar]
+                        steps = 3
+                        initrgkmax = 6
+                        initngridk = autosetup['start']['ngridk']
                     ###############
                     setCalc.setCalc('swidth',{'swidth':initsw,'rgkmax':[initrgkmax],'ngridk':[initngridk]},autosetup,setupname,self.f,self.root,self.dir).oneD(steps)
                 elif lastpar == 'ngridk':

@@ -90,7 +90,7 @@ class Elements(object):
                 setup['calchome'] = os.getcwd() + '/'#conv_rgkmax/'
                 setup['param'][parameter] = [float(autoconv['start'][parameter]), float(autoconv['start'][parameter])+float(autoconv['stepsize'][parameter]),float(autoconv['start'][parameter])+float(autoconv['stepsize'][parameter])*2]
                 setup['param']['ngridk'] = [2]
-                setup['param']['swidth'] = [0.1]
+                setup['param']['swidth'] = [0.01]
                 
                 new = {}
                 i=0

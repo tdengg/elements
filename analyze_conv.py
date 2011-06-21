@@ -41,7 +41,9 @@ class ANALYZE(object):
                     #conv['err'].append(float(tag.get('err')))
                 except:
                     print 'Bad fit'
-                    self.converged = False
+                    converged = False
+                    converged_all = False
+                    self.converged = converged,converged_all
                     return
                 param.append((tag.get('par')))
                 
