@@ -13,7 +13,10 @@ def fermidkpt(eigval,kvector):
     deltae = []
     n = 0
     for kpoint in eigval:
-        if kvector[n][0] == kvector[n][1] == kvector[n][2]: print ''
+        
+        if kvector[n][0] == kvector[n][1] == kvector[n][2]: 
+            print ''
+            
         else: continue
         i=0
         for state in kpoint:

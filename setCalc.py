@@ -32,7 +32,7 @@ class setCalc(object):
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
             elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
-            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0001:
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= autosetup['end'][lastpar]:
                 return
             if lastpar == 'ngridk':
                 autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
@@ -83,7 +83,7 @@ class setCalc(object):
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/10
             elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0011:
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
-            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.0001:
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= autosetup['end'][lastpar]*(1.1):
                 return
             if lastpar == 'ngridk':
                 autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
@@ -112,7 +112,9 @@ class setCalc(object):
                 i+=1
 #TODO:  #for i in range(steps):
     
-        
+        for i in range(2):
+            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
+        self.f.write(self.dir + 'auto_conv.xml')
 
         
         autoset = auto_calc_setup.Autosetup(setupname)
@@ -120,12 +122,10 @@ class setCalc(object):
         newset = autoset.setup(new)
         autoset.calculate(newset)
         
-        calcs = etree.parse(dir + 'eos_data_temp.xml')
-        rootel = calcs.getroot()
-        g = calcs.getiterator('graph')
-        for i in g:
-            etree.SubElement(self.root, 'conv',{'par':str(lastpar), 'parval':str(new)})
-        self.f.write(self.dir + 'auto_conv.xml')
+        #calcs = etree.parse(dir + 'eos_data_temp.xml')
+        #rootel = calcs.getroot()
+        #g = calcs.getiterator('graph')
+
         
     def twoD(self):
         return
