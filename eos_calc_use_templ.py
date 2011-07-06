@@ -54,21 +54,27 @@ class CALC(object):
             inpar[key] = inpar[key] + "</param>"
         for key in setup.keys():
             
-            if key not in ['param','species']:
+            if key not in ['param','species','species2']:
                 #inpar[key] = setup[key]
                 continue
             elif key == 'species':
                 inpar[key] = "<param name='species'><val>%s</val></param>" % setup[key]
+            elif key == 'species2':
+                inpar[key] = "<param name='species2'><val>%s</val></param>" % setup[key]
         ###########################################################
         #            == Set new parameters here! ==               #
         #              also modify input template                 #
         ###########################################################
         paramset = """<?xml version="1.0" encoding="UTF-8"?><setup path="%s">"""%setup['calchome']
         paramset = paramset + inpar['species']
+        try:
+            paramset = paramset + inpar['species2']
+        except:
+            print 'Elemental'
         for parkey in inpar.keys():
-            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale' or parkey == 'species':
+            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale' or parkey == 'species' or parkey == 'species2':
                 continue
-            elif parkey == 'species':
+            elif parkey in ['species','species2']:
                 continue
             paramset = paramset + inpar[parkey]
         paramset = paramset + '</setup>'

@@ -232,29 +232,29 @@ class XmlToFit(object):
             self.write_eos()
         
         n=0
-        #for recalculate in self.recalculate:
-        #    if recalculate:
-        #        print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
-        #        newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
-        #        auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
-        #        n=n+1
-        #    else:
-        #        print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
-        #        n=n+1
+        for recalculate in self.recalculate:
+            if recalculate:
+                print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
+                newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
+                auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
+                n=n+1
+            else:
+                print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
+                n=n+1
         
         n=0
-        #for recalculate in self.recalculateeos:
-        #    if recalculate:
-        #        print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
-        #        autoset = auto_calc_setup.Autosetup(setupname)
-        #        
-        #        newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
-        #        print newset
-        #        autoset.calculate(newset)
-        #        n=n+1
-        #    else:
-        #        print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
-        #        n=n+1
+        for recalculate in self.recalculateeos:
+            if recalculate:
+                print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
+                autoset = auto_calc_setup.Autosetup(setupname)
+                
+                newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
+                print newset
+                autoset.calculate(newset)
+                n=n+1
+            else:
+                print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
+                n=n+1
 
         if __name__=='__main__' and inp != 'continue':
             return
@@ -320,7 +320,20 @@ class XmlToFit(object):
                         newind = str(int(index) - 1)
                         break
                     elif converged_all and lastpar == 'ngridk':
-                        os.mkdir(self.dir + 'converged')
+                        try:
+                            os.mkdir(self.dir + 'converged')
+                        except:
+                            print "Could not create directory 'converged'. Maybe already existing!"
+                        val = eval(self.f.find("CONVERGED").get('val'))
+                        
+                        lastvar['rgkmax'] = val['rgkmax']
+                        lastpar = 'rgkmax'
+                        autoset = auto_calc_setup.Autosetup(setupname)
+                        newset = autoset.setup({lastpar:[lastvar]})
+                        autoset.calculate(newset)
+                        
+                        etree.SubElement(self.root, 'DONE')
+                        self.f.write(self.dir + 'auto_conv.xml')
                         
                         return
                 lastpar = autosetup['order'][newind]
