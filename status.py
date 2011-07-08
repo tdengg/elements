@@ -1,34 +1,35 @@
+import matplotlib
+matplotlib.use('GTKAgg')
+from mpl_toolkits.mplot3d import Axes3D, axes3d
 import matplotlib.pyplot as plt
-import time
 import os
 import numpy as nm
-import subprocess
 import lxml.etree as etree
-
-
-tree = etree.parse('auto_conv.xml')
+import gobject
 
 fig = plt.figure()
-ax = fig.add_subplot(211)
-line, = ax.plot([], [], animated=True, lw=2)
-#ax.set_ylim(-1.1, 1.1)
-#ax.set_xlim(0, 5)
-ax.grid()
-xdata, ydata = [], []
 
+ax2 = fig.add_subplot(2,2,2)
+ax3 = fig.add_subplot(2,2,3)
+ax4 = fig.add_subplot(2,2,4)
 
+#ax.set_ylim(100, 400)
+#ax.set_xlim(6, 9)
+
+fig2 = plt.figure()
+ax = Axes3D(fig2)
 
 def refresh():
-    #read nata via xpath:
-    fig.canvas.draw()
-    background = fig.canvas.copy_from_bbox(ax.bbox)
-    fig.canvas.restore_region(background)
     
-    
-    
+    tree = etree.parse('auto_conv.xml')
     pars = ['rgkmax','ngridk','swidth']
+    parval = tree.xpath("//conv/@parval")
     for par in pars:
         valstack = []
+        B = []
+        swidth = []
+        rgkmax = []
+        ngridk = []
         energy = tree.xpath("//conv[@par='%s']/@energy"%par)
         
         B = tree.xpath("//conv[@par='%s']/@B"%par)
@@ -42,17 +43,51 @@ def refresh():
                 if i<len(eval(vlues)[par])-1: i+=1
                 else: i=0
             else:
-                
                 valstack.append(float(str(eval(vlues)[par][0]).rstrip()))
+        
         if par == 'rgkmax':
-            line.set_data(valstack, B)
-            ax.draw_artist(line)
-        fig.canvas.blit(ax.bbox)
+            n = len(B)
+            line, = ax2.plot(valstack[0:n],B,'r')
+            fig.canvas.draw_idle()
+            val1 = valstack
+        elif par == 'ngridk':
+            n = len(B)
+            line, = ax3.plot(valstack[0:n],B,'g')
+            fig.canvas.draw_idle()
+            val2 = valstack
+        elif par == 'swidth':
+            n = len(B)
+            line, = ax4.plot(valstack[0:n],B,'b')
+            fig.canvas.draw_idle()
+            val3 = valstack
+            
+    n=0
+    for v in parval:
+        ngk = eval(v)['ngridk']
+        rkm = eval(v)['rgkmax']
+        swd = eval(v)['swidth']
+        
+        if len(ngk) > 1: ngridk.append(ngk[n])
+        else: ngridk.append(ngk[0])
+        if len(rkm) > 1:rgkmax.append(rkm[n])
+        else: rgkmax.append(rkm[0])
+        if len(swd) > 1:swidth.append(swd[n])
+        else: swidth.append(swd[0])
+        if (len(ngk) + len(rkm) + len(swd)) > 3: n=n+1
+        if n>=3: n=0
+    
+    cset = ax.scatter(ngridk,rgkmax,swidth, linewidths=2,linestyle = 'solid')
+    
+    lastpar = eval(tree.xpath("(//conv/@parval)[last()]")[0])
+    point_ngk = [lastpar['ngridk'][-1]]
+    point_rkm = [lastpar['rgkmax'][-1]]
+    point_swd = [lastpar['swidth'][-1]]
+    cset = ax.scatter(point_ngk, point_rkm, point_swd, marker='h',s=100, c='r')
+    
+    
+    return True
 
     
-for i in range(100):
-    print 'plotting'
-    refresh()
-    time.sleep(10)  
+gobject.timeout_add(1000,refresh)
 plt.show()
     
