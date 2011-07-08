@@ -1,3 +1,20 @@
+"""Check convergence of calculation.
+    contains:   class::ANALYZE()
+                    def::deltas
+                    def::status
+
+    arguments:  -calcdir ........ calculation directory
+                    type::string
+                -convpar ....... parameter of convergence to check for (e.g. ngridk)
+                    type::string
+                    
+    returns:    -----
+    
+    output:     -self.converged .... current convergence status
+                    type::bool
+
+"""
+
 try:
     import xml.etree.ElementTree as etree
 except:

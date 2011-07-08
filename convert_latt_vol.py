@@ -32,7 +32,7 @@ class Convert(object):
                 vol.append(float(a)**3./4.)
             if self.structure == 'bcc':
                 vol.append(float(a)**3./2.)
-            if self.structure == 'diamond':
+            if self.structure in ['diamond','zincblende']:
                 vol.append(float(a)**3./8.)
         
         return latt, vol
@@ -49,7 +49,11 @@ class Convert(object):
                 latt.append((4.*v)**(1./3.))
             if self.structure == 'bcc':
                 latt.append((2.*v)**(1./3.))
-            if self.structure == 'diamond':
+            if self.structure in ['diamond','zincblende']:
+                latt.append((8*v)**(1./3.))
+            if self.structure == 'rs':
+                latt.append((v)**(1./3.))
+            if self.structure == 'wurtzite':
                 latt.append((8*v)**(1./3.))
             i=i+1
         return latt, vol
