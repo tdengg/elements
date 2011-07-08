@@ -35,7 +35,7 @@ class Convert(object):
             if self.structure in ['diamond','zincblende']:
                 vol.append(float(a)**3./8.)
             if self.structure == 'rs':
-                latt.append((v)**(1./3.))
+                vol.append(float(a)**3.)
         
         return latt, vol
     
