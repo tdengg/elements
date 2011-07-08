@@ -325,11 +325,13 @@ class XmlToFit(object):
                         except:
                             print "Could not create directory 'converged'. Maybe already existing!"
                         val = eval(self.f.find("CONVERGED").get('val'))
-                        
+                        print val
+                        lastvar['ngridk'] = lastvar['ngridk'][-1]
+                        lastvar['swidth'] = lastvar['swidth'][-1]
                         lastvar['rgkmax'] = val['rgkmax']
                         lastpar = 'rgkmax'
                         autoset = auto_calc_setup.Autosetup(setupname)
-                        newset = autoset.setup({lastpar:[lastvar]})
+                        newset = autoset.setup({lastpar:[lastvar[lastpar]]})
                         autoset.calculate(newset)
                         
                         etree.SubElement(self.root, 'DONE')
@@ -532,12 +534,12 @@ class XmlToFit(object):
             self.results.append(eosFit.reschild3)
             restree = etree.ElementTree(self.results)
             restree.write(self.dir + 'eosplot.xml')
-
+    
         #eosplot = etree.parse(self.dir + 'eosplot.xml')
         #root = eosplot.getroot()
         #graphs = root.getiterator('graph')
         #i=0
-
+    
         #for graph in graphs:
         #    graph.attrib['structure'] = str(self.structure)
         #    graph.attrib['species'] = str(self.species)
@@ -545,7 +547,7 @@ class XmlToFit(object):
         #    for name in self.curr_par:
         #        #graphs[-1].attrib[self.curr_par[name]] = str(self.conv_params[j][i])
         #        graph.attrib[name] = self.curr_par[name]
-
+    
         
         #etree.ElementTree(root).write(self.dir + 'eosplot.xml')
         

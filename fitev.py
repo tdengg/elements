@@ -196,27 +196,30 @@ class Birch(object):
             plt.plot(covera,v,coamin,parnew1[0,0])
             #print coamin
         
-        #for vol in v:
+        convert = convert_latt_vol.Convert(structure)
+        a0, V0 = convert.volumeToLatt([parnew1[0,0]],covera)
+        
+        out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0[0], 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        print out
+        #if structure == 'fcc':
+        #    a0 = (4.*parnew1[0,0])**(1./3.)
+        #    out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0, 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        #    print out
+        #elif structure == 'hcp':
+        #    a0 = (2.*parnew1[0,0]/(3.**(1./2.)*float(coamin)))**(1./3.)
+        #    out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(a0).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        #    print out
             
-        if structure == 'fcc':
-            a0 = (4.*parnew1[0,0])**(1./3.)
-            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0, 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
-            print out
-        elif structure == 'hcp':
-            a0 = (2.*parnew1[0,0]/(3.**(1./2.)*float(coamin)))**(1./3.)
-            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(a0).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
-            print out
-            
-        #elif structure == 'hex':
-        #    print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str((2.*parnew1[0,0]/(3.**(1./2.)*float(covera[i])))**(1./3.)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
-        elif structure == 'bcc':
-            a0 = (2.*parnew1[0,0])**(1./3.)
-            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((2*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
-            print out
-        elif structure == 'diamond':
-            a0 = (8.*parnew1[0,0])**(1./3.)
-            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
-            print out
+        ##elif structure == 'hex':
+        ##    print(('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str((2.*parnew1[0,0]/(3.**(1./2.)*float(covera[i])))**(1./3.)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        #elif structure == 'bcc':
+        #    a0 = (2.*parnew1[0,0])**(1./3.)
+        #    out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((2*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+        #    print out
+        #elif structure == 'diamond':
+        #    a0 = (8.*parnew1[0,0])**(1./3.)
+        #    out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round((8*parnew1[0,0])**(1./3.), 4))).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16))
+        #    print out
         logfile.write(out + '\n')
         logfile.close()
         #plt.plot(v, fite0)#

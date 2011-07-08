@@ -1,3 +1,7 @@
+"""Read data from setup file and call 'eos_calc_use_templ.py' to perform calculations.
+Usage: >>> python elements.py yoursetup.py
+"""
+
 import os
 import eos_calc_use_templ as calc
 import series
