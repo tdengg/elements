@@ -1,4 +1,4 @@
-"""analyse, plot and fit data 
+"""Analyze, plot and fit data. 
 
     arguments:  -root ..... root directory of calculation tree structure
                     type::string
@@ -328,7 +328,7 @@ class XmlToFit(object):
                         print val
                         lastvar['ngridk'] = lastvar['ngridk'][-1]
                         lastvar['swidth'] = lastvar['swidth'][-1]
-                        lastvar['rgkmax'] = val['rgkmax']
+                        lastvar['rgkmax'] = val['rgkmax'][-1]
                         lastpar = 'rgkmax'
                         autoset = auto_calc_setup.Autosetup(setupname)
                         newset = autoset.setup({lastpar:[lastvar[lastpar]]})
