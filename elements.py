@@ -123,7 +123,6 @@ class Elements(object):
                 tree.write(self.currdir + 'auto_conv.xml')
                     #conv_info.write(self.currdir + 'auto_conv.xml')
                     
-
             self.setup_element(setup) 
 
     def setup_element(self, setup):
@@ -148,13 +147,23 @@ class Elements(object):
             if coasteps == 1: setup['structure'] = 'hcp_fixedcoa'
             #del setup['param']['covera']
         else: covera = setup['param']['covera']
+        try:
+            if type(setup['param']['u']) is dict:
+                uzero = setup['param']['covera']['coverazero']
+                du = setup['param']['covera']['dcovera']
+                usteps = setup['param']['covera']['steps']
+        except: print ''
         
         
         if type(setup['param']['covera']) is dict and type(setup['param']['scale']) is dict:
-            if setup['structure'] in ['hcp','hex','hcp_fixedcoa'] and setup['mod'] != 'simple_conv':
+            if setup['structure'] in ['hcp','hex','hcp_fixedcoa','wurtzite'] and setup['mod'] != 'simple_conv':
                 vzero = azero**3 * coverazero * 3**(1/2.)/2 #initial volume 
                 dvolume = (azero+da)**3 * coverazero * 3**(1/2.)/2 - vzero                        #volume steps
                 scale, covera = expand.volume_steps(vzero, dvolume, asteps, coverazero, dcovera, coasteps)    #generate steps in volume and c/a
+            #elif setup['structure'] in ['wurtzite']:
+            #    vzero = azero**3 * coverazero * 3**(1/2.)/4 #initial volume 
+            #    dvolume = (azero+da)**3 * coverazero * 3**(1/2.)/4 - vzero                        #volume steps
+            #    scale, covera = expand.volume_steps(vzero, dvolume, asteps, coverazero, dcovera, coasteps)    #generate steps in volume and c/a
             elif setup['mod'] == 'simple_conv':
                 covera = [coverazero]
                 scale = [azero]
@@ -180,8 +189,6 @@ class Elements(object):
             if 'templatepath' not in setup.keys():
                 setup['templatepath'] = elementshome
                 
-
-        
         calc.CALC(setup)
 
 if __name__=='__main__':

@@ -77,8 +77,8 @@
 							<xsl:attribute name="speciesfile"><xsl:value-of
 									select="@species2" />.xml</xsl:attribute>
 							<xsl:if test="@rmt"><xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute></xsl:if>
-								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 <xsl:value-of select='@u'/></xsl:attribute></atom>
-								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 <xsl:value-of select='@u+0.5'/></xsl:attribute></atom>
+								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 0.5</xsl:attribute></atom>
+								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 0.857</xsl:attribute></atom>
 							</species>
 						
 					</structure>
@@ -105,6 +105,7 @@
 						</xsl:if>
 						<xsl:if test="@spin"><spin></spin></xsl:if>
 					</groundstate>
+					<structureoptimization></structureoptimization>
 				</input>
 
 				<!-- //////////////////////////////////////////////////////////////////////// -->

@@ -43,3 +43,10 @@ class Series(object):
             scale.append(lattzero - (i-int(nsteps/2))*dlatt)
             i = i-1
         return scale
+    def u_steps(self, uzero, du, nsteps):
+        u = []
+        i = nsteps - 1
+        while i > -1:
+            u.append(uzero - (i-int(nsteps/2))*du)
+            i = i-1
+        return u

@@ -116,13 +116,22 @@ class XmlToFit(object):
         
 
         #create output
-        if os.path.exists(self.dir + 'coa_data.xml'):
-            remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
-            remove.communicate()
-            
-        proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
-        proc1.communicate()
-            
+        #if os.path.exists(self.dir + 'coa_data.xml'):
+        #    remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
+        #    remove.communicate()
+        if not os.path.exists(self.dir + 'coa_data.xml'):
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
+            proc1.communicate()
+        else:    
+            proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset%s.xml > '%str(parnum) + self.dir +  'coa_data_temp.xml'], shell=True)
+            proc1.communicate()
+            proc2 = subprocess.Popen(['cp ' + template.get('elementsdir') + 'merge.xsl ' + self.dir + 'merge.xsl'], shell=True)
+            proc2.communicate()
+            proc2 = subprocess.Popen(['xsltproc ' + self.dir + 'merge.xsl ' + self.dir + 'coa_data.xml > ' + self.dir +  'coa_data_temp2.xml'], shell=True)
+            proc2.communicate()
+
+            proc3 = subprocess.Popen(['cp ' + self.dir + 'coa_data_temp2.xml ' + self.dir +  'coa_data.xml'], shell=True)
+            proc3.communicate()
         #if os.path.exists(self.dir + 'eos_data.xml'):
         #    remove = subprocess.Popen(['rm ' + self.dir + 'eos_data.xml'], shell=True)
         #    remove.communicate()
@@ -153,27 +162,27 @@ class XmlToFit(object):
                 nconv = nconv
                 self.convergence = False
           
-        if self.structure in ['hcp', 'hex'] and mode == 'eos':
+        if self.structure in ['hcp', 'hex', 'wurtzite'] and mode == 'eos':
             
             conv = convert_latt_vol.Convert(self.structure)
             
             self.numb_coa = 0
             param1 = self.covera()
-                
+            param2 = self.birch()
             ncoa = self.pointscovera
             nnconv = self.numb_coa/nconv
             k=0
             self.results = etree.Element('plot')
             self.results_coa = etree.Element('plot')
-            while k<nconv:  
+            while k<len(param2['scale']):  
                 print "\n#################################################################\n#Performing equation of state calculations for parameter set %s. #\n#################################################################\n"%str(k+1)       
                 j=0
                 self.coveramin.append([])
                 self.totencoamin.append([])
                 self.volumecoa.append([])
 
-                while j<self.numb_coa/nconv:
-                    self.fitcoa(param1['covera'][k+j*nconv],param1['toten'][k+j*nconv],param1['volume'][k+j*nconv],k)
+                while j<self.pointscovera:
+                    self.fitcoa(param1['covera'][k*self.pointscovera+j],param1['toten'][k*self.pointscovera+j],param1['volume'][k*self.pointscovera+j],k)
                     j=j+1
                     
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[k], self.coveramin[k])
@@ -188,17 +197,17 @@ class XmlToFit(object):
             graphs = root.getiterator('graph')
             for graph in graphs:
                 if self.fit_OK[k]:
-                    node = etree.SubElement(graph,'eos')
-                    node.attrib['bulk_mod'] = str(self.b0_eos[k])
-                    node.attrib['equi_volume'] = str(self.vol0_eos[k])
-                    node.attrib['d_bulk_mod'] = str(self.db0_eos[k])
-                    node.attrib['min_energy'] = str(self.emin_eos[k])
+                    #node = etree.SubElement(graph,'eos')
+                    graph.attrib['bulk_mod'] = str(self.b0_eos[k])
+                    graph.attrib['equi_volume'] = str(self.vol0_eos[k])
+                    graph.attrib['d_bulk_mod'] = str(self.db0_eos[k])
+                    graph.attrib['min_energy'] = str(self.emin_eos[k])
                     if self.structure in ['hcp','hex']:
                         graph.attrib['equi_coa'] = str(self.coa_eos[k])
                     graph.attrib['equi_a'] = str(self.a_eos[k])
-                    node.attrib['param'] = str()
+                    graph.attrib['param'] = str()
                     etree.ElementTree(root).write(self.dir + 'eos_data.xml')
-                    k=k+1
+                k=k+1
                     
         elif mode == 'simple_conv':
             param2 = self.birch()
@@ -232,29 +241,31 @@ class XmlToFit(object):
             self.write_eos()
         
         n=0
-        for recalculate in self.recalculate:
-            if recalculate:
-                print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
-                newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
-                auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
-                n=n+1
-            else:
-                print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
-                n=n+1
+        if len(self.recalculate) >= 3:
+            for recalculate in self.recalculate[len(self.recalculate)-3:-1]:
+                if recalculate:
+                    print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
+                    newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
+                    auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
+                    n=n+1
+                else:
+                    print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
+                    n=n+1
         
         n=0
-        for recalculate in self.recalculateeos:
-            if recalculate:
-                print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
-                autoset = auto_calc_setup.Autosetup(setupname)
-                
-                newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
-                print newset
-                autoset.calculate(newset)
-                n=n+1
-            else:
-                print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
-                n=n+1
+        if len(self.recalculateeos) >= 3:
+            for recalculate in self.recalculateeos[len(self.recalculateeos)-3:-1]:
+                if recalculate and self.recalculateeos[n-1] and self.recalculateeos[n-2]:
+                    print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
+                    autoset = auto_calc_setup.Autosetup(setupname)
+                    
+                    newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
+                    print newset
+                    autoset.calculate(newset)
+                    n=n+1
+                else:
+                    print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
+                    n=n+1
 
         if __name__=='__main__' and inp != 'continue':
             return
@@ -564,10 +575,10 @@ class XmlToFit(object):
             self.emin_eos.append(eosFit.out3)
             self.res_eos.append(eosFit.deltamin)
             self.recalculateeos.append(eosFit.recalculate)
-            self.a0.append(eosFit.a0)
+            self.a0.append(eosFit.a0[0])
             if structure in ['hcp','hex']:
                 self.coa_eos.append(eosFit.out4)
-            self.a_eos.append(eosFit.out5)
+            self.a_eos.append(eosFit.out5[0])
             self.fit_OK.append(True)
         except:
             self.fit_OK.append(False)
@@ -588,23 +599,23 @@ class XmlToFit(object):
         self.results_coa.append(fitcoa.reschild3)
         restree = etree.ElementTree(self.results_coa)
         restree.write(self.dir + 'coaplot.xml')
-        coaplot = etree.parse(self.dir + 'coaplot.xml')
-        root = coaplot.getroot()
-        graphs = root.getiterator('graph')
-        k=0
-        number_all = 0
-        for l in self.conv_params:
-            number_all = number_all + len(l)
-        for graph in graphs:
-            if k == number_all:
-                k=0
-            graph.attrib['structure'] = str(self.structure)
-            graph.attrib['species'] = str(self.species)
-            for j in range(len(self.conv_params)):
-                graph.attrib['param'] = str(self.conv_params[j][k])
-                graph.attrib['parname'] = str(self.conv_params_names[j])
-            k=k+1
-        etree.ElementTree(root).write(self.dir + 'coaplot.xml')
+        #coaplot = etree.parse(self.dir + 'coaplot.xml')
+        #root = coaplot.getroot()
+        #graphs = root.getiterator('graph')
+        #k=0
+        #number_all = 0
+        #for l in self.conv_params:
+        #    number_all = number_all + len(l)
+        #for graph in graphs:
+        #    if k == number_all:
+        #        k=0
+        #    graph.attrib['structure'] = str(self.structure)
+        #    graph.attrib['species'] = str(self.species)
+        #    for j in range(len(self.conv_params)):
+        #        graph.attrib['param'] = str(self.conv_params[j][k])
+        #        graph.attrib['parname'] = str(self.conv_params_names[j])
+        #    k=k+1
+        #etree.ElementTree(root).write(self.dir + 'coaplot.xml')
         
 
         self.coveramin[i].append(fitcoa.coamin)
