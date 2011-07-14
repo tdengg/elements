@@ -77,7 +77,7 @@
 							<xsl:attribute name="speciesfile"><xsl:value-of
 									select="@species2" />.xml</xsl:attribute>
 							<xsl:if test="@rmt"><xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute></xsl:if>
-								<atom coord="0.33333334 0.66666667 0.5" />
+								<atom coord="0.33333334 0.66666667 0.357" />
 								<atom coord="0.66666667 0.33333334 0.857" />
 							</species>
 						
