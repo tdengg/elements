@@ -82,7 +82,7 @@ def refresh():
     point_ngk = [lastpar['ngridk'][-1]]
     point_rkm = [lastpar['rgkmax'][-1]]
     point_swd = [lastpar['swidth'][-1]]
-    cset = ax.scatter(point_ngk, point_rkm, point_swd, marker='h',s=100, c='r')
+    cset = ax.scatter(point_ngk, point_rkm, point_swd, marker='s',s=1000, c='r')
     
     
     return True

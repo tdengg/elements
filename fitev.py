@@ -9,6 +9,7 @@
                     type::dictionary
                 -calcnr ....... calculation number
                     type::string
+                    
                 -structure .... structure of unit cell
                     type::string
                 -verbose ...... verbosity of output (default = False)
@@ -197,6 +198,7 @@ class Birch(object):
             #print coamin
         
         convert = convert_latt_vol.Convert(structure)
+        
         a0, V0 = convert.volumeToLatt([parnew1[0,0]],covera)
         
         out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0[0], 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*2.942104*10**4., 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))

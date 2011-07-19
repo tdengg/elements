@@ -174,7 +174,7 @@ class XmlToFit(object):
             k=0
             self.results = etree.Element('plot')
             self.results_coa = etree.Element('plot')
-            while k<len(param2['scale']):  
+            while k<self.numb:  
                 print "\n#################################################################\n#Performing equation of state calculations for parameter set %s. #\n#################################################################\n"%str(k+1)       
                 j=0
                 self.coveramin.append([])
@@ -240,17 +240,17 @@ class XmlToFit(object):
                 self.n=self.n+1
             self.write_eos()
         
-        n=0
-        if len(self.recalculate) >= 3:
-            for recalculate in self.recalculate[len(self.recalculate)-3:-1]:
-                if recalculate:
-                    print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
-                    newset = auto_calc_setup.Autosetup(setup, calcdir).setup(self.newcovera[n])
-                    auto_calc_setup.Autosetup(setup, calcdir).calculate(newset)
-                    n=n+1
-                else:
-                    print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
-                    n=n+1
+        #n=0
+        #if len(self.recalculate) >= 3:
+        #    for recalculate in self.recalculate[len(self.recalculate)-3:-1]:
+        #        if recalculate:
+        #            print 'Minimum c/a %s out of range: Recalculating '%(self.newcovera[n])
+        #            newset = auto_calc_setup.Autosetup(setup, self.dir).setup(self.newcovera[n])
+        #            auto_calc_setup.Autosetup(setup, self.dir).calculate(newset)
+        #            n=n+1
+        #        else:
+        #            print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
+        #            n=n+1
         
         n=0
         if len(self.recalculateeos) >= 3:
@@ -341,9 +341,20 @@ class XmlToFit(object):
                         lastvar['swidth'] = lastvar['swidth'][-1]
                         lastvar['rgkmax'] = val['rgkmax'][-1]
                         lastpar = 'rgkmax'
+                        
+                        f = etree.parse(self.dir + 'eos_data.xml')
+                        root = f.getroot()
+                        graphs = f.getiterator('graph')
+                        for graph in graphs:
+                            eos_conv = graph
+                        
+                        converged_eos = etree.parse(self.dir + 'converged/' + 'eos.xml')
+                        converged_eos
+                        
                         autoset = auto_calc_setup.Autosetup(setupname)
                         newset = autoset.setup({lastpar:[lastvar[lastpar]]})
                         autoset.calculate(newset)
+                        
                         
                         etree.SubElement(self.root, 'DONE')
                         self.f.write(self.dir + 'auto_conv.xml')
