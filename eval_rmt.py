@@ -43,35 +43,37 @@ class RMT(object):
         #self.plot_structure()
         print self.rmt
         
+        
     def get_rmt(self, Z):
         """Calculate maximal muffin tin radius"""
-        rmt_min = []
-        m=len(self.basis)   #number of species
+        dist_min = []
+        vectors = self.basis + [[map(float,latt) for latt in self.lattice]]
+        m=len(vectors)   #number of species + lattice vector
 
-        rmt = [[ [] for i in range(m)] for i in range(m)]
+        dist = [[ [] for i in range(m)] for i in range(m)]
         
         op = Operations()
         
-        #Loop all basis vectors:
+        #Loop all basis vectors including lattice vectors:
         for i in range(m):
-            n = len(self.basis[i])
+            n = len(vectors[i])
             for k in range(n):
-                op.vector1 = op.latt_to_cartesian(self.basis[i][k], self.lattice)
+                op.vector1 = op.latt_to_cartesian(vectors[i][k], self.lattice)
                 for j in range(m):
-                    n = len(self.basis[j])
+                    n = len(vectors[j])
                     for l in range(n):
-                        op.vector2 = op.latt_to_cartesian(self.basis[j][l], self.lattice)
-                        if op.vector2 != op.vector1: rmt[i][j].append(op.vect_dist())
-                        else: rmt[i][j].append(100)
-        print rmt
-        rmt_min = op.get_array_min(rmt)
-        #rmt_min = [min( np.array(rmt[i]) * op.ri_div_rj(Z[i],Z[i-1] )) for i in range(m)]                
+                        op.vector2 = op.latt_to_cartesian(vectors[j][l], self.lattice)
+                        if op.vector2 != op.vector1: dist[i][j].append(op.vect_dist())
+                        else: dist[i][j].append(100)
 
-        #factor = max(rmt_min) # scale muffin tin spheres
-        #rmt_min = rmt_min/factor
-        #print rmt
+        dist_min = op.get_array_min(dist)
+        #dist_min = [min( np.array(rmt[i]) * op.ri_div_rj(Z[i],Z[i-1] )) for i in range(m)]                
+
+        #factor = max(dist_min) # scale muffin tin spheres
+        #dist_min = dist_min/factor
+        print dist
         
-        return rmt_min
+        return dist_min
         
 
     def get_structure(self):
@@ -103,7 +105,7 @@ class RMT(object):
             yb = [map(float,basev)[1] for basev in species]
             zb = [map(float,basev)[2] for basev in species]
             j=0
-            while j<len(xb): s.append(self.rmt[i]); j+=1
+            while j<len(xb): s.append(self.rmt); j+=1
             
             p = mlab.points3d(xb,yb,zb, s, scale_factor = 1)
             
@@ -119,12 +121,12 @@ class Operations(object):
         input:  -self.vector1
                 -self.vector2            
     """
-    
     def __init__(self):
         self.vector1 = []
         self.vector2 = []
         self.minarray = []
         self.index = []
+        
     def vect_dist(self):
         """Calculate vector norm."""
         diff_vect = np.array(self.vector1) - np.array(self.vector2)
@@ -137,7 +139,10 @@ class Operations(object):
         
     def latt_to_cartesian(self,base_vect,latt):
         """Calculate cartesian basis from lattice coordinates."""
-        return list(np.dot(base_vect,[map(float,l) for l in latt]))
+        lattice_vect = [map(float,l) for l in latt]
+        if base_vect in lattice_vect : return base_vect      
+        else: return list(np.dot(base_vect,lattice_vect))
+        
     def get_array_min(self,array):
         """Get minimal value and index of entry in multidimensional array."""
         #Recursively search array:

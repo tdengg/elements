@@ -65,6 +65,12 @@
 								<xsl:if test="document($parpath)//structure/@str = 'hex'">
 								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)*math:sqrt(3)*($covera)"/>
 								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'rs'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'ZrO'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 3.0"/>
+								</xsl:if>
 							</xsl:attribute>
 							
 							<xsl:attribute name="scale">
