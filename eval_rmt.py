@@ -46,15 +46,22 @@ class RMT(object):
         
     def get_rmt(self, Z):
         """Calculate maximal muffin tin radius"""
-        dist_min = []
         vectors = self.basis + [[map(float,latt) for latt in self.lattice]]
         m=len(vectors)   #number of species + lattice vector
 
         dist = [[ [] for i in range(m)] for i in range(m)]
+        ri_rj = [[ [] for i in range(m)] for i in range(m)]
         
         op = Operations()
+        #Get ratio of muffin tin radii.
+        for i in range(m):
+            for j in range(m):
+                if i == m-1: k=0
+                elif j == m-1: l=0
+                else: k=i; l=j;
+                ri_rj[i][j] = op.ri_div_rj(Z[k],Z[l],self.mindist)
         
-        #Loop all basis vectors including lattice vectors:
+        #Loop all basis vectors + lattice vectors:
         for i in range(m):
             n = len(vectors[i])
             for k in range(n):
@@ -63,17 +70,12 @@ class RMT(object):
                     n = len(vectors[j])
                     for l in range(n):
                         op.vector2 = op.latt_to_cartesian(vectors[j][l], self.lattice)
-                        if op.vector2 != op.vector1: dist[i][j].append(op.vect_dist())
+                        if op.vector2 != op.vector1: dist[i][j].append(op.vect_dist()*ri_rj[i][j]/2)
                         else: dist[i][j].append(100)
 
-        dist_min = op.get_array_min(dist)
-        #dist_min = [min( np.array(rmt[i]) * op.ri_div_rj(Z[i],Z[i-1] )) for i in range(m)]                
-
-        #factor = max(dist_min) # scale muffin tin spheres
-        #dist_min = dist_min/factor
-        print dist
+        rmt_min = op.get_array_min(dist)
         
-        return dist_min
+        return rmt_min
         
 
     def get_structure(self):
@@ -105,7 +107,7 @@ class RMT(object):
             yb = [map(float,basev)[1] for basev in species]
             zb = [map(float,basev)[2] for basev in species]
             j=0
-            while j<len(xb): s.append(self.rmt); j+=1
+            while j<len(xb): s.append(self.rmt[i][j]); j+=1
             
             p = mlab.points3d(xb,yb,zb, s, scale_factor = 1)
             
@@ -132,9 +134,8 @@ class Operations(object):
         diff_vect = np.array(self.vector1) - np.array(self.vector2)
         return np.sqrt(np.dot(diff_vect,diff_vect))
     
-    def ri_div_rj(self,Z_i,Z_j):
+    def ri_div_rj(self,Z_i,Z_j,eta):
         """Calculate ratio of muffin tin radii."""
-        eta = 1
         return (1. + eta*Z_j**(1./3.))/(1. + eta*Z_i**(1./3.))
         
     def latt_to_cartesian(self,base_vect,latt):
@@ -145,11 +146,11 @@ class Operations(object):
         
     def get_array_min(self,array):
         """Get minimal value and index of entry in multidimensional array."""
-        #Recursively search array:
+        #Recursive array search:
         for i in range(len(array)):
             if type(array[i]) == list: self.get_array_min(array[i])
-            else: self.minarray.append(min(array)); break 
+            else: self.minarray.append(min(array)); continue 
         return min(self.minarray)
             
 if __name__=='__main__':                
-    RMT('input.xml', 1, [2,10])
+    RMT('input.xml', 0.95, [2,10])

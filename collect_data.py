@@ -125,9 +125,9 @@ class XmlToFit(object):
         else:    
             proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset%s.xml > '%str(parnum) + self.dir +  'coa_data_temp.xml'], shell=True)
             proc1.communicate()
-            proc2 = subprocess.Popen(['cp ' + template.get('elementsdir') + 'merge.xsl ' + self.dir + 'merge.xsl'], shell=True)
+            proc2 = subprocess.Popen(['cp ' + template.get('elementsdir') + 'merge_coa.xsl ' + self.dir + 'merge_coa.xsl'], shell=True)
             proc2.communicate()
-            proc2 = subprocess.Popen(['xsltproc ' + self.dir + 'merge.xsl ' + self.dir + 'coa_data.xml > ' + self.dir +  'coa_data_temp2.xml'], shell=True)
+            proc2 = subprocess.Popen(['xsltproc ' + self.dir + 'merge_coa.xsl ' + self.dir + 'coa_data.xml > ' + self.dir +  'coa_data_temp2.xml'], shell=True)
             proc2.communicate()
 
             proc3 = subprocess.Popen(['cp ' + self.dir + 'coa_data_temp2.xml ' + self.dir +  'coa_data.xml'], shell=True)
@@ -180,7 +180,7 @@ class XmlToFit(object):
                 self.coveramin.append([])
                 self.totencoamin.append([])
                 self.volumecoa.append([])
-
+                print len(param1['covera']),len(param1['toten']),len(param1['volume'])
                 while j<self.pointscovera:
                     self.fitcoa(param1['covera'][k*self.pointscovera+j],param1['toten'][k*self.pointscovera+j],param1['volume'][k*self.pointscovera+j],k)
                     j=j+1
@@ -256,15 +256,15 @@ class XmlToFit(object):
         if len(self.recalculateeos) >= 3:
             for recalculate in self.recalculateeos[len(self.recalculateeos)-3:-1]:
                 if recalculate and self.recalculateeos[n-1] and self.recalculateeos[n-2]:
-                    print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[n])
+                    print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[len(self.vol0_eos)-3+n])
                     autoset = auto_calc_setup.Autosetup(setupname)
                     
-                    newset = autoset.setup({'azero' : self.a0[n], 'calchome':self.calchome})
+                    newset = autoset.setup({'azero' : self.a0[len(self.vol0_eos)-3+n], 'calchome':self.calchome})
                     print newset
                     autoset.calculate(newset)
                     n=n+1
                 else:
-                    print 'Minimum volume %s in accepted range.'%(self.vol0_eos[n])
+                    print 'Minimum volume %s in accepted range.'%(self.vol0_eos[len(self.vol0_eos)-3+n])
                     n=n+1
 
         if __name__=='__main__' and inp != 'continue':
@@ -342,14 +342,19 @@ class XmlToFit(object):
                         lastvar['rgkmax'] = val['rgkmax'][-1]
                         lastpar = 'rgkmax'
                         
+                        
                         f = etree.parse(self.dir + 'eos_data.xml')
                         root = f.getroot()
                         graphs = f.getiterator('graph')
                         for graph in graphs:
                             eos_conv = graph
                         
-                        converged_eos = etree.parse(self.dir + 'converged/' + 'eos.xml')
-                        converged_eos
+                        #write converged eos results to: ~converged/eos.xml
+                        outfile = open(self.dir + 'converged/' + 'eos.xml', 'w')
+                        conv_graph = etree.tostring(eos_conv)
+                        outfile.write(conv_graph)
+                        outfile.close()
+                        
                         
                         autoset = auto_calc_setup.Autosetup(setupname)
                         newset = autoset.setup({lastpar:[lastvar[lastpar]]})
@@ -592,6 +597,7 @@ class XmlToFit(object):
             self.a_eos.append(eosFit.out5[0])
             self.fit_OK.append(True)
         except:
+            self.recalculateeos.append(False)
             self.fit_OK.append(False)
             print 'Failed to fit using Birch Murnaghan EOS!'
         try:
