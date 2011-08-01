@@ -12,7 +12,6 @@
 import numpy as np
 import lxml.etree as etree
 import os
-import matplotlib.pyplot as plt
 from enthought.mayavi import mlab
 
 class RMT(object):
@@ -21,7 +20,7 @@ class RMT(object):
                     
     arguments:  -inputfile ........ location of input file
                     type::string
-                -mindist .......... distance between muffin tin spheres (not used)
+                -mindist .......... minimal distance between muffin tin spheres
                     type::float
                 -Z ................ atomic number of species
                     type::list
@@ -59,23 +58,23 @@ class RMT(object):
                 if i == m-1: k=0
                 elif j == m-1: l=0
                 else: k=i; l=j;
-                ri_rj[i][j] = op.ri_div_rj(Z[k],Z[l],self.mindist)
+                ri_rj[i][j] = op.ri_div_rj( Z[k], Z[l], self.mindist )
         
         #Loop all basis vectors + lattice vectors:
         for i in range(m):
-            n = len(vectors[i])
+            n = len( vectors[i] )
             for k in range(n):
-                op.vector1 = op.latt_to_cartesian(vectors[i][k], self.lattice)
+                op.vector1 = op.latt_to_cartesian( vectors[i][k], self.lattice )
                 for j in range(m):
-                    n = len(vectors[j])
+                    n = len( vectors[j] )
                     for l in range(n):
-                        op.vector2 = op.latt_to_cartesian(vectors[j][l], self.lattice)
-                        if op.vector2 != op.vector1: dist[i][j].append(op.vect_dist()*ri_rj[i][j]/2)
+                        op.vector2 = op.latt_to_cartesian( vectors[j][l], self.lattice )
+                        if op.vector2 != op.vector1: dist[i][j].append( op.vect_dist() * ri_rj[i][j] / 2.)
                         else: dist[i][j].append(100)
 
-        rmt_min = op.get_array_min(dist)
+        rmt_max = op.get_array_min(dist)
         
-        return rmt_min
+        return rmt_max
         
 
     def get_structure(self):
@@ -120,8 +119,9 @@ class RMT(object):
 class Operations(object):
     """Vector operations
     
-        input:  -self.vector1
-                -self.vector2            
+        variables:   -self.vector1
+                     -self.vector2 
+                     -self.minarray                      
     """
     def __init__(self):
         self.vector1 = []
@@ -136,21 +136,22 @@ class Operations(object):
     
     def ri_div_rj(self,Z_i,Z_j,eta):
         """Calculate ratio of muffin tin radii."""
-        return (1. + eta*Z_j**(1./3.))/(1. + eta*Z_i**(1./3.))
+        return (1. + eta*Z_j**(1./3.)) / (1. + eta*Z_i**(1./3.))
         
     def latt_to_cartesian(self,base_vect,latt):
         """Calculate cartesian basis from lattice coordinates."""
         lattice_vect = [map(float,l) for l in latt]
         if base_vect in lattice_vect : return base_vect      
-        else: return list(np.dot(base_vect,lattice_vect))
+        else: return list(np.dot( base_vect, lattice_vect ))
         
     def get_array_min(self,array):
         """Get minimal value and index of entry in multidimensional array."""
         #Recursive array search:
-        for i in range(len(array)):
+        for i in range( len(array) ):
             if type(array[i]) == list: self.get_array_min(array[i])
             else: self.minarray.append(min(array)); continue 
         return min(self.minarray)
+            
             
 if __name__=='__main__':                
     RMT('input.xml', 0.95, [2,10])
