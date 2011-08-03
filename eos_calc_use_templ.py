@@ -36,7 +36,7 @@ class CALC(object):
         
         scale = setup['param']['scale']
         for key in setup['param'].keys():
-            if setup['structure'] in ['hcp','hex'] and key == 'scale' and setup['mod'] != 'simple_conv':
+            if setup['structure'] in ['hcp','hex','wurtzite'] and key == 'scale' and setup['mod'] != 'simple_conv':
                 continue
             inpar[key] = "<param name='%s'>"%key #new old inpar['key'] = ""
             if key not in ['scale','covera']:
@@ -44,7 +44,7 @@ class CALC(object):
 
             for value in setup['param'][key]:
                 
-                if setup['structure'] in ['hcp','hex'] and key == 'covera' and setup['mod'] != 'simple_conv':
+                if setup['structure'] in ['hcp','hex','wurtzite'] and key == 'covera' and setup['mod'] != 'simple_conv':
                     for alatt in scale[str(value)]:
                         inpar[key] = inpar[key] + "<val>%s" % value
                         inpar[key] = inpar[key] + "<dep name='scale' val='%s'/>" % str(alatt)
@@ -72,7 +72,7 @@ class CALC(object):
         except:
             print 'Elemental'
         for parkey in inpar.keys():
-            if setup['structure'] in ['hcp','hex'] and setup['mod'] != 'simple_conv' and parkey == 'scale' or parkey == 'species' or parkey == 'species2':
+            if setup['structure'] in ['hcp','hex','wurtzite'] and setup['mod'] != 'simple_conv' and parkey == 'scale' or parkey == 'species' or parkey == 'species2':
                 continue
             elif parkey in ['species','species2']:
                 continue
