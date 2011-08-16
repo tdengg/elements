@@ -12,7 +12,7 @@
 import numpy as np
 import lxml.etree as etree
 import os
-from enthought.mayavi import mlab
+#from enthought.mayavi import mlab
 
 class RMT(object):
     """
@@ -49,6 +49,7 @@ class RMT(object):
         m=len(vectors)   #number of species + lattice vector
 
         dist = [[ [] for i in range(m)] for i in range(m)]
+	dist_scaled = [[ [] for i in range(m)] for i in range(m)]
         ri_rj = [[ [] for i in range(m)] for i in range(m)]
         
         op = Operations()
@@ -69,12 +70,14 @@ class RMT(object):
                     n = len( vectors[j] )
                     for l in range(n):
                         op.vector2 = op.latt_to_cartesian( vectors[j][l], self.lattice )
-                        if op.vector2 != op.vector1: dist[i][j].append( op.vect_dist() * ri_rj[i][j] / 2.)
+                        if op.vector2 != op.vector1: 
+				dist[i][j].append( op.vect_dist() / 2.)
+				dist_scaled[i][j].append( op.vect_dist() * ri_rj[i][j] / 2.)
                         else: dist[i][j].append(100)
 
-        rmt_max = op.get_array_min(dist)
-        
-        return rmt_max
+        rmt_max = op.get_array_min(dist_scaled)
+        dist_min = op.get_array_min(dist)
+        return rmt_max, dist_min
         
 
     def get_structure(self):
@@ -93,27 +96,27 @@ class RMT(object):
         return basis, lattice, scale
             
             
-    def plot_structure(self):
-        """Plot structure using mayavi.mlab module."""
-        fig = mlab.figure()
-        x = [map(float,latt)[0] for latt in self.lattice]
-        y = [map(float,latt)[1] for latt in self.lattice]
-        z = [map(float,latt)[2] for latt in self.lattice]
-        i=0
-        for species in self.basis:
-            s = []
-            xb = [map(float,basev)[0] for basev in species]
-            yb = [map(float,basev)[1] for basev in species]
-            zb = [map(float,basev)[2] for basev in species]
-            j=0
-            while j<len(xb): s.append(self.rmt[i][j]); j+=1
-            
-            p = mlab.points3d(xb,yb,zb, s, scale_factor = 1)
-            
-            i+=1
-        
-        mlab.show()
-        return
+#    def plot_structure(self):
+#        """Plot structure using mayavi.mlab module."""
+#        fig = mlab.figure()
+#        x = [map(float,latt)[0] for latt in self.lattice]
+##        y = [map(float,latt)[1] for latt in self.lattice]
+#        z = [map(float,latt)[2] for latt in self.lattice]
+#        i=0
+#        for species in self.basis:
+#            s = []
+#            xb = [map(float,basev)[0] for basev in species]
+#            yb = [map(float,basev)[1] for basev in species]
+#            zb = [map(float,basev)[2] for basev in species]
+#            j=0
+#            while j<len(xb): s.append(self.rmt[i][j]); j+=1
+#            
+#            p = mlab.points3d(xb,yb,zb, s, scale_factor = 1)
+#            
+#            i+=1
+#        
+#        mlab.show()
+#        return
 
 
 class Operations(object):

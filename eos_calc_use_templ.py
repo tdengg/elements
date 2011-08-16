@@ -28,8 +28,16 @@ class CALC(object):
         ###########################################################
         #remove old status file:
         if os.path.exists('./finished'): 
-            proc = subprocess.Popen(['rm ./finished'], shell=True)
+            proc = subprocess.Popen(['rm ' + setup['calchome'] +'finished'], shell=True)
             proc.communicate()
+        try:
+            os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')
+            print 'Moving old lljob.'
+        except:
+            print 'No lljob, creating new one.'
+        #if os.path.exists('./lljob_tree'):
+        #    proc = subprocess.Popen(['rm ' + setup['calchome'] +'lljob_tree'], shell=True)
+        #    proc.communicate()
                        
         inpar = {}
         convpar = {}
@@ -178,13 +186,25 @@ class CALC(object):
                 collect_data.XmlToFit(setup['calchome'])
     
         if setup['calculate'] == 'True':
-                
-            if exec_template == 'loadleveler.xsl':
-                print "created lljob script"
             
-                proc6 = subprocess.Popen(['llsubmit lljob_tree'], shell=True)
+            if exec_template == 'loadleveler.xsl':
+                clusterpath = '/calc/tde/auto/Al_test/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
+                print "created lljob script"
+                finished = False
+                proc6 = subprocess.Popen(["ssh g40cluster 'llsubmit %slljob_tree'"%clusterpath], shell=True)
                 proc6.communicate()
                 print "submitted lljob to cluster"
+                
+                while 1:
+                    proc7 = subprocess.Popen(["ssh g40cluster 'llq -u tde'"], shell=True, stdout=subprocess.PIPE)
+                    status = proc7.communicate()[0]
+                    print status
+                    if status.startswith('llq:'): break
+                    time.sleep(10)
+                print 'No more calculations in queue.'
+            if setup['isautoconv']:
+                collect_data.XmlToFit(setup['calchome'])
+            
             
             #check for calculation to be finished:
             #for i in range(100):

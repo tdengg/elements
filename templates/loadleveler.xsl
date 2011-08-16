@@ -8,6 +8,7 @@
 <!-- Write document to file -->
 <xsl:variable name="filename"><xsl:text>lljob_</xsl:text><xsl:value-of select="$layout"/></xsl:variable>
 <xsl:document href="{$filename}" method="text">
+# !/bin/bash
 ################################################################################
 # This file is generated with XSLTPROC using a template file and a reference file
 ################################################################################
@@ -18,12 +19,13 @@
 # @ node           = 1
 # @ tasks_per_node = 1
 # @ arguments= 
-# @ executable = /appl/EXCITING/versions/hydrogen/bin/excitingmpi
+# @ executable = /appl/EXCITING/versions/helium/bin/excitingmpi
  
 ### begin job steps ############################################################
 <!--                                                               -->
 <!-- set the initial working directory and a string specifier here -->
-<!--                                                               -->
+<!--       															-->
+<xsl:variable name="clusterpath">/calc/tde/auto/Al_test/</xsl:variable>                                                 -->
 <xsl:for-each select = "/experiment/set">
   # @ job_name  = <xsl:value-of select="@path"/>
   <!-- Define path here -->
@@ -68,15 +70,16 @@
 <!--                                                              -->
 <!-- continue with LoadLeveler statements                         -->
 <!--                                                              -->
-# @ initialdir = <xsl:value-of select="/experiment/@path"/><xsl:value-of select="$path"/>
+# @ initialdir = <!-- <xsl:value-of select="/experiment/@path"/> --> <xsl:value-of select="$clusterpath"/><xsl:value-of select="$path"/>
 # @ step_name  = <xsl:value-of select="$string"/>
 # @ output = J.out
 # @ error = J.err
 # @ resources = ConsumableCpus(1)
 # @ queue
 </xsl:for-each>
+
 ### end job steps ##############################################################
-touch finished
+
 </xsl:document>
 </xsl:template>
 </xsl:stylesheet>

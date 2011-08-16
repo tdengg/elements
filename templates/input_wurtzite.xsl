@@ -77,14 +77,15 @@
 							<xsl:attribute name="speciesfile"><xsl:value-of
 									select="@species2" />.xml</xsl:attribute>
 							<xsl:if test="@rmt"><xsl:attribute name = "rmt"><xsl:value-of select="@rmt"/></xsl:attribute></xsl:if>
-								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 0.5</xsl:attribute></atom>
-								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 0.857</xsl:attribute></atom>
+								<atom><xsl:attribute name = "coord">0.33333334 0.66666667 0.357</xsl:attribute></atom>
+								<atom><xsl:attribute name = "coord">0.66666667 0.33333334 0.857</xsl:attribute></atom>
 							</species>
 						
 					</structure>
 
 					<groundstate vkloff="0.5  0.5  0.5" mixer="msec">
 					<xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
+					<xsl:if test="@lmaxvr"><xsl:attribute name="lmaxvr"><xsl:value-of select="@lmaxvr" /></xsl:attribute></xsl:if>
 						<xsl:attribute name="swidth"><xsl:value-of
 							select="@swidth" /></xsl:attribute>
 						<xsl:attribute name="ngridk"><xsl:value-of
