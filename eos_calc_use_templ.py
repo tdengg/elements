@@ -30,11 +30,7 @@ class CALC(object):
         if os.path.exists('./finished'): 
             proc = subprocess.Popen(['rm ' + setup['calchome'] +'finished'], shell=True)
             proc.communicate()
-        try:
-            os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')
-            print 'Moving old lljob.'
-        except:
-            print 'No lljob, creating new one.'
+        
         #if os.path.exists('./lljob_tree'):
         #    proc = subprocess.Popen(['rm ' + setup['calchome'] +'lljob_tree'], shell=True)
         #    proc.communicate()
@@ -202,6 +198,11 @@ class CALC(object):
                     if status.startswith('llq:'): break
                     time.sleep(10)
                 print 'No more calculations in queue.'
+                try:
+                    os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')
+                    print 'Moving old lljob.'
+                except:
+                    print 'No lljob, creating new one.'
             if setup['isautoconv']:
                 collect_data.XmlToFit(setup['calchome'])
             

@@ -32,15 +32,15 @@ class Convert(object):
                 vol.append(float(a)**3./4.)
             if self.structure == 'bcc':
                 vol.append(float(a)**3./2.)
-            if self.structure in ['diamond','zincblende']:
+            if self.structure in ['diamond']:
                 vol.append(float(a)**3./8.)
-            if self.structure == 'rs':
-                vol.append(float(a)**3.)
+            if self.structure in ['rs','zincblende']:
+                vol.append(float(a)**3./4.)
             if self.structure == 'wurtzite':   
                 covera = float(inputpar['covera'][0])
-                vol.append(float(a)**3. * covera * 3.**(1./2.)/4.)
+                vol.append(float(a)**3. * covera * 3.**(1./2.)/2.)
             if self.structure == 'ZrO':
-                 vol.append(float(a)**3./3.)
+                 vol.append(float(a)**3./4.)
         
         return latt, vol
     
@@ -56,14 +56,14 @@ class Convert(object):
                 latt.append((4.*v)**(1./3.))
             if self.structure == 'bcc':
                 latt.append((2.*v)**(1./3.))
-            if self.structure in ['diamond','zincblende']:
+            if self.structure in ['diamond']:
                 latt.append((8*v)**(1./3.))
-            if self.structure == 'rs':
-                latt.append((v)**(1./3.))
+            if self.structure in ['rs','zincblende']:
+                latt.append((4.*v)**(1./3.))
             if self.structure == 'wurtzite':
-                latt.append((4.*v/(3.**(1./2.)*float(covera[i])))**(1./3.))
+                latt.append((2.*v/(3.**(1./2.)*float(covera[i])))**(1./3.))
             if self.structure == 'ZrO':
-                latt.append((3.*v)**(1./3.))
+                latt.append((4.*v)**(1./3.))
             i=i+1
         return latt, vol
     

@@ -66,10 +66,16 @@
 								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)*math:sqrt(3)*($covera)"/>
 								</xsl:if>
 								<xsl:if test="document($parpath)//structure/@str = 'rs'">
-								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)"/>
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 4.0"/>
 								</xsl:if>
 								<xsl:if test="document($parpath)//structure/@str = 'ZrO'">
-								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 3.0"/>
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 4.0"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'zincblende'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3) div 4.0"/>
+								</xsl:if>
+								<xsl:if test="document($parpath)//structure/@str = 'wurtzite'">
+								  <xsl:value-of select="math:power(document($inputpath)//crystal/@scale,3)*math:sqrt(3)*($covera) div 2.0"/>
 								</xsl:if>
 							</xsl:attribute>
 							
@@ -97,7 +103,7 @@
 									<xsl:value-of select="document($inputpath)//groundstate/@rgkmax"></xsl:value-of>
 								</xsl:attribute>
 								</xsl:if>
-								<xsl:if test="$par = 'ngridk'">
+								<xsl:if test="$par = 'ngridk'">http://www.bergzeit.de/rucksackzubehoer.html
 								<xsl:attribute name="ngridk">
 									<xsl:value-of select="document($inputpath)//groundstate/@ngridk"></xsl:value-of>
 								</xsl:attribute>

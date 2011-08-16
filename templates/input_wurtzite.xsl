@@ -83,7 +83,7 @@
 						
 					</structure>
 
-					<groundstate vkloff="0.5  0.5  0.5" mixer="msec">
+					<groundstate vkloff="0.0  0.0  0.5" mixer="msec">
 					<xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
 					<xsl:if test="@lmaxvr"><xsl:attribute name="lmaxvr"><xsl:value-of select="@lmaxvr" /></xsl:attribute></xsl:if>
 						<xsl:attribute name="swidth"><xsl:value-of
