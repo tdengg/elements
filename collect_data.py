@@ -166,6 +166,7 @@ class XmlToFit(object):
             
             conv = convert_latt_vol.Convert(self.structure)
             
+            self.n = 0
             self.numb_coa = 0
             param1 = self.covera()
             param2 = self.birch()
@@ -185,10 +186,13 @@ class XmlToFit(object):
                     self.fitcoa(param1['covera'][k*self.pointscovera+j],param1['toten'][k*self.pointscovera+j],param1['volume'][k*self.pointscovera+j],k)
                     j=j+1
                     
+                    
                 scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[k], self.coveramin[k])
                 
                 self.fiteos(scalecoa,volumecovera,self.totencoamin[k], self.coveramin[k], self.structure, self.species)
+                
                 print self.b0_eos
+                self.n+=1
                 k=k+1
                 print "\n#################################################################\n"
             k=0
@@ -599,6 +603,7 @@ class XmlToFit(object):
         except:
             self.recalculateeos.append(False)
             self.fit_OK.append(False)
+            
             print 'Failed to fit using Birch Murnaghan EOS!'
         try:
             self.p.append(eosFit.p)

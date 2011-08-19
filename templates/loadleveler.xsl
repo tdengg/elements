@@ -7,7 +7,7 @@
 <xsl:variable name="layout">tree</xsl:variable>
 <!-- Write document to file -->
 <xsl:variable name="filename"><xsl:text>lljob_</xsl:text><xsl:value-of select="$layout"/></xsl:variable>
-<xsl:document href="{$filename}" method="text">
+
 # !/bin/bash
 ################################################################################
 # This file is generated with XSLTPROC using a template file and a reference file
@@ -15,7 +15,7 @@
  
 # @ job_type = parallel
 
-# @ class = lessthour
+# @ class = lesstday
 # @ node           = 1
 # @ tasks_per_node = 1
 # @ arguments= 
@@ -25,7 +25,7 @@
 <!--                                                               -->
 <!-- set the initial working directory and a string specifier here -->
 <!--       															-->
-<xsl:variable name="clusterpath">/calc/tde/auto/Al_test/</xsl:variable>                                                 -->
+<xsl:variable name="clusterpath">/calc/tde/auto/CdS_wurtzite/</xsl:variable>                                                 -->
 <xsl:for-each select = "/experiment/set">
   # @ job_name  = <xsl:value-of select="@path"/>
   <!-- Define path here -->
@@ -80,6 +80,6 @@
 
 ### end job steps ##############################################################
 
-</xsl:document>
+
 </xsl:template>
 </xsl:stylesheet>

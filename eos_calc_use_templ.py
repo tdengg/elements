@@ -27,6 +27,7 @@ class CALC(object):
         ###########################################################
         ###########################################################
         #remove old status file:
+        os.chdir(setup['calchome'])
         if os.path.exists('./finished'): 
             proc = subprocess.Popen(['rm ' + setup['calchome'] +'finished'], shell=True)
             proc.communicate()
@@ -184,8 +185,17 @@ class CALC(object):
         if setup['calculate'] == 'True':
             
             if exec_template == 'loadleveler.xsl':
-                clusterpath = '/calc/tde/auto/Al_test/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
+                clusterpath = '/calc/tde/auto/CdS_wurtzite/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
+                
+                execute = open(setup['calchome'] + 'lljob_tree','w')
+                execute.write(exec_out)
+                execute.close()
+                proc5 = subprocess.Popen(['chmod u+x ' + setup['calchome'] + 'lljob_tree'], shell=True)
+                proc5.communicate()
+                proc6 = subprocess.Popen([setup['calchome'] + 'lljob_tree'], shell=True)
+                proc6.communicate()
                 print "created lljob script"
+                
                 finished = False
                 proc6 = subprocess.Popen(["ssh g40cluster 'llsubmit %slljob_tree'"%clusterpath], shell=True)
                 proc6.communicate()
@@ -198,11 +208,11 @@ class CALC(object):
                     if status.startswith('llq:'): break
                     time.sleep(10)
                 print 'No more calculations in queue.'
-                try:
-                    os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')
-                    print 'Moving old lljob.'
-                except:
-                    print 'No lljob, creating new one.'
+                #try:
+                #    os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')
+                ##    print 'Moving old lljob.'
+                #except:
+                #    print 'No lljob, creating new one.'
             if setup['isautoconv']:
                 collect_data.XmlToFit(setup['calchome'])
             
