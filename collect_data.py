@@ -67,6 +67,9 @@ class XmlToFit(object):
         v1coa = []
         self.conv_params = []
         self.conv_params_names = []
+        
+        debugout = open(self.dir + 'debug','a') 
+        
         if self.dir == '':
             self.dir = str(os.getcwd()) + '/'
         tempf = open(self.dir + 'eosplot.xml','w')
@@ -175,7 +178,8 @@ class XmlToFit(object):
             k=0
             self.results = etree.Element('plot')
             self.results_coa = etree.Element('plot')
-            while k<self.numb:  
+            
+            while self.n < len(param2['scale']): 
                 print "\n#################################################################\n#Performing equation of state calculations for parameter set %s. #\n#################################################################\n"%str(k+1)       
                 j=0
                 self.coveramin.append([])
@@ -183,14 +187,15 @@ class XmlToFit(object):
                 self.volumecoa.append([])
                 print len(param1['covera']),len(param1['toten']),len(param1['volume'])
                 while j<self.pointscovera:
-                    self.fitcoa(param1['covera'][k*self.pointscovera+j],param1['toten'][k*self.pointscovera+j],param1['volume'][k*self.pointscovera+j],k)
+                    self.fitcoa(param1['covera'][self.n*self.pointscovera+j],param1['toten'][self.n*self.pointscovera+j],param1['volume'][self.n*self.pointscovera+j],self.n)
                     j=j+1
                     
                     
-                scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[k], self.coveramin[k])
+                scalecoa, volumecovera  = conv.volumeToLatt(self.volumecoa[self.n], self.coveramin[self.n])
                 
-                self.fiteos(scalecoa,volumecovera,self.totencoamin[k], self.coveramin[k], self.structure, self.species)
-                
+                self.fiteos(scalecoa, volumecovera, self.totencoamin[self.n],self.coveramin[self.n], self.structure,self.species)
+
+                debugout.write('B0'+str(self.b0_eos[self.n]) + '\n')
                 print self.b0_eos
                 self.n+=1
                 k=k+1
@@ -206,7 +211,7 @@ class XmlToFit(object):
                     graph.attrib['equi_volume'] = str(self.vol0_eos[k])
                     graph.attrib['d_bulk_mod'] = str(self.db0_eos[k])
                     graph.attrib['min_energy'] = str(self.emin_eos[k])
-                    if self.structure in ['hcp','hex']:
+                    if self.structure in ['hcp','hex','wurtzite']:
                         graph.attrib['equi_coa'] = str(self.coa_eos[k])
                     graph.attrib['equi_a'] = str(self.a_eos[k])
                     graph.attrib['param'] = str()
@@ -256,20 +261,20 @@ class XmlToFit(object):
         #            print 'Minimum c/a %s in accepted range.'%(self.newcovera[n])
         #            n=n+1
         
-        n=0
-        if len(self.recalculateeos) >= 3:
-            for recalculate in self.recalculateeos[len(self.recalculateeos)-3:-1]:
-                if recalculate and self.recalculateeos[n-1] and self.recalculateeos[n-2]:
-                    print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[len(self.vol0_eos)-3+n])
-                    autoset = auto_calc_setup.Autosetup(setupname)
-                    
-                    newset = autoset.setup({'azero' : self.a0[len(self.vol0_eos)-3+n], 'calchome':self.calchome})
-                    print newset
-                    autoset.calculate(newset)
-                    n=n+1
-                else:
-                    print 'Minimum volume %s in accepted range.'%(self.vol0_eos[len(self.vol0_eos)-3+n])
-                    n=n+1
+        #n=0
+        #if len(self.recalculateeos) >= 3:
+        #    for recalculate in self.recalculateeos[len(self.recalculateeos)-3:-1]:
+        #        if recalculate and self.recalculateeos[n-1] and self.recalculateeos[n-2]:
+        #            print 'Minimum volume %s out of range: Recalculating '%(self.vol0_eos[len(self.vol0_eos)-3+n])
+        #            autoset = auto_calc_setup.Autosetup(setupname)
+        #            
+        #            newset = autoset.setup({'azero' : self.a0[len(self.vol0_eos)-3+n], 'calchome':self.calchome})
+        #            print newset
+        #            autoset.calculate(newset)
+        #            n=n+1
+        #        else:
+        #            print 'Minimum volume %s in accepted range.'%(self.vol0_eos[len(self.vol0_eos)-3+n])
+        #            n=n+1
 
         if __name__=='__main__' and inp != 'continue':
             return
@@ -596,7 +601,7 @@ class XmlToFit(object):
             self.res_eos.append(eosFit.deltamin)
             self.recalculateeos.append(eosFit.recalculate)
             self.a0.append(eosFit.a0[0])
-            if structure in ['hcp','hex']:
+            if structure in ['hcp','hex','wurtzite']:
                 self.coa_eos.append(eosFit.out4)
             self.a_eos.append(eosFit.out5[0])
             self.fit_OK.append(True)
@@ -671,7 +676,7 @@ class XmlToFit(object):
                 graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
                 graph.attrib['min_energy'] = str(self.emin_eos[i])                                
                 graph.attrib['norm_res_vect'] = str(self.res_eos[i])
-                if self.structure in ['hcp','hex']:
+                if self.structure in ['hcp','hex','wurtzite']:
                     graph.attrib['equi_coa'] = str(self.coa_eos[i])
                 graph.attrib['equi_a'] = str(self.a_eos[i])
                 graph.attrib['status'] = 'OK'

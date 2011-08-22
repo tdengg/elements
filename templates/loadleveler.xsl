@@ -25,7 +25,7 @@
 <!--                                                               -->
 <!-- set the initial working directory and a string specifier here -->
 <!--       															-->
-<xsl:variable name="clusterpath">/calc/tde/auto/CdS_wurtzite/</xsl:variable>                                                 -->
+<xsl:variable name="clusterpath">/calc/tde/auto/Mg/</xsl:variable>                                                 -->
 <xsl:for-each select = "/experiment/set">
   # @ job_name  = <xsl:value-of select="@path"/>
   <!-- Define path here -->

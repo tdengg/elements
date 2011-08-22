@@ -185,7 +185,7 @@ class CALC(object):
         if setup['calculate'] == 'True':
             
             if exec_template == 'loadleveler.xsl':
-                clusterpath = '/calc/tde/auto/CdS_wurtzite/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
+                clusterpath = '/calc/tde/auto/Mg/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
                 
                 execute = open(setup['calchome'] + 'lljob_tree','w')
                 execute.write(exec_out)

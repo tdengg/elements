@@ -76,7 +76,7 @@ class ANALYZE(object):
         for var in conv.keys():
             d = [abs(conv[var][2]-conv[var][0]),abs(conv[var][2]-conv[var][1]),abs(conv[var][1]-conv[var][0])]
             delta['d%s'%var]= max(d)
-            print max(d)
+            print 'Maximum delta: ' + str(max(d))
             max_delta = setup['err'][var]
             if delta['d%s'%var] > max_delta: converged = False
         
