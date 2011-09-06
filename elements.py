@@ -36,7 +36,7 @@ class Elements(object):
             setup = eval(sustr)
             s.close()
         else:
-            s = open(input)
+            s = open(input,'r')
             sustr= s.read()
                 
             setup = eval(sustr)
@@ -47,7 +47,7 @@ class Elements(object):
         if 'autoconv' in setup.keys():
             setup['isautoconv'] = True
             is_autoconv = True
-            autoconv = setup.pop('autoconv')
+            autoconv = setup.get('autoconv')
             s = open(os.getcwd() + '/' + 'autoconv.py', 'w')
             s.write(str(autoconv))
             s.close()
@@ -56,7 +56,7 @@ class Elements(object):
         
         if 'elements' in setup.keys():
             path = os.getcwd()
-            elements = setup.pop('elements')
+            elements = setup.get('elements')
             initsetup = deepcopy(setup)
             for element in elements.keys():
                 proc1 = subprocess.Popen(['cd %s'%path], shell=True)

@@ -59,6 +59,9 @@
 </structure>
  
 <groundstate vkloff="0.5  0.5  0.5"   mixer="msec">
+<xsl:if test="@lradstep"><xsl:attribute name="lradstep"><xsl:value-of select="@lradstep" /></xsl:attribute></xsl:if>
+<xsl:if test="@epsenergy"><xsl:attribute name="epsenergy"><xsl:value-of select="@epsenergy" /></xsl:attribute></xsl:if>
+<xsl:if test="@maxscl"><xsl:attribute name="maxscl"><xsl:value-of select="@maxscl" /></xsl:attribute></xsl:if>
 <xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
 <xsl:attribute name="swidth"><xsl:value-of select="@swidth"/></xsl:attribute>
   <xsl:attribute name="ngridk"><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/><xsl:text> </xsl:text><xsl:value-of select="@ngridk"/></xsl:attribute>

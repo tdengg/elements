@@ -85,6 +85,9 @@ class setCalc(object):
                 autosetup['stepsize'][lastpar] = autosetup['stepsize'][lastpar]/100
             elif lastpar == 'swidth' and lastvar[lastpar][-1] <= autosetup['end'][lastpar]*(1.1):
                 return
+            elif lastpar == 'swidth' and lastvar[lastpar][-1] <= 0.:
+                print 'Tried to calculate negative smearing. Calculation terminated!'
+                return
             if lastpar == 'ngridk':
                 autosetup['stepsize'][lastpar] = int(autosetup['stepsize'][lastpar])
                 init = int(lastvar[lastpar][-1]) - int(autosetup['stepsize'][lastpar])

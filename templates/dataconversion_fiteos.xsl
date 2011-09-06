@@ -103,7 +103,7 @@
 									<xsl:value-of select="document($inputpath)//groundstate/@rgkmax"></xsl:value-of>
 								</xsl:attribute>
 								</xsl:if>
-								<xsl:if test="$par = 'ngridk'">http://www.bergzeit.de/rucksackzubehoer.html
+								<xsl:if test="$par = 'ngridk'">
 								<xsl:attribute name="ngridk">
 									<xsl:value-of select="document($inputpath)//groundstate/@ngridk"></xsl:value-of>
 								</xsl:attribute>

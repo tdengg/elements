@@ -13,4 +13,4 @@ def set (setup):
         if not(param in setup.keys()):
             setup[param]=defaults[param]
         if 'autoconv' in setup.keys():
-            setup['autoconv']['convmode'] = 'swidth+ngridk'
+            setup['autoconv']['convmode'] = 'swidthSteps'

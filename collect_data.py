@@ -121,7 +121,7 @@ class XmlToFit(object):
         #create output
         #if os.path.exists(self.dir + 'coa_data.xml'):
         #    remove = subprocess.Popen(['rm ' + self.dir + 'coa_data.xml'], shell=True)
-        #    remove.communicate()
+        #    remove.communicate()swidthSteps
         if not os.path.exists(self.dir + 'coa_data.xml'):
             proc1 = subprocess.Popen(['xsltproc ' + template.get('elementsdir') + 'dataconversion_fitcovera.xsl ' + self.dir + 'parset.xml > ' + self.dir +  'coa_data.xml'], shell=True)
             proc1.communicate()
@@ -364,7 +364,7 @@ class XmlToFit(object):
                         outfile.write(conv_graph)
                         outfile.close()
                         
-                        
+                        swidthSteps
                         autoset = auto_calc_setup.Autosetup(setupname)
                         newset = autoset.setup({lastpar:[lastvar[lastpar]]})
                         autoset.calculate(newset)
@@ -404,6 +404,81 @@ class XmlToFit(object):
             
             if lastpar == 'rgkmax' and not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+                
+        if autosetup['convmode'] == 'swidthSteps':
+            converged,converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged
+            
+            print lastvar, lastpar
+    
+            if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
+                lastpar = 'ngridk'
+                lastvar['swidth'] = lastvar['swidth']-autosetup['stepsize'][lastpar]
+                
+            elif lastpar == 'ngridk' and not converged:
+                lastvar['par'] = 'ngridk'
+                setCalc.setCalc('ngridk',lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+            elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
+                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+            else:
+                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
+                self.f.write(self.dir + 'auto_conv.xml')
+                
+                if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
+                
+                for index in autosetup['order'].keys():
+                    if autosetup['order'][index] == lastpar and lastpar != 'ngridk':
+                        newind = str(int(index) + 1)
+                        
+                        break
+                    elif autosetup['order'][index] == lastpar and lastpar == 'ngridk':
+                        newind = str(int(index) - 1)
+                        break
+                    elif converged_all and lastpar == 'ngridk':
+                        try:
+                            os.mkdir(self.dir + 'converged')
+                        except:
+                            print "Could not create directory 'converged'. Maybe already existing!"
+                        val = eval(self.f.find("CONVERGED").get('val'))
+                        print val
+                        lastvar['ngridk'] = lastvar['ngridk'][-1]
+                        lastvar['swidth'] = lastvar['swidth'][-1]
+                        lastvar['rgkmax'] = val['rgkmax'][-1]
+                        lastpar = 'rgkmax'
+                        
+                        
+                        f = etree.parse(self.dir + 'eos_data.xml')
+                        root = f.getroot()
+                        graphs = f.getiterator('graph')
+                        for graph in graphs:
+                            eos_conv = graph
+                        
+                        #write converged eos results to: ~converged/eos.xml
+                        outfile = open(self.dir + 'converged/' + 'eos.xml', 'w')
+                        conv_graph = etree.tostring(eos_conv)
+                        outfile.write(conv_graph)
+                        outfile.close()
+                        
+                        
+                        autoset = auto_calc_setup.Autosetup(setupname)
+                        newset = autoset.setup({lastpar:[lastvar[lastpar]]})
+                        autoset.calculate(newset)
+                        
+                        
+                        etree.SubElement(self.root, 'DONE')
+                        self.f.write(self.dir + 'auto_conv.xml')
+                        
+                        return
+                lastpar = autosetup['order'][newind]
+                #lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
+                if lastpar == 'swidth':
+                    lastvar['swidth'] = [float(lastvar['swidth'][-1]) - float(autosetup['stepsize']['swidth'])]
+                    setCalc.setCalc('ngridk',lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
+                    
+                elif lastpar == 'ngridk':
+                    setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).oneD(3)
+                else:
+                    setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
+                    
                 
                 
     def setCalc(self,lastpar,lastvar,autosetup,setupname):
