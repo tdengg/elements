@@ -97,6 +97,7 @@ class CALC(object):
         f.write(paramset)
         f.close()
         # write constant calculation parameters to xml file:
+        setup['time'] = str(time.time())
         const_param = """
         <calc>
             <calchome path='%(calchome)s'/>
@@ -107,6 +108,7 @@ class CALC(object):
             <mode mod='%(mod)s'/>
             <autoconv_root root = ''/>
             <setupname sun = '%(setupname)s'/>
+            <start_time time = '%(time)s'/>
         </calc>
         """ %setup
         if not os.path.exists('./const_parameters.xml'):
@@ -185,7 +187,7 @@ class CALC(object):
         if setup['calculate'] == 'True':
             
             if exec_template == 'loadleveler.xsl':
-                clusterpath = '/calc/tde/auto/Mg/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
+                clusterpath = '/calc/tde/auto/CdS_wurtzite/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
                 
                 execute = open(setup['calchome'] + 'lljob_tree','w')
                 execute.write(exec_out)
@@ -202,10 +204,17 @@ class CALC(object):
                 print "submitted lljob to cluster"
                 
                 while 1:
-                    proc7 = subprocess.Popen(["ssh g40cluster 'llq -u tde'"], shell=True, stdout=subprocess.PIPE)
+                    proc7 = subprocess.Popen(["ssh g40cluster 'llq -l'"], shell=True, stdout=subprocess.PIPE)
                     status = proc7.communicate()[0]
-                    print status
-                    if status.startswith('llq:'): break
+                    #proc7 = subprocess.Popen(["ssh g40cluster 'llq | grep -c step_id'"], shell=True)
+                    #status = proc7.communicate()[0]
+                    s = []
+                    for line in status.split(): 
+                        if line.find(setup['calchome']): s.append(1)
+                        
+                    if len(s) == 0: break
+                            
+                            
                     time.sleep(10)
                 print 'No more calculations in queue.'
                 #try:

@@ -86,6 +86,8 @@
 
 					<groundstate mixer="msec">
 					<xsl:if test="@gmaxvr"><xsl:attribute name="gmaxvr"><xsl:value-of select="@gmaxvr" /></xsl:attribute></xsl:if>
+					<xsl:if test="@maxscl"><xsl:attribute name="maxscl"><xsl:value-of select="@maxscl" /></xsl:attribute></xsl:if>
+					<xsl:if test="@epsengy"><xsl:attribute name="epsengy"><xsl:value-of select="@epsengy" /></xsl:attribute></xsl:if>
 						<xsl:attribute name="swidth"><xsl:value-of
 							select="@swidth" /></xsl:attribute>
 						<xsl:attribute name="ngridk"><xsl:value-of

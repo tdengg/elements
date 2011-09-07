@@ -13,6 +13,7 @@ import subprocess
 import os
 import re
 import sys
+import time
 from copy import deepcopy
 try:
     import matplotlib.pyplot as plt
@@ -82,6 +83,7 @@ class XmlToFit(object):
         mode = f.getroot().find('mode').get('mod')
         self.calchome = f.getroot().find('calchome').get('path')
         setupname = f.getroot().find('setupname').get('sun')
+        start_time = f.getroot().find('start_time').get('time')
         
         #Remove aborted calculations to be recalculated:
         try:
@@ -206,7 +208,7 @@ class XmlToFit(object):
             graphs = root.getiterator('graph')
             for graph in graphs:
                 if self.fit_OK[k]:
-                    #node = etree.SubElement(graph,'eos')
+                    
                     graph.attrib['bulk_mod'] = str(self.b0_eos[k])
                     graph.attrib['equi_volume'] = str(self.vol0_eos[k])
                     graph.attrib['d_bulk_mod'] = str(self.db0_eos[k])
@@ -223,7 +225,7 @@ class XmlToFit(object):
             if mpl:
                 plt.plot(param2['toten'], np.arange(len(param2['toten'])))
                 plt.savefig(self.calchome + 'conv.png')
-                #plt.show()
+                
             else:
                 print param2['toten']
                 temp = open(self.calchome + 'temp','w')
@@ -232,8 +234,7 @@ class XmlToFit(object):
                     temp.writelines((str(par), ' ', str(energy[0]), '\n'))
                     par = par+1
                 temp.close()
-                #proc = subprocess.Popen(['xmgrace ' + self.calchome + 'temp'], shell=True)
-                #proc.communicate()
+                
         else:
             conv = convert_latt_vol.Convert(self.structure)
             param2 = self.birch()
@@ -245,7 +246,7 @@ class XmlToFit(object):
                     self.fiteos(l, v, param2['toten'][self.n],setup['param']['covera']['coverazero'],'hcp' ,self.species)
                 else:
                     self.fiteos(l, v, param2['toten'][self.n],[1], self.structure,self.species)
-                #self.write_eos()
+                
                 self.n=self.n+1
             self.write_eos()
         
@@ -286,7 +287,7 @@ class XmlToFit(object):
         j=0
         
         for graph in graphs:
-            
+            print len(self.fit_OK),j,i
             if self.fit_OK[j]:
                 graph.set('energy',str(self.emin_eos[i]))
                 graph.set('B',str(self.b0_eos[i]))
@@ -316,6 +317,7 @@ class XmlToFit(object):
         if autosetup['convmode'] == 'swidth+ngridk':
             converged,converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged
             
+            
             print lastvar, lastpar
     
             if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
@@ -326,7 +328,7 @@ class XmlToFit(object):
             elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
             else:
-                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
+                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar),'time':str(time.time())-start_time})
                 self.f.write(self.dir + 'auto_conv.xml')
                 
                 if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
@@ -375,7 +377,7 @@ class XmlToFit(object):
                         
                         return
                 lastpar = autosetup['order'][newind]
-                #lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
+                
                 if lastpar == 'swidth':
                     #initial values of parameters for swidht convergence:
                     try: 
@@ -407,12 +409,13 @@ class XmlToFit(object):
                 
         if autosetup['convmode'] == 'swidthSteps':
             converged,converged_all = analyze_conv.ANALYZE(self.dir, lastpar).converged
-            
+            if float(autosetup['stepsize']['swidth']) == 0.0 and lastpar != 'rgkmax': converged = converged_all
             print lastvar, lastpar
     
             if lastpar == 'swidth' and not converged and float(lastvar[lastpar][-1]) >= float(autosetup['end'][lastpar])-float(autosetup['end'][lastpar])*0.01:
                 lastpar = 'ngridk'
                 lastvar['swidth'] = lastvar['swidth']-autosetup['stepsize'][lastpar]
+                setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
                 
             elif lastpar == 'ngridk' and not converged:
                 lastvar['par'] = 'ngridk'
@@ -420,9 +423,9 @@ class XmlToFit(object):
             elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
             else:
-                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar)})
+                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar),'time':str(float(time.time())-float(start_time))})
                 self.f.write(self.dir + 'auto_conv.xml')
-                
+                print converged,converged_all
                 if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
                 
                 for index in autosetup['order'].keys():
@@ -452,22 +455,21 @@ class XmlToFit(object):
                         for graph in graphs:
                             eos_conv = graph
                         
-                        #write converged eos results to: ~converged/eos.xml
+                        #write converged eos results to: ~/converged/eos.xml
                         outfile = open(self.dir + 'converged/' + 'eos.xml', 'w')
                         conv_graph = etree.tostring(eos_conv)
                         outfile.write(conv_graph)
                         outfile.close()
                         
-                        
-                        autoset = auto_calc_setup.Autosetup(setupname)
-                        newset = autoset.setup({lastpar:[lastvar[lastpar]]})
-                        autoset.calculate(newset)
-                        
-                        
                         etree.SubElement(self.root, 'DONE')
                         self.f.write(self.dir + 'auto_conv.xml')
                         
+                        #autoset = auto_calc_setup.Autosetup(setupname)
+                        #newset = autoset.setup({lastpar:[lastvar[lastpar]]})
+                        #autoset.calculate(newset)
+            
                         return
+                    
                 lastpar = autosetup['order'][newind]
                 #lastvar[lastpar] = [autosetup['start'][str(lastpar)]]
                 if lastpar == 'swidth':

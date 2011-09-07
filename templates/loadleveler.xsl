@@ -25,9 +25,9 @@
 <!--                                                               -->
 <!-- set the initial working directory and a string specifier here -->
 <!--       															-->
-<xsl:variable name="clusterpath">/calc/tde/auto/Mg/</xsl:variable>                                                 -->
+<xsl:variable name="clusterpath">/calc/tde/auto/CdS_wurtzite/</xsl:variable>                                                 -->
 <xsl:for-each select = "/experiment/set">
-  # @ job_name  = <xsl:value-of select="@path"/>
+# @ job_name  = <xsl:value-of select="@path"/>
   <!-- Define path here -->
   <xsl:variable name="path">
   <!-- Resolve by ID number -->
@@ -76,6 +76,12 @@
 # @ error = J.err
 # @ resources = ConsumableCpus(1)
 # @ queue
+
+# Print out LOADLEVER info about the job:
+printf "LOADL_STEP_ID = %s\n"  $LOADL_STEP_ID
+printf "LOADL_STEP_OWNER = %s\n" $LOADL_STEP_OWNER
+printf "LOADL_STEP_COMMAND = %s\n" $LOADL_STEP_COMMAND
+printf "LOADL_STEP_CLASS = %s\n"  $LOADL_STEP_CLASS
 </xsl:for-each>
 
 ### end job steps ##############################################################

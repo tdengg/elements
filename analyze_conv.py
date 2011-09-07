@@ -106,8 +106,46 @@ class ANALYZE(object):
         logfile.close()
         
         self.converged = converged,converged_all
+    
+    def deltas_swidth(self, convpar): 
+        param = []
+        value = []
+        converged_all = True
+        delta = {}
         
+        f = etree.parse(self.currdir + 'auto_conv.xml')
+        root = f.getroot()
+        tags = f.getiterator('CONVERGED')
         
+        conv_all = {'B':[],'V':[],'err':[],'energy':[]}
+        
+        i=0
+        for tag in tags:
+            if i >= ( len(tags) - 3 ) and tag.get('par') == 'ngridk':
+                try:
+                    for key in conv_all.keys():
+                        conv_all[key].append(float(tag.get(key)))
+
+                except:
+                    print 'Bad fit'
+                    converged = False
+                    converged_all = False
+                    self.converged = converged,converged_all
+                    return
+                param.append((tag.get('par')))
+                
+                i=i+1
+            elif tag.get('par') == 'ngridk':
+                i=i+1
+                
+        for var in conv_all.keys():
+            d = [abs(conv_all[var][2]-conv_all[var][0]),abs(conv_all[var][2]-conv_all[var][1]),abs(conv_all[var][1]-conv_all[var][0])]
+            delta['d%s'%var]= max(d)
+            #print max(d)
+            max_delta = setup['err'][var]
+            if delta['d%s'%var] > max_delta: converged_all = False
+            
+        return converged_all
     def status(self):
         if self.ok:
             return True
