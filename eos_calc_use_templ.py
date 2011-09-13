@@ -208,14 +208,15 @@ class CALC(object):
                     status = proc7.communicate()[0]
                     #proc7 = subprocess.Popen(["ssh g40cluster 'llq | grep -c step_id'"], shell=True)
                     #status = proc7.communicate()[0]
+                    
                     s = []
                     for line in status.split(): 
-                        if line.find(setup['calchome']): s.append(1)
-                        
+                        if line.find(setup['calchome']) != -1: s.append(1)
+                    
                     if len(s) == 0: break
                             
                             
-                    time.sleep(10)
+                    time.sleep(30)
                 print 'No more calculations in queue.'
                 #try:
                 #    os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')

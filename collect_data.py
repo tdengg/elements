@@ -328,7 +328,7 @@ class XmlToFit(object):
             elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
             else:
-                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar),'time':str(time.time())-start_time})
+                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar),'time':str(time.time())-start_time,'energy':str(self.emin_eos[-1]),'B':str(self.b0_eos[-1]),'V':str(self.vol0_eos[-1]),'err':str(self.res_eos[-1])})
                 self.f.write(self.dir + 'auto_conv.xml')
                 
                 if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
@@ -423,7 +423,7 @@ class XmlToFit(object):
             elif not converged and float(lastvar[lastpar][-1]) < float(autosetup['end'][lastpar]):
                 setCalc.setCalc(lastpar,lastvar,autosetup,setupname,self.f,self.root,self.dir).zeroD()
             else:
-                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar),'time':str(float(time.time())-float(start_time))})
+                etree.SubElement(self.root, 'CONVERGED',attrib={'par':lastpar,'val':str(lastvar),'time':str(float(time.time())-float(start_time)),'energy':str(self.emin_eos[-1]),'B':str(self.b0_eos[-1]),'V':str(self.vol0_eos[-1]),'err':str(self.res_eos[-1])})
                 self.f.write(self.dir + 'auto_conv.xml')
                 print converged,converged_all
                 if type(lastvar[lastpar]) == list: lastvar[lastpar] = [lastvar[lastpar][-1]]
