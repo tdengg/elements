@@ -187,7 +187,7 @@ class CALC(object):
         if setup['calculate'] == 'True':
             
             if exec_template == 'loadleveler.xsl':
-                clusterpath = '/calc/tde/auto/CdS_wurtzite/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
+                clusterpath = '/calc/tde/auto/AlP_wurtzite/' #EDIT CALCULATION PATH ON CLUSTER!!! (TODO)
                 
                 execute = open(setup['calchome'] + 'lljob_tree','w')
                 execute.write(exec_out)
@@ -206,18 +206,19 @@ class CALC(object):
                 while 1:
                     proc7 = subprocess.Popen(["ssh g40cluster 'llq -l'"], shell=True, stdout=subprocess.PIPE)
                     status = proc7.communicate()[0]
+                    
                     #proc7 = subprocess.Popen(["ssh g40cluster 'llq | grep -c step_id'"], shell=True)
                     #status = proc7.communicate()[0]
                     
                     s = []
                     for line in status.split(): 
-                        if line.find(setup['calchome']) != -1: s.append(1)
-                    
+                        if line.find(clusterpath) != -1: s.append(1)
+                        
                     if len(s) == 0: break
                             
                             
                     time.sleep(30)
-                print 'No more calculations in queue.'
+                print 'Calculations finished.'
                 #try:
                 #    os.rename(setup['calchome'] + 'lljob_tree',setup['calchome'] + 'lljob_tree_prev')
                 ##    print 'Moving old lljob.'
