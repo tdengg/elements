@@ -203,21 +203,23 @@ class XmlToFit(object):
                 k=k+1
                 print "\n#################################################################\n"
             k=0
+            i=0
             f = etree.parse(self.dir + 'eos_data.xml')
             root = f.getroot()
             graphs = root.getiterator('graph')
             for graph in graphs:
                 if self.fit_OK[k]:
                     
-                    graph.attrib['bulk_mod'] = str(self.b0_eos[k])
-                    graph.attrib['equi_volume'] = str(self.vol0_eos[k])
-                    graph.attrib['d_bulk_mod'] = str(self.db0_eos[k])
-                    graph.attrib['min_energy'] = str(self.emin_eos[k])
+                    graph.attrib['bulk_mod'] = str(self.b0_eos[i])
+                    graph.attrib['equi_volume'] = str(self.vol0_eos[i])
+                    graph.attrib['d_bulk_mod'] = str(self.db0_eos[i])
+                    graph.attrib['min_energy'] = str(self.emin_eos[i])
                     if self.structure in ['hcp','hex','wurtzite']:
-                        graph.attrib['equi_coa'] = str(self.coa_eos[k])
-                    graph.attrib['equi_a'] = str(self.a_eos[k])
+                        graph.attrib['equi_coa'] = str(self.coa_eos[i])
+                    graph.attrib['equi_a'] = str(self.a_eos[i])
                     graph.attrib['param'] = str()
                     etree.ElementTree(root).write(self.dir + 'eos_data.xml')
+                    i+=1
                 k=k+1
                     
         elif mode == 'simple_conv':
