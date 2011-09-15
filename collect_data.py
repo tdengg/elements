@@ -104,7 +104,7 @@ class XmlToFit(object):
         #search for calculations and create filelist
         search_dir.SearchDir(['info.xml'], self.dir, True).search()
         
-        s = open(setupname)
+        s = open(setupname, 'r')
         sustr= s.read()
         setup = eval(sustr)
         
