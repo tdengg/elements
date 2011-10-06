@@ -197,7 +197,7 @@ class XmlToFit(object):
                 
                 self.fiteos(scalecoa, volumecovera, self.totencoamin[self.n],self.coveramin[self.n], self.structure,self.species)
 
-                debugout.write('B0'+str(self.b0_eos[self.n]) + '\n')
+                #debugout.write('B0'+str(self.b0_eos[self.n]) + '\n')
                 print self.b0_eos
                 self.n+=1
                 k=k+1

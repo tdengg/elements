@@ -18,8 +18,12 @@ def calculate(dir):
         if os.path.exists(calchome +  'parset_%s.xml'%str(i)):
             n=i
             continue
-        else: break
-    curr_calc = 'parset_%s.xml'%str(n)
+        else:
+            break
+    try:
+        curr_calc = 'parset_%s.xml'%str(n)
+    except:
+        curr_calc = 'parset_0.xml'
     
     
     proc2 = subprocess.Popen(['xsltproc ' + template + 'input_' + structure + '.xsl ' + calchome + curr_calc], shell=True)
